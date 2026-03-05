@@ -11,22 +11,40 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await api.post("/auth/login", {
+  try {
+    const response = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
         email,
-        password,
-      });
+        password
+      })
+    });
 
-      localStorage.setItem("token", res.data.token);
-      alert("Login Successful 🚀");
-      navigate("/dashboard");
-    } catch (error) {
-      alert("Invalid Credentials ❌");
-      console.log(error);
-    }
-  };
+    const data = await response.json();
+
+    if (response.ok) {
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
+
+  if (data.user.role === "admin") {
+    navigate("/admin-dashboard");
+  } else if (data.user.role === "mentor") {
+    navigate("/mentor-dashboard");
+  } else if (data.user.role === "hod") {
+    navigate("/hod-dashboard");
+  } else {
+    navigate("/student-dashboard");
+  }
+}
+  } catch (error) {
+    console.error("Login error:", error);
+  }
+};
 
   return (
     <div
