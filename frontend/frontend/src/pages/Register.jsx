@@ -9,9 +9,13 @@ function Register() {
 
   const [formData, setFormData] = useState({
     name: "",
+    registerNumber:"",
     email: "",
     password: "",
+    role:"",
     department: "",
+
+    
   });
 
   const handleChange = (e) => {
@@ -58,6 +62,14 @@ function Register() {
             required
             className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500"
           />
+          <input
+            type="int"
+            name="registerNumber"
+            placeholder="RegisterNumber"
+            onChange={handleChange}
+            required
+            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500"
+          />
 
           <input
             type="email"
@@ -76,6 +88,20 @@ function Register() {
             required
             className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500"
           />
+          <select
+            name="role"
+            onChange={handleChange}
+            required
+            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500"
+            >
+
+          <option value="">Select Role</option>
+          <option value="student">Student</option>
+          <option value="mentor">Mentor</option>
+          <option value="hod">HOD</option>
+          <option value="admin">Admin</option>
+
+         </select>
 
           <input
             type="text"
@@ -85,6 +111,10 @@ function Register() {
             required
             className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500"
           />
+          
+          
+
+
 
           <button
             type="submit"
