@@ -3,6 +3,12 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
+const authRoutes = require("./routes/authRoutes");
+const studentRoutes = require("./routes/studentRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const mentorRoutes = require("./routes/mentorRoutes");
+const hodRoutes = require("./routes/hodRoutes");
+
 dotenv.config();
 connectDB();
 
@@ -11,14 +17,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", require("./routes/authRoutes"));
-
-app.use("/api/student", require("./routes/studentRoutes"));
-
-app.use("/api/admin", require("./routes/adminRoutes"));
-
-app.use("/api/mentor", require("./routes/mentorRoutes"));
-app.use("/api/hod", require("./routes/hodRoutes"));
+app.use("/api/auth", authRoutes);
+app.use("/api/student", studentRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/mentor", mentorRoutes);
+app.use("/api/hod", hodRoutes);
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
 
 app.get("/", (req, res) => {
   res.send("Placement Backend Running 🚀");

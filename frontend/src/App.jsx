@@ -11,13 +11,14 @@ import Certificates from "./pages/student/Certificates";
 import Resume from "./pages/student/Resume";
 import Cgpa from "./pages/student/Cgpa";
 
-
+    
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/mentor-dashboard" element={<MentorDashboard />} />
         <Route path="/hod-dashboard" element={<HodDashboard />} />

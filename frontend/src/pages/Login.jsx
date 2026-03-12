@@ -10,64 +10,95 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
- const handleLogin = async (e) => {
-  e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  try {
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/login",
-      {
-        email,
-        password,
+    if (loading) return;
+
+    setLoading(true);
+
+    try {
+
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email,
+          password
+        }
+      );
+
+      console.log("LOGIN RESPONSE:", response.data);
+
+      const token = response.data?.token;
+      const role = response.data?.user?.role;
+
+      if (!token) {
+        alert("Login failed: token missing");
+        return;
       }
-    );
 
-    console.log(response.data);
+      // Save token
+      localStorage.setItem("token", token);
 
-    const role = response.data.user.role.toLowerCase();
+      console.log("ROLE:", role);
 
-    if (role === "student") {
-      navigate("/student-dashboard");
-    } 
-    else if (role === "mentor") {
-      navigate("/mentor-dashboard");
-    } 
-    else if (role === "hod") {
-      navigate("/hod-dashboard");
-    } 
-    else if (role === "admin") {
-      navigate("/admin-dashboard");
+      // Redirect based on role
+      switch (role) {
+
+        case "student":
+          navigate("/student/profile");
+          break;
+
+        case "mentor":
+          navigate("/mentor-dashboard");
+          break;
+
+        case "hod":
+          navigate("/hod-dashboard");
+          break;
+
+        case "admin":
+          navigate("/admin-dashboard");
+          break;
+
+        default:
+          navigate("/student/profile");
+      }
+
+    } catch (error) {
+
+      console.error("Login error:", error);
+
+      if (error.response) {
+        alert(error.response.data?.message || "Invalid credentials");
+      } else {
+        alert("Server error. Please try again.");
+      }
+
+    } finally {
+      setLoading(false);
     }
-
-  } catch (error) {
-    console.error(error);
-    alert("Login failed");
-  }
-};
+  };
 
   return (
     <div
       className="min-h-screen flex items-center justify-center relative bg-cover bg-center"
       style={{ backgroundImage: `url(${collegeBg})` }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60"></div>
 
-      {/* Login Card */}
       <div className="relative z-10 w-full max-w-md bg-white/95 rounded-2xl shadow-2xl p-8 border-t-8 border-orange-500">
 
-        {/* Logo */}
         <div className="flex justify-center mb-4">
           <img src={logo} alt="Logo" className="h-16" />
         </div>
 
-        {/* Title */}
         <h2 className="text-3xl font-bold text-center text-orange-600 mb-6">
           Placement Portal
         </h2>
 
-        {/* Form */}
         <form onSubmit={handleLogin} className="space-y-5">
 
           <input
@@ -90,14 +121,14 @@ function Login() {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-orange-500 text-white p-3 rounded-xl hover:bg-orange-600 transition font-semibold"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
         </form>
 
-        {/* Register link */}
         <p className="text-center text-sm mt-6">
           New user?{" "}
           <Link
