@@ -1,57 +1,104 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import StudentLayout from "../../components/StudentLayout";
 
 function Certificates() {
-  const [certificates, setCertificates] = useState([
-    {
-      name: "NPTEL Java",
-      link: "https://drive.google.com/example1",
-      status: "Approved",
-    },
-    {
-      name: "Hackathon Participation",
-      link: "https://drive.google.com/example2",
-      status: "Pending",
-    },
-  ]);
+
+  const [certificates, setCertificates] = useState([]);
 
   const [certificateName, setCertificateName] = useState("");
   const [driveLink, setDriveLink] = useState("");
 
-  const handleAddCertificate = () => {
-    if (!certificateName || !driveLink) return;
+  // Load certificates from backend
+  useEffect(() => {
 
-    const newCertificate = {
-      name: certificateName,
-      link: driveLink,
-      status: "Pending",
+    const fetchCertificates = async () => {
+
+      try {
+
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "http://localhost:5000/api/certificates",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        setCertificates(res.data);
+
+      } catch (error) {
+        console.error(error);
+      }
+
     };
 
-    setCertificates([...certificates, newCertificate]);
+    fetchCertificates();
 
-    setCertificateName("");
-    setDriveLink("");
+  }, []);
+
+  // Add certificate
+  const handleAddCertificate = async () => {
+
+    if (!certificateName || !driveLink) return;
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      const res = await axios.post(
+        "http://localhost:5000/api/certificates",
+        {
+          name: certificateName,
+          link: driveLink
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setCertificates([...certificates, res.data]);
+
+      setCertificateName("");
+      setDriveLink("");
+
+    } catch (error) {
+      console.error(error);
+    }
+
   };
 
   const getStatusColor = (status) => {
+
     if (status === "Approved") return "text-green-600";
     if (status === "Pending") return "text-yellow-600";
     if (status === "Rejected") return "text-red-600";
+
   };
 
   return (
+
     <StudentLayout>
+
       <h2 className="text-2xl font-bold text-orange-600 mb-6">
         Certificates 📜
       </h2>
 
-      {/* Add Certificate Section */}
+
+      {/* Add Certificate */}
+
       <div className="bg-white p-6 rounded-xl shadow mb-8">
+
         <h3 className="font-semibold mb-4 text-lg">
           Add Certificate (Google Drive Link)
         </h3>
 
         <div className="grid md:grid-cols-2 gap-4">
+
           <input
             type="text"
             placeholder="Certificate Name"
@@ -67,6 +114,7 @@ function Certificates() {
             onChange={(e) => setDriveLink(e.target.value)}
             className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
           />
+
         </div>
 
         <button
@@ -75,15 +123,20 @@ function Certificates() {
         >
           Add Certificate
         </button>
+
       </div>
 
+
       {/* Certificates Table */}
+
       <div className="bg-white p-6 rounded-xl shadow">
+
         <h3 className="font-semibold mb-4 text-lg">
           Uploaded Certificates
         </h3>
 
         <table className="w-full text-left">
+
           <thead>
             <tr className="border-b">
               <th className="p-3">Certificate</th>
@@ -93,10 +146,15 @@ function Certificates() {
           </thead>
 
           <tbody>
+
             {certificates.map((cert, index) => (
+
               <tr key={index} className="border-b">
+
                 <td className="p-3">{cert.name}</td>
+
                 <td className="p-3">
+
                   <a
                     href={cert.link}
                     target="_blank"
@@ -105,17 +163,27 @@ function Certificates() {
                   >
                     View
                   </a>
+
                 </td>
+
                 <td className={`p-3 font-semibold ${getStatusColor(cert.status)}`}>
                   {cert.status}
                 </td>
+
               </tr>
+
             ))}
+
           </tbody>
+
         </table>
+
       </div>
+
     </StudentLayout>
+
   );
+
 }
 
 export default Certificates;

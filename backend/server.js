@@ -8,6 +8,8 @@ const studentRoutes = require("./routes/studentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const mentorRoutes = require("./routes/mentorRoutes");
 const hodRoutes = require("./routes/hodRoutes");
+const certificateRoutes = require("./routes/certificateRoutes");
+const cgpaRoutes = require("./routes/cgpaRoutes");
 
 dotenv.config();
 connectDB();
@@ -19,9 +21,12 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/certificates", certificateRoutes);
+app.use("/api/cgpa", cgpaRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/mentor", mentorRoutes);
 app.use("/api/hod", hodRoutes);
+
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();

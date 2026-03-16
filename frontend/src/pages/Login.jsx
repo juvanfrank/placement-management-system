@@ -1,23 +1,17 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/logo.png";
 import collegeBg from "../assets/college.jpg";
 
 function Login() {
 
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
+
     e.preventDefault();
-
-    if (loading) return;
-
-    setLoading(true);
 
     try {
 
@@ -31,62 +25,44 @@ function Login() {
 
       console.log("LOGIN RESPONSE:", response.data);
 
-      const token = response.data?.token;
-      const role = response.data?.user?.role;
+      const token = response.data.token;
+      const role = response.data.user.role;
 
-      if (!token) {
-        alert("Login failed: token missing");
-        return;
-      }
-
-      // Save token
+      // save token
       localStorage.setItem("token", token);
 
       console.log("ROLE:", role);
 
-      // Redirect based on role
-      switch (role) {
-
-        case "student":
-          navigate("/student/profile");
-          break;
-
-        case "mentor":
-          navigate("/mentor-dashboard");
-          break;
-
-        case "hod":
-          navigate("/hod-dashboard");
-          break;
-
-        case "admin":
-          navigate("/admin-dashboard");
-          break;
-
-        default:
-          navigate("/student/profile");
+      // redirect based on role
+      if (role === "student") {
+        window.location.replace("/student/profile");
+      }
+      else if (role === "mentor") {
+        window.location.replace("/mentor-dashboard");
+      }
+      else if (role === "hod") {
+        window.location.replace("/hod-dashboard");
+      }
+      else if (role === "admin") {
+        window.location.replace("/admin-dashboard");
       }
 
     } catch (error) {
 
-      console.error("Login error:", error);
+      console.error(error);
+      alert("Login failed");
 
-      if (error.response) {
-        alert(error.response.data?.message || "Invalid credentials");
-      } else {
-        alert("Server error. Please try again.");
-      }
-
-    } finally {
-      setLoading(false);
     }
+
   };
 
   return (
+
     <div
       className="min-h-screen flex items-center justify-center relative bg-cover bg-center"
       style={{ backgroundImage: `url(${collegeBg})` }}
     >
+
       <div className="absolute inset-0 bg-black/60"></div>
 
       <div className="relative z-10 w-full max-w-md bg-white/95 rounded-2xl shadow-2xl p-8 border-t-8 border-orange-500">
@@ -121,10 +97,9 @@ function Login() {
 
           <button
             type="submit"
-            disabled={loading}
             className="w-full bg-orange-500 text-white p-3 rounded-xl hover:bg-orange-600 transition font-semibold"
           >
-            {loading ? "Logging in..." : "Login"}
+            Login
           </button>
 
         </form>
@@ -140,8 +115,11 @@ function Login() {
         </p>
 
       </div>
+
     </div>
+
   );
+
 }
 
 export default Login;
