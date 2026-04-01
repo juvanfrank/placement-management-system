@@ -2,49 +2,75 @@ const mongoose = require("mongoose");
 
 const studentProfileSchema = new mongoose.Schema({
 
-userId: {
-type: mongoose.Schema.Types.ObjectId,
-ref: "User",
-required: true
-},
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
 
-// Personal
-name: String,
-dob: String,
-gender: String,
-registerNumber: String,
-rollNumber: String,
-department: String,
-currentYear: String,
-section: String,
-batch: String,
+  // Personal
+  name: String,
+  dob: String,
+  gender: String,
+  registerNumber: String,
+  rollNumber: String,
+  department: String,
+  currentYear: String,
+  section: String,
+  batch: String,
 
-// Contact
-studentPhone: String,
-email: String,
-address: String,
+  // Religion
+  religion: {
+    type: String,
+    enum: ["Hindu", "Muslim", "Christian", "Sikh", "Buddhist", "Jain", "Others"]
+  },
 
-// Academic
-tenthPercentage: String,
-twelfthPercentage: String,
-diplomaPercentage: String,
-currentArrears: String,
-historyOfArrears: String,
+  caste: {
+    type: String,
+    enum: ["General", "OBC", "SC", "ST", "Others"]
+  },
 
-// Professional
-resumeLink: String,
-linkedinLink: String,
-githubLink: String,
-portfolioLink: String,
+  community: {
+    type: String,
+    enum: ["OC", "BC", "MBC", "SC", "ST"]
+  },
 
-// Parent
-fatherName: String,
-motherName: String,
-fatherPhone: String,
-motherPhone: String,
+  // Contact
+  studentPhone: String,
+  email: String,
+  address: String,
 
-// Other
-profilePhoto: String
+  // Academic
+  tenthPercentage: String,
+  twelthPercentage: String,
+  diplomaPercentage: String,
+  currentArrears: String,
+  historyOfArrears: String,
+  cgpa: String,   // ✅ fixed
+
+  // Professional
+  resumeLink: String,
+  linkedinLink: String,
+  githubLink: String,
+  portfolioLink: String,
+
+  skills: [String],
+  internship: [String],   // ✅ added
+
+  placementStatus: {
+    type: String,
+    enum: ["Not Placed", "Placed", "Internship"],
+    default: "Not Placed"
+  },
+
+  // Parent
+  fatherName: String,
+  motherName: String,
+  fatherPhone: String,
+  motherPhone: String,
+
+  // Media
+  profilePhoto: String
 
 }, { timestamps: true });
 

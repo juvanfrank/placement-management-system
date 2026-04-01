@@ -2,172 +2,171 @@ const User = require("../models/User");
 const StudentProfile = require("../models/StudentProfile");
 
 
-// GET student profile
-exports.getProfile = async (req, res) => {
+// ================= GET PROFILE =================
 
-  try {
+exports.getProfile = async (req,res)=>{
 
-    const userId = req.user.id || req.user.userId || req.user._id;
+try{
 
-    const user = await User.findById(userId).select("-password");
+const userId = req.user.id || req.user.userId || req.user._id;
 
-    let profile = await StudentProfile.findOne({ userId });
+const user = await User.findById(userId).select("-password");
 
-    if (!profile) {
-      profile = await StudentProfile.create({ userId });
-    }
+let profile = await StudentProfile.findOne({userId});
 
-    res.status(200).json({
+if(!profile){
+profile = await StudentProfile.create({userId});
+}
 
-      // User fields
-      name: user.name,
-      email: user.email,
-      registerNumber: user.registerNumber,
+res.status(200).json({
 
-      // Personal
-      dob: profile.dob,
-      gender: profile.gender,
-      rollNumber: profile.rollNumber,
-      department: profile.department,
-      currentYear: profile.currentYear,
-      section: profile.section,
-      batch: profile.batch,
+name:user.name,
+email:user.email,
+registerNumber:user.registerNumber,
 
-      // Contact
-      studentPhone: profile.studentPhone,
-      address: profile.address,
+dob:profile.dob,
+gender:profile.gender,
+rollNumber:profile.rollNumber,
+department:profile.department,
+currentYear:profile.currentYear,
+section:profile.section,
+batch:profile.batch,
 
-      // Academic
-      tenthPercentage: profile.tenthPercentage,
-      twelfthPercentage: profile.twelfthPercentage,
-      diplomaPercentage: profile.diplomaPercentage,
-      currentArrears: profile.currentArrears,
-      historyOfArrears: profile.historyOfArrears,
+religion:profile.religion,
+caste:profile.caste,
+community:profile.community,
 
-      // Professional
-      resumeLink: profile.resumeLink,
-      linkedinLink: profile.linkedinLink,
-      githubLink: profile.githubLink,
-      portfolioLink: profile.portfolioLink,
+cgpa:profile.cgpa,
+skills:profile.skills,
+internship:profile.internship,   // ✅ added
+placementStatus:profile.placementStatus,
 
-      // Parent
-      fatherName: profile.fatherName,
-      motherName: profile.motherName,
-      fatherPhone: profile.fatherPhone,
-      motherPhone: profile.motherPhone
+studentPhone:profile.studentPhone,
+address:profile.address,
 
-    });
+tenthPercentage:profile.tenthPercentage,
+twelthPercentage:profile.twelthPercentage,
+diplomaPercentage:profile.diplomaPercentage,
+currentArrears:profile.currentArrears,
+historyOfArrears:profile.historyOfArrears,
 
-  } catch (error) {
+resumeLink:profile.resumeLink,
+linkedinLink:profile.linkedinLink,
+githubLink:profile.githubLink,
+portfolioLink:profile.portfolioLink,
 
-    console.error("GET PROFILE ERROR:", error);
-    res.status(500).json({ message: "Server error" });
+fatherName:profile.fatherName,
+motherName:profile.motherName,
+fatherPhone:profile.fatherPhone,
+motherPhone:profile.motherPhone,
 
-  }
+profilePhoto:profile.profilePhoto
+
+});
+
+}catch(error){
+
+console.error("GET PROFILE ERROR:",error);
+res.status(500).json({message:"Server error"});
+
+}
 
 };
 
 
+// ================= UPDATE PROFILE =================
 
-// UPDATE student profile
-exports.updateProfile = async (req, res) => {
+exports.updateProfile = async (req,res)=>{
 
-  try {
+try{
 
-    const userId = req.user.id || req.user.userId || req.user._id;
+const userId = req.user.id || req.user.userId || req.user._id;
 
-    const {
-      name,
-      email,
-      registerNumber,
+console.log("REQ BODY:", req.body); // ✅ debug
 
-      dob,
-      gender,
-      rollNumber,
-      department,
-      currentYear,
-      section,
-      batch,
+let data = req.body;
 
-      studentPhone,
-      address,
+// convert strings to arrays if needed
+if(typeof data.skills === "string"){
+data.skills = data.skills.split(",").map(s=>s.trim());
+}
 
-      tenthPercentage,
-      twelfthPercentage,
-      diplomaPercentage,
-      currentArrears,
-      historyOfArrears,
+if(typeof data.internship === "string"){
+data.internship = data.internship.split(",").map(s=>s.trim());
+}
 
-      resumeLink,
-      linkedinLink,
-      githubLink,
-      portfolioLink,
+// update user
+await User.findByIdAndUpdate(userId,{
+name:data.name,
+email:data.email,
+registerNumber:data.registerNumber
+});
 
-      fatherName,
-      motherName,
-      fatherPhone,
-      motherPhone
+// update profile
+const profile = await StudentProfile.findOneAndUpdate(
 
-    } = req.body;
+{userId},
 
-    // Update basic user details
-    await User.findByIdAndUpdate(userId, {
-      name,
-      email,
-      registerNumber
-    });
+{
+dob:data.dob,
+gender:data.gender,
+rollNumber:data.rollNumber,
+department:data.department,
+currentYear:data.currentYear,
+section:data.section,
+batch:data.batch,
 
-    // Update student profile
-    const profile = await StudentProfile.findOneAndUpdate(
+religion:data.religion,
+caste:data.caste,
+community:data.community,
 
-      { userId },
+cgpa:data.cgpa,
+skills:data.skills || [],
+internship:data.internship || [],   // ✅ added
 
-      {
-        dob,
-        gender,
-        rollNumber,
-        department,
-        currentYear,
-        section,
-        batch,
+placementStatus:data.placementStatus,
 
-        studentPhone,
-        address,
+studentPhone:data.studentPhone,
+address:data.address,
 
-        tenthPercentage,
-        twelfthPercentage,
-        diplomaPercentage,
-        currentArrears,
-        historyOfArrears,
+tenthPercentage:data.tenthPercentage,
+twelthPercentage:data.twelthPercentage,
+diplomaPercentage:data.diplomaPercentage,
+currentArrears:data.currentArrears,
+historyOfArrears:data.historyOfArrears,
 
-        resumeLink,
-        linkedinLink,
-        githubLink,
-        portfolioLink,
+resumeLink:data.resumeLink,
+linkedinLink:data.linkedinLink,
+githubLink:data.githubLink,
+portfolioLink:data.portfolioLink,
 
-        fatherName,
-        motherName,
-        fatherPhone,
-        motherPhone
-      },
+fatherName:data.fatherName,
+motherName:data.motherName,
+fatherPhone:data.fatherPhone,
+motherPhone:data.motherPhone,
 
-      {
-        new: true,
-        upsert: true
-      }
+profilePhoto:data.profilePhoto
 
-    );
+},
 
-    res.status(200).json({
-      message: "Profile updated successfully",
-      profile
-    });
+{
+returnDocument:"after",   // ✅ fixed
+runValidators:true,
+upsert:true
+}
 
-  } catch (error) {
+);
 
-    console.error("UPDATE PROFILE ERROR:", error);
-    res.status(500).json({ message: "Server error" });
+res.status(200).json({
+message:"Profile updated successfully",
+profile
+});
 
-  }
+}catch(error){
+
+console.error("UPDATE PROFILE ERROR:",error);
+res.status(500).json({message:"Server error"});
+
+}
 
 };
