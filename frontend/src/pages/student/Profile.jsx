@@ -1,212 +1,330 @@
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
+import axios from "axios";
 import StudentLayout from "../../components/StudentLayout";
+
+const API = "http://localhost:5000";
 
 function Profile() {
 
-  const [profilePhoto, setProfilePhoto] = useState(null);
+const [formData,setFormData]=useState({
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    fatherName: "",
-    motherName: "",
-    registerNumber: "",
-    rollNumber: "",
-    department: "",
-    batch: "",
-    dob: "",
-    caste: "",
-    bloodGroup: "",
-    community: "",
-    religion: "",
-    studentPhone: "",
-    parentPhone: "",
-    email: "",
-    address: "",
-  });
+name:"",
+email:"",
+registerNumber:"",
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+dob:"",
+gender:"",
+rollNumber:"",
+department:"",
+currentYear:"",
+section:"",
+batch:"",
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfilePhoto(URL.createObjectURL(file));
-    }
-  };
+religion:"",
+caste:"",
+community:"",
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-    alert("Profile Updated Successfully ✅");
-  };
+studentPhone:"",
+address:"",
 
-  return (
-    <StudentLayout>
+tenthPercentage:"",
+twelthPercentage:"",
+diplomaPercentage:"",
+currentArrears:"",
+historyOfArrears:"",
+cgpa:"",
 
-      {/* Profile Header */}
-      <div className="flex items-center gap-6 mb-6">
+resumeLink:"",
+linkedinLink:"",
+githubLink:"",
+portfolioLink:"",
+skills:"",
+internship:"",   // ✅ added
+placementStatus:"Not Placed",
 
-        <div className="flex flex-col items-center">
+fatherName:"",
+motherName:"",
+fatherPhone:"",
+motherPhone:"",
 
-          <img
-            src={profilePhoto || "https://via.placeholder.com/120"}
-            alt="profile"
-            className="w-28 h-28 rounded-full object-cover border-4 border-orange-500"
-          />
+profilePhoto:""
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            className="mt-2 text-sm"
-          />
+});
 
-        </div>
 
-        <div>
+useEffect(()=>{
 
-  <h2 className="text-2xl font-bold text-orange-600">
-    {formData.fullName || "Student Name"}
-  </h2>
+const fetchProfile=async()=>{
 
-  <p className="text-gray-500">
-    Excel Engineering College
-  </p>
+try{
 
-  <p className="text-gray-600 text-sm mt-1">
-    {formData.department || "Department"} | {formData.batch || "Batch"}
-  </p>
+const token=localStorage.getItem("token");
+
+const res=await axios.get(`${API}/api/student/profile`,{
+headers:{Authorization:`Bearer ${token}`}
+});
+
+let data=res.data||{};
+
+if(data.dob){
+data.dob=data.dob.substring(0,10);
+}
+
+if(Array.isArray(data.skills)){
+data.skills=data.skills.join(",");
+}
+
+if(Array.isArray(data.internship)){
+data.internship=data.internship.join(",");
+}
+
+setFormData(prev=>({
+...prev,
+...data
+}));
+
+}catch(error){
+console.error("Profile fetch error:",error);
+}
+
+};
+
+fetchProfile();
+
+},[]);
+
+
+const handleChange=(e)=>{
+
+const {name,value}=e.target;
+
+setFormData(prev=>({
+...prev,
+[name]:value
+}));
+
+};
+
+
+const handlePhotoUpload=async(e)=>{
+
+const file=e.target.files[0];
+if(!file) return;
+
+try{
+
+const token=localStorage.getItem("token");
+
+const uploadData=new FormData();
+uploadData.append("photo",file);
+
+const res=await axios.post(
+`${API}/api/upload/profile-photo`,
+uploadData,
+{
+headers:{
+Authorization:`Bearer ${token}`,
+"Content-Type":"multipart/form-data"
+}
+}
+);
+
+setFormData(prev=>({
+...prev,
+profilePhoto:res.data.url
+}));
+
+}catch(error){
+console.error("Photo upload error:",error);
+}
+
+};
+
+
+const handleResumeUpload=async(e)=>{
+
+const file=e.target.files[0];
+if(!file) return;
+
+try{
+
+const token=localStorage.getItem("token");
+
+const uploadData=new FormData();
+uploadData.append("resume",file);
+
+const res=await axios.post(
+`${API}/api/upload/resume`,
+uploadData,
+{
+headers:{
+Authorization:`Bearer ${token}`,
+"Content-Type":"multipart/form-data"
+}
+}
+);
+
+setFormData(prev=>({
+...prev,
+resumeLink:res.data.url
+}));
+
+}catch(error){
+console.error("Resume upload error:",error);
+}
+
+};
+
+
+const handleSubmit=async(e)=>{
+
+e.preventDefault();
+
+try{
+
+const token=localStorage.getItem("token");
+
+const submitData={
+...formData,
+skills: formData.skills
+? formData.skills.split(",").map(s=>s.trim())
+: [],
+internship: formData.internship
+? formData.internship.split(",").map(s=>s.trim())
+: []
+};
+
+await axios.put(
+`${API}/api/student/profile`,
+submitData,
+{
+headers:{Authorization:`Bearer ${token}`}
+}
+);
+
+alert("Profile updated successfully");
+
+}catch(error){
+
+console.error("Update error:",error);
+alert("Profile update failed");
+
+}
+
+};
+
+
+return(
+
+<StudentLayout>
+
+<div className="bg-white shadow-lg rounded-xl p-8 mt-8 max-h-[85vh] overflow-y-auto">
+
+<h2 className="text-xl font-bold text-orange-600 mb-6">
+Student Profile
+</h2>
+
+<form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+
+{/* PROFILE PHOTO */}
+
+<div className="col-span-2 flex items-center gap-6">
+
+<img
+src={formData.profilePhoto || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+alt="profile"
+className="w-24 h-24 rounded-full object-cover"
+/>
+
+<div>
+<label className="font-semibold">Upload Profile Photo</label>
+<input type="file" accept="image/*" onChange={handlePhotoUpload} className="border p-2"/>
+</div>
 
 </div>
 
-      </div>
+{/* PERSONAL */}
 
-      <h2 className="text-2xl font-bold text-orange-600 mb-6">
-        Student Profile 
-      </h2>
+<label className="font-semibold col-span-2">Personal Details</label>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow space-y-8"
-      >
+<input name="name" placeholder="Full Name" value={formData.name||""} onChange={handleChange} className="border p-2"/>
+<input type="date" name="dob" value={formData.dob||""} onChange={handleChange} className="border p-2"/>
+<input name="gender" placeholder="Gender" value={formData.gender||""} onChange={handleChange} className="border p-2"/>
+<input name="registerNumber" placeholder="Register Number" value={formData.registerNumber||""} onChange={handleChange} className="border p-2"/>
 
-        {/* Personal Details */}
-        <div>
-          <h3 className="text-lg font-semibold text-orange-600 mb-4">
-            Personal Details
-          </h3>
+<input name="rollNumber" placeholder="Roll Number" value={formData.rollNumber||""} onChange={handleChange} className="border p-2"/>
+<input name="department" placeholder="Department" value={formData.department||""} onChange={handleChange} className="border p-2"/>
+<input name="currentYear" placeholder="Current Year" value={formData.currentYear||""} onChange={handleChange} className="border p-2"/>
+<input name="section" placeholder="Section" value={formData.section||""} onChange={handleChange} className="border p-2"/>
+<input name="batch" placeholder="Batch" value={formData.batch||""} onChange={handleChange} className="border p-2"/>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Input label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} />
-            <Input label="Date of Birth" name="dob" type="date" value={formData.dob} onChange={handleChange} />
-            <Input label="Blood Group" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} />
-            <Input label="Community" name="community" value={formData.community} onChange={handleChange} />
-            <Input label="Religion" name="religion" value={formData.religion} onChange={handleChange} />
-            <Input label="Caste" name="caste" value={formData.caste} onChange={handleChange} />
-          </div>
-        </div>
+{/* CONTACT */}
 
-        {/* Academic Details */}
-        <div>
-          <h3 className="text-lg font-semibold text-orange-600 mb-4">
-            Academic Details
-          </h3>
+<label className="font-semibold col-span-2">Contact Details</label>
 
-          <div className="grid md:grid-cols-2 gap-6">
+<input name="studentPhone" placeholder="Student Phone" value={formData.studentPhone||""} onChange={handleChange} className="border p-2"/>
+<input name="email" placeholder="Email" value={formData.email||""} onChange={handleChange} className="border p-2"/>
+<textarea name="address" placeholder="Address" value={formData.address||""} onChange={handleChange} className="border p-2 col-span-2"/>
 
-            <Input label="Register Number" name="registerNumber" value={formData.registerNumber} onChange={handleChange} />
+{/* ACADEMIC */}
 
-            <Input label="Roll Number" name="rollNumber" value={formData.rollNumber} onChange={handleChange} />
+<label className="font-semibold col-span-2">Academic Details</label>
 
-            <Input label="Department" name="department" value={formData.department} onChange={handleChange} />
+<input name="tenthPercentage" placeholder="10th %" value={formData.tenthPercentage||""} onChange={handleChange} className="border p-2"/>
+<input name="twelthPercentage" placeholder="12th %" value={formData.twelthPercentage||""} onChange={handleChange} className="border p-2"/>
+<input name="diplomaPercentage" placeholder="Diploma %" value={formData.diplomaPercentage||""} onChange={handleChange} className="border p-2"/>
+<input name="currentArrears" placeholder="Current Arrears" value={formData.currentArrears||""} onChange={handleChange} className="border p-2"/>
+<input name="historyOfArrears" placeholder="History Of Arrears" value={formData.historyOfArrears||""} onChange={handleChange} className="border p-2"/>
+<input name="cgpa" placeholder="CGPA" value={formData.cgpa||""} onChange={handleChange} className="border p-2"/>
 
-            <Input label="Batch (Example: 2022-2026)" name="batch" value={formData.batch} onChange={handleChange} />
+{/* PROFESSIONAL */}
 
-            <Input label="Email ID" name="email" type="email" value={formData.email} onChange={handleChange} />
+<label className="font-semibold col-span-2">Professional</label>
 
-          </div>
-        </div>
+<div className="col-span-2">
+<label>Upload Resume</label>
+<input type="file" accept="application/pdf" onChange={handleResumeUpload}/>
+{formData.resumeLink && <a href={formData.resumeLink} target="_blank">View Resume</a>}
+</div>
 
-        {/* Parent Details */}
-        <div>
-          <h3 className="text-lg font-semibold text-orange-600 mb-4">
-            Parent Details
-          </h3>
+<input name="linkedinLink" placeholder="LinkedIn" value={formData.linkedinLink||""} onChange={handleChange} className="border p-2"/>
+<input name="githubLink" placeholder="GitHub" value={formData.githubLink||""} onChange={handleChange} className="border p-2"/>
+<input name="portfolioLink" placeholder="Portfolio" value={formData.portfolioLink||""} onChange={handleChange} className="border p-2"/>
+<input name="skills" placeholder="Skills" value={formData.skills||""} onChange={handleChange} className="border p-2"/>
+<input name="internship" placeholder="Internship" value={formData.internship||""} onChange={handleChange} className="border p-2"/>
 
-          <div className="grid md:grid-cols-2 gap-6">
+{/* PARENT */}
 
-            <Input label="Father Name" name="fatherName" value={formData.fatherName} onChange={handleChange} />
+<label className="font-semibold col-span-2">Parent Details</label>
 
-            <Input label="Mother Name" name="motherName" value={formData.motherName} onChange={handleChange} />
+<input name="fatherName" placeholder="Father Name" value={formData.fatherName||""} onChange={handleChange} className="border p-2"/>
+<input name="motherName" placeholder="Mother Name" value={formData.motherName||""} onChange={handleChange} className="border p-2"/>
+<input name="fatherPhone" placeholder="Father Phone" value={formData.fatherPhone||""} onChange={handleChange} className="border p-2"/>
+<input name="motherPhone" placeholder="Mother Phone" value={formData.motherPhone||""} onChange={handleChange} className="border p-2"/>
 
-            <Input label="Parent Contact Number" name="parentPhone" value={formData.parentPhone} onChange={handleChange} />
+{/* PLACEMENT */}
 
-          </div>
-        </div>
+<label className="font-semibold col-span-2">Placement</label>
 
-        {/* Contact Details */}
-        <div>
-          <h3 className="text-lg font-semibold text-orange-600 mb-4">
-            Contact Details
-          </h3>
+<select name="placementStatus" value={formData.placementStatus||""} onChange={handleChange} className="border p-2">
+<option value="Not Placed">Not Placed</option>
+<option value="Placed">Placed</option>
+<option value="Internship">Internship</option>
+</select>
 
-          <div className="grid md:grid-cols-2 gap-6">
+<button className="bg-orange-600 text-white py-3 rounded col-span-2 hover:bg-orange-700">
+Update Profile
+</button>
 
-            <Input label="Student Contact Number" name="studentPhone" value={formData.studentPhone} onChange={handleChange} />
+</form>
 
-          </div>
+</div>
 
-          <div className="mt-4">
-            <label className="block text-gray-600 mb-1">
-              Address
-            </label>
+</StudentLayout>
 
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              rows="3"
-              className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-          </div>
+);
 
-        </div>
-
-        <button
-          type="submit"
-          className="bg-orange-600 text-white px-8 py-2 rounded hover:bg-orange-700"
-        >
-          Update Profile
-        </button>
-
-      </form>
-
-    </StudentLayout>
-  );
-}
-
-
-/* Reusable Input Component */
-function Input({ label, name, value, onChange, type = "text" }) {
-  return (
-    <div>
-      <label className="block text-gray-600 mb-1">
-        {label}
-      </label>
-
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
-      />
-    </div>
-  );
 }
 
 export default Profile;
