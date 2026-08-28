@@ -1,172 +1,325 @@
 const User = require("../models/User");
 const StudentProfile = require("../models/StudentProfile");
 
+// ==================================================
+// LOCAL FILE URL HELPER
+// ==================================================
 
-// ================= GET PROFILE =================
+const getLocalFileUrl = (filePath) => {
+  if (!filePath) {
+    return "";
+  }
 
-exports.getProfile = async (req,res)=>{
+  // If already a complete URL, return it as it is
+  if (
+    filePath.startsWith("http://") ||
+    filePath.startsWith("https://")
+  ) {
+    return filePath;
+  }
 
-try{
-
-const userId = req.user.id || req.user.userId || req.user._id;
-
-const user = await User.findById(userId).select("-password");
-
-let profile = await StudentProfile.findOne({userId});
-
-if(!profile){
-profile = await StudentProfile.create({userId});
-}
-
-res.status(200).json({
-
-name:user.name,
-email:user.email,
-registerNumber:user.registerNumber,
-
-dob:profile.dob,
-gender:profile.gender,
-rollNumber:profile.rollNumber,
-department:profile.department,
-currentYear:profile.currentYear,
-section:profile.section,
-batch:profile.batch,
-
-religion:profile.religion,
-caste:profile.caste,
-community:profile.community,
-
-cgpa:profile.cgpa,
-skills:profile.skills,
-internship:profile.internship,   // ✅ added
-placementStatus:profile.placementStatus,
-
-studentPhone:profile.studentPhone,
-address:profile.address,
-
-tenthPercentage:profile.tenthPercentage,
-twelthPercentage:profile.twelthPercentage,
-diplomaPercentage:profile.diplomaPercentage,
-currentArrears:profile.currentArrears,
-historyOfArrears:profile.historyOfArrears,
-
-resumeLink:profile.resumeLink,
-linkedinLink:profile.linkedinLink,
-githubLink:profile.githubLink,
-portfolioLink:profile.portfolioLink,
-
-fatherName:profile.fatherName,
-motherName:profile.motherName,
-fatherPhone:profile.fatherPhone,
-motherPhone:profile.motherPhone,
-
-profilePhoto:profile.profilePhoto
-
-});
-
-}catch(error){
-
-console.error("GET PROFILE ERROR:",error);
-res.status(500).json({message:"Server error"});
-
-}
-
+  // Convert local relative path to backend URL
+  return `http://localhost:${process.env.PORT || 5000}${filePath}`;
 };
 
+// ==================================================
+// GET PROFILE
+// ==================================================
 
-// ================= UPDATE PROFILE =================
+exports.getProfile = async (req, res) => {
+  try {
+    const userId =
+      req.user.id ||
+      req.user.userId ||
+      req.user._id;
 
-exports.updateProfile = async (req,res)=>{
+    // Get user information
+    const user = await User.findById(userId)
+      .select("-password");
 
-try{
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
 
-const userId = req.user.id || req.user.userId || req.user._id;
+    // Get student profile
+    let profile = await StudentProfile.findOne({
+      userId,
+    });
 
-console.log("REQ BODY:", req.body); // ✅ debug
+    // Create profile if it doesn't exist
+    if (!profile) {
+      profile = await StudentProfile.create({
+        userId,
+      });
+    }
 
-let data = req.body;
+    // ==================================================
+    // SEND PROFILE
+    // ==================================================
 
-// convert strings to arrays if needed
-if(typeof data.skills === "string"){
-data.skills = data.skills.split(",").map(s=>s.trim());
-}
+    res.status(200).json({
+      name: user.name,
+      email: user.email,
+      registerNumber: user.registerNumber,
 
-if(typeof data.internship === "string"){
-data.internship = data.internship.split(",").map(s=>s.trim());
-}
+      // Personal
+      dob: profile.dob,
+      gender: profile.gender,
+      rollNumber: profile.rollNumber,
+      department: profile.department,
+      currentYear: profile.currentYear,
+      section: profile.section,
+      batch: profile.batch,
 
-// update user
-await User.findByIdAndUpdate(userId,{
-name:data.name,
-email:data.email,
-registerNumber:data.registerNumber
-});
+      religion: profile.religion,
+      caste: profile.caste,
+      community: profile.community,
 
-// update profile
-const profile = await StudentProfile.findOneAndUpdate(
+      // Academic
+      cgpa: profile.cgpa,
+      skills: profile.skills,
+      internship: profile.internship,
+      placementStatus: profile.placementStatus,
 
-{userId},
+      studentPhone: profile.studentPhone,
+      address: profile.address,
 
-{
-dob:data.dob,
-gender:data.gender,
-rollNumber:data.rollNumber,
-department:data.department,
-currentYear:data.currentYear,
-section:data.section,
-batch:data.batch,
+      tenthPercentage:
+        profile.tenthPercentage,
 
-religion:data.religion,
-caste:data.caste,
-community:data.community,
+      twelthPercentage:
+        profile.twelthPercentage,
 
-cgpa:data.cgpa,
-skills:data.skills || [],
-internship:data.internship || [],   // ✅ added
+      diplomaPercentage:
+        profile.diplomaPercentage,
 
-placementStatus:data.placementStatus,
+      currentArrears:
+        profile.currentArrears,
 
-studentPhone:data.studentPhone,
-address:data.address,
+      historyOfArrears:
+        profile.historyOfArrears,
 
-tenthPercentage:data.tenthPercentage,
-twelthPercentage:data.twelthPercentage,
-diplomaPercentage:data.diplomaPercentage,
-currentArrears:data.currentArrears,
-historyOfArrears:data.historyOfArrears,
+      // Professional
+      resumeLink:
+        getLocalFileUrl(
+          profile.resumeLink
+        ),
 
-resumeLink:data.resumeLink,
-linkedinLink:data.linkedinLink,
-githubLink:data.githubLink,
-portfolioLink:data.portfolioLink,
+      linkedinLink:
+        profile.linkedinLink,
 
-fatherName:data.fatherName,
-motherName:data.motherName,
-fatherPhone:data.fatherPhone,
-motherPhone:data.motherPhone,
+      githubLink:
+        profile.githubLink,
 
-profilePhoto:data.profilePhoto
+      portfolioLink:
+        profile.portfolioLink,
 
-},
+      // Parent
+      fatherName:
+        profile.fatherName,
 
-{
-returnDocument:"after",   // ✅ fixed
-runValidators:true,
-upsert:true
-}
+      motherName:
+        profile.motherName,
 
-);
+      fatherPhone:
+        profile.fatherPhone,
 
-res.status(200).json({
-message:"Profile updated successfully",
-profile
-});
+      motherPhone:
+        profile.motherPhone,
 
-}catch(error){
+      // Local profile photo
+      profilePhoto:
+        getLocalFileUrl(
+          profile.profilePhoto
+        ),
+    });
 
-console.error("UPDATE PROFILE ERROR:",error);
-res.status(500).json({message:"Server error"});
+  } catch (error) {
+    console.error(
+      "GET PROFILE ERROR:",
+      error
+    );
 
-}
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
 
+// ==================================================
+// UPDATE PROFILE
+// ==================================================
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId =
+      req.user.id ||
+      req.user.userId ||
+      req.user._id;
+
+    console.log(
+      "REQ BODY:",
+      req.body
+    );
+
+    let data = req.body;
+
+    // ==================================================
+    // CONVERT SKILLS TO ARRAY
+    // ==================================================
+
+    if (typeof data.skills === "string") {
+      data.skills = data.skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
+    // ==================================================
+    // CONVERT INTERNSHIP TO ARRAY
+    // ==================================================
+
+    if (
+      typeof data.internship === "string"
+    ) {
+      data.internship = data.internship
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
+    // ==================================================
+    // UPDATE USER
+    // ==================================================
+
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        name: data.name,
+        email: data.email,
+        registerNumber:
+          data.registerNumber,
+      },
+      {
+        runValidators: true,
+      }
+    );
+
+    // ==================================================
+    // UPDATE STUDENT PROFILE
+    // ==================================================
+
+    const profile =
+      await StudentProfile.findOneAndUpdate(
+        { userId },
+
+        {
+          // Personal
+          dob: data.dob,
+          gender: data.gender,
+          rollNumber: data.rollNumber,
+          department: data.department,
+          currentYear: data.currentYear,
+          section: data.section,
+          batch: data.batch,
+
+          religion: data.religion,
+          caste: data.caste,
+          community: data.community,
+
+          // Academic
+          cgpa: data.cgpa,
+
+          skills:
+            data.skills || [],
+
+          internship:
+            data.internship || [],
+
+          placementStatus:
+            data.placementStatus,
+
+          studentPhone:
+            data.studentPhone,
+
+          address:
+            data.address,
+
+          tenthPercentage:
+            data.tenthPercentage,
+
+          twelthPercentage:
+            data.twelthPercentage,
+
+          diplomaPercentage:
+            data.diplomaPercentage,
+
+          currentArrears:
+            data.currentArrears,
+
+          historyOfArrears:
+            data.historyOfArrears,
+
+          // Professional
+          resumeLink:
+            data.resumeLink,
+
+          linkedinLink:
+            data.linkedinLink,
+
+          githubLink:
+            data.githubLink,
+
+          portfolioLink:
+            data.portfolioLink,
+
+          // Parent
+          fatherName:
+            data.fatherName,
+
+          motherName:
+            data.motherName,
+
+          fatherPhone:
+            data.fatherPhone,
+
+          motherPhone:
+            data.motherPhone,
+
+          // Profile photo
+          profilePhoto:
+            data.profilePhoto,
+        },
+
+        {
+          returnDocument: "after",
+          runValidators: true,
+          upsert: true,
+        }
+      );
+
+    // ==================================================
+    // RESPONSE
+    // ==================================================
+
+    res.status(200).json({
+      message:
+        "Profile updated successfully",
+
+      profile,
+    });
+
+  } catch (error) {
+    console.error(
+      "UPDATE PROFILE ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
 };

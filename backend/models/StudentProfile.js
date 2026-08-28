@@ -1,77 +1,250 @@
 const mongoose = require("mongoose");
 
-const studentProfileSchema = new mongoose.Schema({
+const studentProfileSchema = new mongoose.Schema(
+  {
+    // ==================================================
+    // USER
+    // ==================================================
 
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+
+    // ==================================================
+    // PERSONAL
+    // ==================================================
+
+    name: {
+      type: String,
+      default: ""
+    },
+
+    dob: {
+      type: String,
+      default: ""
+    },
+
+    gender: {
+      type: String,
+      default: ""
+    },
+
+    registerNumber: {
+      type: String,
+      default: ""
+    },
+
+    rollNumber: {
+      type: String,
+      default: ""
+    },
+
+    department: {
+      type: String,
+      default: ""
+    },
+
+    currentYear: {
+      type: String,
+      default: ""
+    },
+
+    section: {
+      type: String,
+      default: ""
+    },
+
+    batch: {
+      type: String,
+      default: ""
+    },
+
+    // ==================================================
+    // RELIGION / COMMUNITY
+    // ==================================================
+
+    religion: {
+      type: String,
+      enum: [
+        "",
+        "Hindu",
+        "Muslim",
+        "Christian",
+        "Sikh",
+        "Buddhist",
+        "Jain",
+        "Others"
+      ],
+      default: ""
+    },
+
+    caste: {
+      type: String,
+      enum: [
+        "",
+        "General",
+        "OBC",
+        "SC",
+        "ST",
+        "Others"
+      ],
+      default: ""
+    },
+
+    community: {
+      type: String,
+      enum: [
+        "",
+        "OC",
+        "BC",
+        "MBC",
+        "SC",
+        "ST"
+      ],
+      default: ""
+    },
+
+    // ==================================================
+    // CONTACT
+    // ==================================================
+
+    studentPhone: {
+      type: String,
+      default: ""
+    },
+
+    email: {
+      type: String,
+      default: ""
+    },
+
+    address: {
+      type: String,
+      default: ""
+    },
+
+    // ==================================================
+    // ACADEMIC
+    // ==================================================
+
+    tenthPercentage: {
+      type: String,
+      default: ""
+    },
+
+    twelthPercentage: {
+      type: String,
+      default: ""
+    },
+
+    diplomaPercentage: {
+      type: String,
+      default: ""
+    },
+
+    currentArrears: {
+      type: String,
+      default: ""
+    },
+
+    historyOfArrears: {
+      type: String,
+      default: ""
+    },
+
+    cgpa: {
+      type: String,
+      default: ""
+    },
+
+    // ==================================================
+    // PROFESSIONAL
+    // ==================================================
+
+    resumeLink: {
+      type: String,
+      default: ""
+    },
+
+    linkedinLink: {
+      type: String,
+      default: ""
+    },
+
+    githubLink: {
+      type: String,
+      default: ""
+    },
+
+    portfolioLink: {
+      type: String,
+      default: ""
+    },
+
+    skills: {
+      type: [String],
+      default: []
+    },
+
+    internship: {
+      type: [String],
+      default: []
+    },
+
+    placementStatus: {
+      type: String,
+
+      enum: [
+        "Not Placed",
+        "Placed",
+        "Internship"
+      ],
+
+      default: "Not Placed"
+    },
+
+    // ==================================================
+    // PARENT DETAILS
+    // ==================================================
+
+    fatherName: {
+      type: String,
+      default: ""
+    },
+
+    motherName: {
+      type: String,
+      default: ""
+    },
+
+    fatherPhone: {
+      type: String,
+      default: ""
+    },
+
+    motherPhone: {
+      type: String,
+      default: ""
+    },
+
+    // ==================================================
+    // MEDIA
+    // ==================================================
+
+    profilePhoto: {
+      type: String,
+      default: ""
+    }
   },
 
-  // Personal
-  name: String,
-  dob: String,
-  gender: String,
-  registerNumber: String,
-  rollNumber: String,
-  department: String,
-  currentYear: String,
-  section: String,
-  batch: String,
+  {
+    timestamps: true
+  }
+);
 
-  // Religion
-  religion: {
-    type: String,
-    enum: ["Hindu", "Muslim", "Christian", "Sikh", "Buddhist", "Jain", "Others"]
-  },
-
-  caste: {
-    type: String,
-    enum: ["General", "OBC", "SC", "ST", "Others"]
-  },
-
-  community: {
-    type: String,
-    enum: ["OC", "BC", "MBC", "SC", "ST"]
-  },
-
-  // Contact
-  studentPhone: String,
-  email: String,
-  address: String,
-
-  // Academic
-  tenthPercentage: String,
-  twelthPercentage: String,
-  diplomaPercentage: String,
-  currentArrears: String,
-  historyOfArrears: String,
-  cgpa: String,   // ✅ fixed
-
-  // Professional
-  resumeLink: String,
-  linkedinLink: String,
-  githubLink: String,
-  portfolioLink: String,
-
-  skills: [String],
-  internship: [String],   // ✅ added
-
-  placementStatus: {
-    type: String,
-    enum: ["Not Placed", "Placed", "Internship"],
-    default: "Not Placed"
-  },
-
-  // Parent
-  fatherName: String,
-  motherName: String,
-  fatherPhone: String,
-  motherPhone: String,
-
-  // Media
-  profilePhoto: String
-
-}, { timestamps: true });
-
-module.exports = mongoose.model("StudentProfile", studentProfileSchema);
+module.exports = mongoose.model(
+  "StudentProfile",
+  studentProfileSchema
+);

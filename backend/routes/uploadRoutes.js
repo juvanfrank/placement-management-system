@@ -1,50 +1,430 @@
 const express = require("express");
 const router = express.Router();
+
 const multer = require("multer");
-const streamifier = require("streamifier");
-const cloudinary = require("../config/cloudinary");
+const path = require("path");
+const fs = require("fs");
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const StudentProfile = require("../models/StudentProfile");
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.post("/profile-photo", upload.single("photo"), async (req, res) => {
+// ==================================================
+// UPLOAD DIRECTORIES
+// ==================================================
 
-try {
-
-const streamUpload = (req) => {
-return new Promise((resolve, reject) => {
-
-const stream = cloudinary.uploader.upload_stream(
-{ folder: "profile_photos" },
-(error, result) => {
-if (result) resolve(result);
-else reject(error);
-}
+const profilePhotoDir = path.join(
+  __dirname,
+  "../uploads/profile-photos"
 );
 
-streamifier.createReadStream(req.file.buffer).pipe(stream);
+const resumeDir = path.join(
+  __dirname,
+  "../uploads/resumes"
+);
 
-});
-};
-
-const result = await streamUpload(req);
-
-res.json({
-url: result.secure_url
-});
-
-} catch (error) {
-
-  console.error("CLOUDINARY ERROR:", error);
-
-  res.status(500).json({
-    error: "Upload failed",
-    message: error.message,
-    stack: error.stack
+if (!fs.existsSync(profilePhotoDir)) {
+  fs.mkdirSync(profilePhotoDir, {
+    recursive: true
   });
-
 }
 
+if (!fs.existsSync(resumeDir)) {
+  fs.mkdirSync(resumeDir, {
+    recursive: true
+  });
+}
+
+// ==================================================
+// PROFILE PHOTO STORAGE
+// ==================================================
+
+const profilePhotoStorage = multer.diskStorage({
+
+  destination: (req, file, cb) => {
+    cb(null, profilePhotoDir);
+  },
+
+  filename: (req, file, cb) => {
+
+    const extension = path.extname(file.originalname);
+
+    const fileName =
+      "profile-" +
+      Date.now() +
+      "-" +
+      Math.round(Math.random() * 1e9) +
+      extension;
+
+    cb(null, fileName);
+  }
+
 });
+
+// ==================================================
+// RESUME STORAGE
+// ==================================================
+
+const resumeStorage = multer.diskStorage({
+
+  destination: (req, file, cb) => {
+    cb(null, resumeDir);
+  },
+
+  filename: (req, file, cb) => {
+
+    const extension = path.extname(file.originalname);
+
+    const fileName =
+      "resume-" +
+      Date.now() +
+      "-" +
+      Math.round(Math.random() * 1e9) +
+      extension;
+
+    cb(null, fileName);
+  }
+
+});
+
+// ==================================================
+// PROFILE PHOTO UPLOAD
+// ==================================================
+
+const profilePhotoUpload = multer({
+
+  storage: profilePhotoStorage,
+
+  fileFilter: (req, file, cb) => {
+
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Only image files are allowed"
+        )
+      );
+    }
+
+  },
+
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  }
+
+});
+
+// ==================================================
+// RESUME UPLOAD
+// ==================================================
+
+const resumeUpload = multer({
+
+  storage: resumeStorage,
+
+  fileFilter: (req, file, cb) => {
+
+    if (file.mimetype === "application/pdf") {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Only PDF files are allowed"
+        )
+      );
+    }
+
+  },
+
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  }
+
+});
+
+// ==================================================
+// PROFILE PHOTO ROUTE
+// ==================================================
+
+router.post(
+  "/profile-photo",
+
+  // JWT authentication
+  authMiddleware,
+
+  // Upload file
+  profilePhotoUpload.single("photo"),
+
+  async (req, res) => {
+
+    try {
+
+      // Check uploaded file
+      if (!req.file) {
+
+        return res.status(400).json({
+          error: "No photo uploaded"
+        });
+
+      }
+
+      // ==================================================
+      // GET USER ID FROM JWT
+      // ==================================================
+
+      const userId =
+        req.user.id ||
+        req.user.userId ||
+        req.user._id;
+
+      if (!userId) {
+
+        return res.status(401).json({
+          error: "User ID not found in token"
+        });
+
+      }
+
+      // ==================================================
+      // LOCAL FILE URL
+      // ==================================================
+
+      const fileUrl =
+        `http://localhost:${process.env.PORT || 5000}` +
+        `/uploads/profile-photos/${req.file.filename}`;
+
+      console.log(
+        "Profile photo saved:",
+        req.file.path
+      );
+
+      console.log(
+        "User ID:",
+        userId
+      );
+
+      console.log(
+        "Profile photo URL:",
+        fileUrl
+      );
+
+      // ==================================================
+      // SAVE URL INTO MONGODB
+      // ==================================================
+
+      await StudentProfile.findOneAndUpdate(
+
+        { userId: userId },
+
+        {
+          profilePhoto: fileUrl
+        },
+
+        {
+          new: true,
+          upsert: true,
+          runValidators: true
+        }
+
+      );
+
+      console.log(
+        "Profile photo saved to MongoDB"
+      );
+
+      // ==================================================
+      // RESPONSE
+      // ==================================================
+
+      return res.status(200).json({
+
+        message:
+          "Profile photo uploaded successfully",
+
+        url: fileUrl
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "PROFILE PHOTO UPLOAD ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+
+        error:
+          "Profile photo upload failed",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+  }
+);
+
+// ==================================================
+// RESUME ROUTE
+// ==================================================
+
+router.post(
+  "/resume",
+
+  // JWT authentication
+  authMiddleware,
+
+  // Upload file
+  resumeUpload.single("resume"),
+
+  async (req, res) => {
+
+    try {
+
+      // Check uploaded file
+      if (!req.file) {
+
+        return res.status(400).json({
+          error: "No resume uploaded"
+        });
+
+      }
+
+      // ==================================================
+      // GET USER ID
+      // ==================================================
+
+      const userId =
+        req.user.id ||
+        req.user.userId ||
+        req.user._id;
+
+      if (!userId) {
+
+        return res.status(401).json({
+          error: "User ID not found in token"
+        });
+
+      }
+
+      // ==================================================
+      // LOCAL RESUME URL
+      // ==================================================
+
+      const fileUrl =
+        `http://localhost:${process.env.PORT || 5000}` +
+        `/uploads/resumes/${req.file.filename}`;
+
+      console.log(
+        "Resume saved:",
+        req.file.path
+      );
+
+      console.log(
+        "Resume URL:",
+        fileUrl
+      );
+
+      // ==================================================
+      // SAVE RESUME URL INTO MONGODB
+      // ==================================================
+
+      await StudentProfile.findOneAndUpdate(
+
+        { userId: userId },
+
+        {
+          resumeLink: fileUrl
+        },
+
+        {
+          new: true,
+          upsert: true,
+          runValidators: true
+        }
+
+      );
+
+      console.log(
+        "Resume saved to MongoDB"
+      );
+
+      // ==================================================
+      // RESPONSE
+      // ==================================================
+
+      return res.status(200).json({
+
+        message:
+          "Resume uploaded successfully",
+
+        url: fileUrl
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "RESUME UPLOAD ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+
+        error:
+          "Resume upload failed",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+  }
+);
+
+// ==================================================
+// MULTER ERROR HANDLER
+// ==================================================
+
+router.use(
+  (error, req, res, next) => {
+
+    if (error instanceof multer.MulterError) {
+
+      return res.status(400).json({
+
+        error:
+          "File upload error",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+    if (error) {
+
+      return res.status(400).json({
+
+        error:
+          "File upload error",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+    next();
+
+  }
+);
 
 module.exports = router;
