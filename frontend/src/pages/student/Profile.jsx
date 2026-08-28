@@ -227,23 +227,62 @@ Student Profile
 
 <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
 
-{/* PROFILE PHOTO */}
+{/* PROFILE HEADER */}
 
-<div className="col-span-2 flex items-center gap-6">
+<div className="col-span-2 flex items-center gap-8 bg-gray-50 p-6 rounded-xl shadow-sm">
 
-<img
-src={formData.profilePhoto || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
-alt="profile"
-className="w-24 h-24 rounded-full object-cover"
-/>
+  {/* PROFILE IMAGE */}
+  <div className="flex flex-col items-center">
 
-<div>
-<label className="font-semibold">Upload Profile Photo</label>
-<input type="file" accept="image/*" onChange={handlePhotoUpload} className="border p-2"/>
+    <img
+      src={
+        formData.profilePhoto ||
+        "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+      }
+      alt="profile"
+      className="w-32 h-32 rounded-full object-cover border-4 border-orange-400"
+    />
+
+    {/* UPLOAD BOX */}
+  <label>
+
+    <p className="text-orange-600 font-semibold">
+      Click to Upload Photo
+    </p>
+
+    <p className="text-sm text-gray-500">
+      JPG, PNG supported
+    </p>
+
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handlePhotoUpload}
+      className="hidden"
+    />
+
+  </label>
+
+  </div>
+
+  {/* STUDENT DETAILS */}
+  <div>
+
+    <h2 className="text-2xl font-bold text-orange-600">
+      {formData.name || "Student Name"}
+    </h2>
+
+    <p className="text-gray-600">
+      Excel Engineering College
+    </p>
+
+    <p className="text-gray-500">
+      {formData.department || "Department"} | {formData.batch || "Batch"}
+    </p>
+
+  </div>
+
 </div>
-
-</div>
-
 {/* PERSONAL */}
 
 <label className="font-semibold col-span-2">Personal Details</label>
