@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentDashboard from "./pages/StudentDashboard";
-import MentorDashboard from "./pages/MentorDashBoard";
+import MentorDashboard from "./pages/mentor/Profile";
 import HodDashboard from "./pages/HodDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -11,6 +11,12 @@ import Certificates from "./pages/student/Certificates";
 import Resume from "./pages/student/Resume";
 import Cgpa from "./pages/student/Cgpa";
 
+
+import MentorProfile from "./pages/mentor/Profile";
+import Students from "./pages/mentor/Students";
+import MentorCertificates from "./pages/mentor/Certificates";
+import MentorCgpa from "./pages/mentor/Cgpa";
+import StudentDetails from "./pages/mentor/StudentDetails";
     
 
 function App() {
@@ -28,6 +34,11 @@ function App() {
         <Route path="/student/certificates" element={<Certificates />} />
         <Route path="/student/resume" element={<Resume />} />
         <Route path="/student/cgpa" element={<Cgpa />} />
+        <Route path="/mentor/profile" element={<MentorProfile />} />
+<Route path="/mentor/students" element={<Students />} />
+<Route path="/mentor/certificates" element={<MentorCertificates />} />
+<Route path="/mentor/cgpa" element={<MentorCgpa />} />
+<Route path="/mentor/student/:roll" element={<StudentDetails />} />
       </Routes>
     </Router>
   );
