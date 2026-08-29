@@ -33,7 +33,10 @@ exports.getProfile = async (req, res) => {
       req.user.userId ||
       req.user._id;
 
-    // Get user information
+    // ==================================================
+    // GET USER INFORMATION
+    // ==================================================
+
     const user = await User.findById(userId)
       .select("-password");
 
@@ -43,7 +46,10 @@ exports.getProfile = async (req, res) => {
       });
     }
 
-    // Get student profile
+    // ==================================================
+    // GET STUDENT PROFILE
+    // ==================================================
+
     let profile = await StudentProfile.findOne({
       userId,
     });
@@ -60,15 +66,26 @@ exports.getProfile = async (req, res) => {
     // ==================================================
 
     res.status(200).json({
+      // ==================================================
+      // USER DETAILS
+      // These come from User collection
+      // ==================================================
+
       name: user.name,
       email: user.email,
       registerNumber: user.registerNumber,
 
-      // Personal
+      // IMPORTANT:
+      // Department comes from registration/User
+      department: user.department || "",
+
+      // ==================================================
+      // PERSONAL
+      // ==================================================
+
       dob: profile.dob,
       gender: profile.gender,
       rollNumber: profile.rollNumber,
-      department: profile.department,
       currentYear: profile.currentYear,
       section: profile.section,
       batch: profile.batch,
@@ -77,14 +94,32 @@ exports.getProfile = async (req, res) => {
       caste: profile.caste,
       community: profile.community,
 
-      // Academic
-      cgpa: profile.cgpa,
-      skills: profile.skills,
-      internship: profile.internship,
-      placementStatus: profile.placementStatus,
+      // ==================================================
+      // ACADEMIC
+      // ==================================================
 
-      studentPhone: profile.studentPhone,
-      address: profile.address,
+      cgpa: profile.cgpa,
+
+      skills: profile.skills,
+
+      internship: profile.internship,
+
+      placementStatus:
+        profile.placementStatus,
+
+      // ==================================================
+      // CONTACT
+      // ==================================================
+
+      studentPhone:
+        profile.studentPhone,
+
+      address:
+        profile.address,
+
+      // ==================================================
+      // ACADEMIC DETAILS
+      // ==================================================
 
       tenthPercentage:
         profile.tenthPercentage,
@@ -101,7 +136,10 @@ exports.getProfile = async (req, res) => {
       historyOfArrears:
         profile.historyOfArrears,
 
-      // Professional
+      // ==================================================
+      // PROFESSIONAL
+      // ==================================================
+
       resumeLink:
         getLocalFileUrl(
           profile.resumeLink
@@ -116,7 +154,10 @@ exports.getProfile = async (req, res) => {
       portfolioLink:
         profile.portfolioLink,
 
-      // Parent
+      // ==================================================
+      // PARENT DETAILS
+      // ==================================================
+
       fatherName:
         profile.fatherName,
 
@@ -129,7 +170,10 @@ exports.getProfile = async (req, res) => {
       motherPhone:
         profile.motherPhone,
 
-      // Local profile photo
+      // ==================================================
+      // LOCAL PROFILE PHOTO
+      // ==================================================
+
       profilePhoto:
         getLocalFileUrl(
           profile.profilePhoto
@@ -194,6 +238,12 @@ exports.updateProfile = async (req, res) => {
     // UPDATE USER
     // ==================================================
 
+    // IMPORTANT:
+    // Department is NOT updated here.
+    //
+    // Department is controlled by registration
+    // and stored in the User collection.
+
     await User.findByIdAndUpdate(
       userId,
       {
@@ -216,21 +266,46 @@ exports.updateProfile = async (req, res) => {
         { userId },
 
         {
-          // Personal
-          dob: data.dob,
-          gender: data.gender,
-          rollNumber: data.rollNumber,
-          department: data.department,
-          currentYear: data.currentYear,
-          section: data.section,
-          batch: data.batch,
+          // ==================================================
+          // PERSONAL
+          // ==================================================
 
-          religion: data.religion,
-          caste: data.caste,
-          community: data.community,
+          dob:
+            data.dob,
 
-          // Academic
-          cgpa: data.cgpa,
+          gender:
+            data.gender,
+
+          rollNumber:
+            data.rollNumber,
+
+          // DO NOT SAVE DEPARTMENT HERE
+          // Department belongs to User.
+
+          currentYear:
+            data.currentYear,
+
+          section:
+            data.section,
+
+          batch:
+            data.batch,
+
+          religion:
+            data.religion,
+
+          caste:
+            data.caste,
+
+          community:
+            data.community,
+
+          // ==================================================
+          // ACADEMIC
+          // ==================================================
+
+          cgpa:
+            data.cgpa,
 
           skills:
             data.skills || [],
@@ -241,11 +316,19 @@ exports.updateProfile = async (req, res) => {
           placementStatus:
             data.placementStatus,
 
+          // ==================================================
+          // CONTACT
+          // ==================================================
+
           studentPhone:
             data.studentPhone,
 
           address:
             data.address,
+
+          // ==================================================
+          // ACADEMIC DETAILS
+          // ==================================================
 
           tenthPercentage:
             data.tenthPercentage,
@@ -262,7 +345,10 @@ exports.updateProfile = async (req, res) => {
           historyOfArrears:
             data.historyOfArrears,
 
-          // Professional
+          // ==================================================
+          // PROFESSIONAL
+          // ==================================================
+
           resumeLink:
             data.resumeLink,
 
@@ -275,7 +361,10 @@ exports.updateProfile = async (req, res) => {
           portfolioLink:
             data.portfolioLink,
 
-          // Parent
+          // ==================================================
+          // PARENT DETAILS
+          // ==================================================
+
           fatherName:
             data.fatherName,
 
@@ -288,7 +377,10 @@ exports.updateProfile = async (req, res) => {
           motherPhone:
             data.motherPhone,
 
-          // Profile photo
+          // ==================================================
+          // PROFILE PHOTO
+          // ==================================================
+
           profilePhoto:
             data.profilePhoto,
         },

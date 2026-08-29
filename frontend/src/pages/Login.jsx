@@ -38,7 +38,7 @@ function Login() {
         window.location.replace("/student/profile");
       }
       else if (role === "mentor") {
-        window.location.replace("/mentor-dashboard");
+        window.location.replace("/mentor/profile");
       }
       else if (role === "hod") {
         window.location.replace("/hod-dashboard");

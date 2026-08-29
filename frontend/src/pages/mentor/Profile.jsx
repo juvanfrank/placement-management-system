@@ -5,212 +5,142 @@ import MentorLayout from "../../components/MentorLayout";
 const API = "http://localhost:5000";
 
 function MentorProfile() {
+  const [data, setData] = useState(null);
+  const [editMode, setEditMode] = useState(false);
 
   // ==================================================
-  // PROFILE PHOTO
+  // FETCH MENTOR PROFILE
   // ==================================================
 
-  const [profilePhoto, setProfilePhoto] = useState("");
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-  // ==================================================
-  // FORM DATA
-  // ==================================================
+      const res = await axios.get(`${API}/api/mentor/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  const [formData, setFormData] = useState({
-
-    name: "",
-    age: "",
-    registerNumber: "",
-    department: "",
-    className: "",
-    section: "",
-    phone: "",
-    email: "",
-    address: "",
-    profilePhoto: ""
-
-  });
-
-  // ==================================================
-  // LOAD PROFILE
-  // ==================================================
+      setData(res.data || {});
+    } catch (error) {
+      console.error("FETCH MENTOR PROFILE ERROR:", error.response || error);
+    }
+  };
 
   useEffect(() => {
-
-    const fetchProfile = async () => {
-
-      try {
-
-        const token =
-          localStorage.getItem("token");
-
-        const res = await axios.get(
-          `${API}/api/mentor/profile`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
-          }
-        );
-
-        const data = res.data || {};
-
-        setFormData(prev => ({
-          ...prev,
-          ...data
-        }));
-
-        setProfilePhoto(
-          data.profilePhoto || ""
-        );
-
-      } catch (error) {
-
-        console.error(
-          "Mentor profile fetch error:",
-          error
-        );
-
-      }
-
-    };
-
     fetchProfile();
-
   }, []);
 
   // ==================================================
-  // HANDLE INPUT
+  // HANDLE CHANGE
   // ==================================================
 
-  const handleChange = (e) => {
-
-    const {
-      name,
-      value
-    } = e.target;
-
-    setFormData(prev => ({
+  const handleChange = (field, value) => {
+    setData((prev) => ({
       ...prev,
-      [name]: value
+      [field]: value,
     }));
-
   };
 
   // ==================================================
-  // PHOTO UPLOAD
+  // PROFILE PHOTO UPLOAD
   // ==================================================
 
-  const handlePhotoChange = async (e) => {
-
-    const file =
-      e.target.files[0];
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
 
     if (!file) return;
 
     try {
+      const token = localStorage.getItem("token");
 
-      const token =
-        localStorage.getItem("token");
-
-      const uploadData =
-        new FormData();
-
-      uploadData.append(
-        "photo",
-        file
-      );
-
-      /*
-       * We use the same local upload
-       * mechanism as Student.
-       */
+      const uploadData = new FormData();
+      uploadData.append("photo", file);
 
       const res = await axios.post(
         `${API}/api/upload/mentor-profile-photo`,
         uploadData,
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
-
-            "Content-Type":
-              "multipart/form-data"
-          }
-        }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
       );
 
-      const photoUrl =
-        res.data.url;
-
-      setProfilePhoto(photoUrl);
-
-      setFormData(prev => ({
+      setData((prev) => ({
         ...prev,
-        profilePhoto: photoUrl
+        profilePhoto: res.data.url,
       }));
 
+      alert("Profile photo uploaded successfully");
     } catch (error) {
-
-      console.error(
-        "Mentor photo upload error:",
-        error
-      );
+      console.error("MENTOR PHOTO UPLOAD ERROR:", error.response || error);
 
       alert(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Photo upload failed"
+          error.response?.data?.error ||
+          "Photo upload failed",
       );
-
     }
-
   };
 
   // ==================================================
-  // SUBMIT PROFILE
+  // SAVE PROFILE
   // ==================================================
 
-  const handleSubmit = async (e) => {
-
-    e.preventDefault();
-
+  const handleUpdate = async () => {
     try {
+      const token = localStorage.getItem("token");
 
-      const token =
-        localStorage.getItem("token");
+      await axios.put(`${API}/api/mentor/profile`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      await axios.put(
-        `${API}/api/mentor/profile`,
-        formData,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`
-          }
-        }
-      );
+      alert("Mentor Profile Updated Successfully");
 
-      alert(
-        "Mentor Profile Updated Successfully"
-      );
+      setEditMode(false);
 
+      // Fetch latest saved data
+      await fetchProfile();
     } catch (error) {
-
-      console.error(
-        "Mentor profile update error:",
-        error
-      );
+      console.error("UPDATE MENTOR PROFILE ERROR:", error.response || error);
 
       alert(
         error.response?.data?.message ||
-        "Mentor profile update failed"
+          error.response?.data?.error ||
+          "Mentor profile update failed",
       );
-
     }
-
   };
+
+  // ==================================================
+  // CANCEL EDIT
+  // ==================================================
+
+  const handleCancel = async () => {
+    setEditMode(false);
+
+    // Restore original saved data
+    await fetchProfile();
+  };
+
+  // ==================================================
+  // LOADING
+  // ==================================================
+
+  if (!data) {
+    return (
+      <MentorLayout>
+        <div className="bg-white p-8 rounded-2xl shadow">
+          <p className="text-gray-500">Loading profile...</p>
+        </div>
+      </MentorLayout>
+    );
+  }
 
   // ==================================================
   // UI
@@ -218,226 +148,283 @@ function MentorProfile() {
 
   return (
     <MentorLayout>
+      <div className="space-y-6">
+        {/* ==================================================
+            HEADER
+        ================================================== */}
 
-      <h2 className="text-2xl font-bold text-orange-600 mb-6">
-        Mentor Profile
-      </h2>
-
-      <div className="bg-white p-8 rounded-xl shadow">
-
-        {/* PROFILE SECTION */}
-
-        <div className="flex items-center gap-8 mb-8">
-
-          {/* PHOTO */}
-
-          <div className="flex flex-col items-center">
-
-            <div className="w-32 h-32 rounded-full border-4 border-orange-500 overflow-hidden flex items-center justify-center bg-gray-100">
-
-              {profilePhoto ? (
-
-                <img
-                  src={profilePhoto}
-                  alt="profile"
-                  className="w-full h-full object-cover"
-                />
-
-              ) : (
-
-                <span className="text-gray-400">
-                  Profile
-                </span>
-
-              )}
-
-            </div>
-
-            {/* UPLOAD */}
-
-            <label className="mt-3 bg-orange-600 text-white px-4 py-1 rounded cursor-pointer hover:bg-orange-700">
-
-              Upload Photo
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoChange}
-                className="hidden"
-              />
-
-            </label>
-
-          </div>
-
-          {/* DETAILS */}
-
+        <div className="bg-white p-6 rounded-2xl shadow flex justify-between items-center">
           <div>
+            <h2 className="text-2xl font-bold text-orange-600">
+              Mentor Profile
+            </h2>
 
-            <h3 className="text-xl font-bold text-orange-600">
-
-              {formData.name ||
-                "Mentor Name"}
-
-            </h3>
-
-            <p>
-              Excel Engineering College
+            <p className="text-gray-500 mt-1">
+              Manage your personal and contact information
             </p>
-
-            <p>
-
-              {formData.department ||
-                "Department"}
-
-              {" | "}
-
-              {formData.className ||
-                "Class"}
-
-              {" - "}
-
-              {formData.section ||
-                "Section"}
-
-            </p>
-
           </div>
 
+          <div className="flex gap-3">
+            {editMode && (
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setEditMode((prev) => !prev)}
+              className="bg-orange-500 text-white px-5 py-2 rounded-lg hover:bg-orange-600"
+            >
+              {editMode ? "Editing" : "Edit Profile"}
+            </button>
+          </div>
         </div>
 
-        {/* FORM */}
+        {/* ==================================================
+            PROFILE PHOTO
+        ================================================== */}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+        <Card title="Profile Photo">
+          <div className="flex items-center gap-6">
+            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-orange-400 bg-gray-100 flex items-center justify-center">
+              {data.profilePhoto ? (
+                <img
+                  src={data.profilePhoto}
+                  alt="Mentor Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-400">Profile</span>
+              )}
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+            {editMode && (
+              <div>
+                <label className="inline-block bg-orange-600 text-white px-5 py-2 rounded-lg cursor-pointer hover:bg-orange-700">
+                  Upload Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                <p className="text-sm text-gray-500 mt-2">
+                  JPG and PNG supported
+                </p>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* ==================================================
+            PERSONAL DETAILS
+        ================================================== */}
+
+        <Card title="Personal Details">
+          <Grid>
+            {/* NAME - FROM REGISTRATION */}
 
             <Input
-              label="Mentor Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
+              label="Name"
+              value={data.name}
+              edit={false}
+              onChange={() => {}}
             />
+
+            {/* AGE - EDITABLE */}
 
             <Input
               label="Age"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
+              value={data.age}
+              edit={editMode}
+              onChange={(v) => handleChange("age", v)}
             />
 
-            <Input
-              label="Register Number"
-              name="registerNumber"
-              value={formData.registerNumber}
-              onChange={handleChange}
+            {/* ==================================================
+                DEPARTMENT - EDITABLE DROPDOWN
+            ================================================== */}
+
+            <DepartmentSelect
+              value={data.department}
+              edit={editMode}
+              onChange={(v) => handleChange("department", v)}
             />
 
-            <Input
-              label="Department"
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-            />
+            {/* CLASS - EDITABLE */}
 
             <Input
               label="Class Name"
-              name="className"
-              value={formData.className}
-              onChange={handleChange}
+              value={data.className}
+              edit={editMode}
+              onChange={(v) => handleChange("className", v)}
             />
+
+            {/* SECTION - EDITABLE */}
 
             <Input
               label="Section"
-              name="section"
-              value={formData.section}
-              onChange={handleChange}
+              value={data.section}
+              edit={editMode}
+              onChange={(v) => handleChange("section", v)}
             />
+          </Grid>
+        </Card>
 
-          </div>
+        {/* ==================================================
+            CONTACT
+        ================================================== */}
 
-          <div className="grid md:grid-cols-2 gap-6">
+        <Card title="Contact">
+          <Grid>
+            {/* PHONE */}
 
             <Input
               label="Phone Number"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
+              value={data.phone}
+              edit={editMode}
+              onChange={(v) => handleChange("phone", v)}
             />
+
+            {/* EMAIL - FROM REGISTRATION */}
 
             <Input
               label="Email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={data.email}
+              edit={false}
+              onChange={() => {}}
             />
+          </Grid>
 
-          </div>
+          {/* ADDRESS */}
 
-          <div>
-
-            <label className="block text-gray-600 mb-1">
-              Address
-            </label>
-
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              rows="3"
-              className="w-full border rounded p-2 focus:ring-2 focus:ring-orange-400"
+          <div className="mt-6">
+            <Input
+              label="Address"
+              value={data.address}
+              edit={editMode}
+              textarea
+              onChange={(v) => handleChange("address", v)}
             />
-
           </div>
+        </Card>
 
-          <button
-            type="submit"
-            className="bg-orange-600 text-white px-8 py-2 rounded hover:bg-orange-700"
-          >
-            Update Profile
-          </button>
+        {/* ==================================================
+            SAVE
+        ================================================== */}
 
-        </form>
-
+        {editMode && (
+          <div className="flex justify-end pb-8">
+            <button
+              type="button"
+              onClick={handleUpdate}
+              className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700"
+            >
+              Save Changes
+            </button>
+          </div>
+        )}
       </div>
-
     </MentorLayout>
   );
 }
 
 // ==================================================
+// CARD COMPONENT
+// ==================================================
+
+const Card = ({ title, children }) => (
+  <div className="bg-white p-6 rounded-2xl shadow border">
+    <h3 className="text-orange-600 font-semibold text-lg mb-5">{title}</h3>
+
+    {children}
+  </div>
+);
+
+// ==================================================
+// GRID COMPONENT
+// ==================================================
+
+const Grid = ({ children }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+);
+
+// ==================================================
+// DEPARTMENT DROPDOWN
+// ==================================================
+
+const DepartmentSelect = ({ value, edit, onChange }) => {
+  return (
+    <div>
+      <p className="text-gray-500 text-sm mb-1">Department</p>
+
+      {edit ? (
+        <select
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none bg-white"
+        >
+          <option value="">Select Department</option>
+
+          <option value="AI&DS">AI & DS</option>
+
+          <option value="CSE">CSE</option>
+
+          <option value="ECE">ECE</option>
+
+          <option value="EEE">EEE</option>
+
+          <option value="MECH">Mechanical</option>
+
+          <option value="CIVIL">Civil</option>
+        </select>
+      ) : (
+        <p className="font-semibold text-gray-800 break-words bg-gray-50 p-2 rounded-lg">
+          {value || "-"}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// ==================================================
 // INPUT COMPONENT
 // ==================================================
 
-function Input({
-  label,
-  name,
-  value,
-  onChange
-}) {
-
+const Input = ({ label, value, edit, onChange, textarea = false }) => {
   return (
-
     <div>
+      <p className="text-gray-500 text-sm mb-1">{label}</p>
 
-      <label className="block text-gray-600 mb-1">
-        {label}
-      </label>
-
-      <input
-        type="text"
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full border rounded p-2 focus:ring-2 focus:ring-orange-400"
-      />
-
+      {edit ? (
+        textarea ? (
+          <textarea
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            rows="3"
+            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+          />
+        ) : (
+          <input
+            type="text"
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+          />
+        )
+      ) : (
+        <p className="font-semibold text-gray-800 break-words bg-gray-50 p-2 rounded-lg">
+          {value || "-"}
+        </p>
+      )}
     </div>
-
   );
-}
+};
 
 export default MentorProfile;

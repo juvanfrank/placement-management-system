@@ -27,10 +27,7 @@ const mentorProfileSchema = new mongoose.Schema(
       default: ""
     },
 
-    registerNumber: {
-      type: String,
-      default: ""
-    },
+   
 
     department: {
       type: String,

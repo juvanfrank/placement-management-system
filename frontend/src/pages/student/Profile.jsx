@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StudentLayout from "../../components/StudentLayout";
@@ -6,364 +5,671 @@ import StudentLayout from "../../components/StudentLayout";
 const API = "http://localhost:5000";
 
 function Profile() {
-
-const [formData,setFormData]=useState({
-
-name:"",
-email:"",
-registerNumber:"",
-
-dob:"",
-gender:"",
-rollNumber:"",
-department:"",
-currentYear:"",
-section:"",
-batch:"",
-
-religion:"",
-caste:"",
-community:"",
-
-studentPhone:"",
-address:"",
-
-tenthPercentage:"",
-twelthPercentage:"",
-diplomaPercentage:"",
-currentArrears:"",
-historyOfArrears:"",
-cgpa:"",
-
-resumeLink:"",
-linkedinLink:"",
-githubLink:"",
-portfolioLink:"",
-skills:"",
-internship:"",   // ✅ added
-placementStatus:"Not Placed",
-
-fatherName:"",
-motherName:"",
-fatherPhone:"",
-motherPhone:"",
-
-profilePhoto:""
-
-});
-
-
-useEffect(()=>{
-
-const fetchProfile=async()=>{
-
-try{
-
-const token=localStorage.getItem("token");
-
-const res=await axios.get(`${API}/api/student/profile`,{
-headers:{Authorization:`Bearer ${token}`}
-});
-
-let data=res.data||{};
-
-if(data.dob){
-data.dob=data.dob.substring(0,10);
-}
-
-if(Array.isArray(data.skills)){
-data.skills=data.skills.join(",");
-}
-
-if(Array.isArray(data.internship)){
-data.internship=data.internship.join(",");
-}
-
-setFormData(prev=>({
-...prev,
-...data
-}));
-
-}catch(error){
-console.error("Profile fetch error:",error);
-}
-
-};
-
-fetchProfile();
-
-},[]);
-
-
-const handleChange=(e)=>{
-
-const {name,value}=e.target;
-
-setFormData(prev=>({
-...prev,
-[name]:value
-}));
-
-};
-
-
-const handlePhotoUpload=async(e)=>{
-
-const file=e.target.files[0];
-if(!file) return;
-
-try{
-
-const token=localStorage.getItem("token");
-
-const uploadData=new FormData();
-uploadData.append("photo",file);
-
-const res=await axios.post(
-`${API}/api/upload/profile-photo`,
-uploadData,
-{
-headers:{
-Authorization:`Bearer ${token}`,
-"Content-Type":"multipart/form-data"
-}
-}
-);
-
-setFormData(prev=>({
-...prev,
-profilePhoto:res.data.url
-}));
-
-}catch(error){
-console.error("Photo upload error:",error);
-}
-
-};
-
-
-const handleResumeUpload=async(e)=>{
-
-const file=e.target.files[0];
-if(!file) return;
-
-try{
-
-const token=localStorage.getItem("token");
-
-const uploadData=new FormData();
-uploadData.append("resume",file);
-
-const res=await axios.post(
-`${API}/api/upload/resume`,
-uploadData,
-{
-headers:{
-Authorization:`Bearer ${token}`,
-"Content-Type":"multipart/form-data"
-}
-}
-);
-
-setFormData(prev=>({
-...prev,
-resumeLink:res.data.url
-}));
-
-}catch(error){
-console.error("Resume upload error:",error);
-}
-
-};
-
-
-const handleSubmit=async(e)=>{
-
-e.preventDefault();
-
-try{
-
-const token=localStorage.getItem("token");
-
-const submitData={
-...formData,
-skills: formData.skills
-? formData.skills.split(",").map(s=>s.trim())
-: [],
-internship: formData.internship
-? formData.internship.split(",").map(s=>s.trim())
-: []
-};
-
-await axios.put(
-`${API}/api/student/profile`,
-submitData,
-{
-headers:{Authorization:`Bearer ${token}`}
-}
-);
-
-alert("Profile updated successfully");
-
-}catch(error){
-
-console.error("Update error:",error);
-alert("Profile update failed");
-
-}
-
-};
-
-
-return(
-
-<StudentLayout>
-
-<div className="bg-white shadow-lg rounded-xl p-8 mt-8 max-h-[85vh] overflow-y-auto">
-
-<h2 className="text-xl font-bold text-orange-600 mb-6">
-Student Profile
-</h2>
-
-<form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
-
-{/* PROFILE HEADER */}
-
-<div className="col-span-2 flex items-center gap-8 bg-gray-50 p-6 rounded-xl shadow-sm">
-
-  {/* PROFILE IMAGE */}
-  <div className="flex flex-col items-center">
-
-    <img
-      src={
-        formData.profilePhoto ||
-        "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+  const [data, setData] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+
+  // ==================================================
+  // FETCH PROFILE
+  // ==================================================
+
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(`${API}/api/student/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const profile = res.data || {};
+
+      if (profile.dob) {
+        profile.dob = profile.dob.substring(0, 10);
       }
-      alt="profile"
-      className="w-32 h-32 rounded-full object-cover border-4 border-orange-400"
-    />
 
-    {/* UPLOAD BOX */}
-  <label>
+      if (Array.isArray(profile.skills)) {
+        profile.skills = profile.skills.join(", ");
+      }
 
-    <p className="text-orange-600 font-semibold">
-      Click to Upload Photo
-    </p>
+      if (Array.isArray(profile.internship)) {
+        profile.internship = profile.internship.join(", ");
+      }
 
-    <p className="text-sm text-gray-500">
-      JPG, PNG supported
-    </p>
+      setData(profile);
+    } catch (error) {
+      console.error("FETCH PROFILE ERROR:", error.response || error);
+    }
+  };
 
-    <input
-      type="file"
-      accept="image/*"
-      onChange={handlePhotoUpload}
-      className="hidden"
-    />
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-  </label>
+  // ==================================================
+  // HANDLE CHANGE
+  // ==================================================
 
+  const handleChange = (field, value) => {
+    setData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // ==================================================
+  // PHOTO UPLOAD
+  // ==================================================
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const uploadData = new FormData();
+
+      uploadData.append("photo", file);
+
+      const res = await axios.post(
+        `${API}/api/upload/profile-photo`,
+        uploadData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      setData((prev) => ({
+        ...prev,
+        profilePhoto: res.data.url,
+      }));
+
+      alert("Profile photo uploaded successfully");
+    } catch (error) {
+      console.error("PHOTO UPLOAD ERROR:", error.response || error);
+
+      alert(error.response?.data?.message || "Photo upload failed");
+    }
+  };
+
+  // ==================================================
+  // RESUME UPLOAD
+  // ==================================================
+
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const uploadData = new FormData();
+
+      uploadData.append("resume", file);
+
+      const res = await axios.post(`${API}/api/upload/resume`, uploadData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setData((prev) => ({
+        ...prev,
+        resumeLink: res.data.url,
+      }));
+
+      alert("Resume uploaded successfully");
+    } catch (error) {
+      console.error("RESUME UPLOAD ERROR:", error.response || error);
+
+      alert(error.response?.data?.message || "Resume upload failed");
+    }
+  };
+
+  // ==================================================
+  // SAVE PROFILE
+  // ==================================================
+
+  const handleUpdate = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const submitData = {
+        ...data,
+
+        skills: data.skills
+          ? data.skills
+              .split(",")
+              .map((skill) => skill.trim())
+              .filter(Boolean)
+          : [],
+
+        internship: data.internship
+          ? data.internship
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean)
+          : [],
+
+        // Prevent Mongoose enum validation error
+        // for empty values.
+        religion: data.religion || undefined,
+        caste: data.caste || undefined,
+        community: data.community || undefined,
+      };
+
+      await axios.put(`${API}/api/student/profile`, submitData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert("Profile Updated Successfully");
+
+      setEditMode(false);
+
+      // Reload latest saved data
+      await fetchProfile();
+    } catch (error) {
+      console.error("UPDATE PROFILE ERROR:", error.response || error);
+
+      alert(error.response?.data?.message || "Profile update failed");
+    }
+  };
+
+  // ==================================================
+  // CANCEL EDIT
+  // ==================================================
+
+  const handleCancel = async () => {
+    setEditMode(false);
+
+    await fetchProfile();
+  };
+
+  // ==================================================
+  // LOADING
+  // ==================================================
+
+  if (!data) {
+    return (
+      <StudentLayout>
+        <div className="bg-white p-8 rounded-2xl shadow">
+          <p className="text-gray-500">Loading profile...</p>
+        </div>
+      </StudentLayout>
+    );
+  }
+
+  // ==================================================
+  // UI
+  // ==================================================
+
+  return (
+    <StudentLayout>
+      <div className="space-y-6">
+        {/* ==================================================
+            HEADER
+        ================================================== */}
+
+        <div className="bg-white p-6 rounded-2xl shadow flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-orange-600">
+              Student Profile
+            </h2>
+
+            <p className="text-gray-500 mt-1">
+              Manage your personal and academic information
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            {editMode && (
+              <button
+                onClick={handleCancel}
+                className="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            )}
+
+            <button
+              onClick={() => setEditMode((prev) => !prev)}
+              className="bg-orange-500 text-white px-5 py-2 rounded-lg hover:bg-orange-600"
+            >
+              {editMode ? "Editing" : "Edit Profile"}
+            </button>
+          </div>
+        </div>
+
+        {/* ==================================================
+            PROFILE PHOTO
+        ================================================== */}
+
+        <Card title="Profile Photo">
+          <div className="flex items-center gap-6">
+            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-orange-400 bg-gray-100 flex items-center justify-center">
+              {data.profilePhoto ? (
+                <img
+                  src={data.profilePhoto}
+                  alt="Student Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-400">Profile</span>
+              )}
+            </div>
+
+            {editMode && (
+              <div>
+                <label className="inline-block bg-orange-600 text-white px-5 py-2 rounded-lg cursor-pointer hover:bg-orange-700">
+                  Upload Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                <p className="text-sm text-gray-500 mt-2">
+                  JPG and PNG supported
+                </p>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* ==================================================
+            PERSONAL DETAILS
+        ================================================== */}
+
+        <Card title="Personal Details">
+          <Grid>
+            <Input
+              label="Name"
+              value={data.name}
+              edit={editMode}
+              onChange={(v) => handleChange("name", v)}
+            />
+
+            <Input
+              label="Date of Birth"
+              type="date"
+              value={data.dob ? data.dob.substring(0, 10) : ""}
+              edit={editMode}
+              onChange={(v) => handleChange("dob", v)}
+            />
+
+            <Input
+              label="Gender"
+              value={data.gender}
+              edit={editMode}
+              onChange={(v) => handleChange("gender", v)}
+            />
+
+            <Input
+              label="Register Number"
+              value={data.registerNumber}
+              edit={editMode}
+              onChange={(v) => handleChange("registerNumber", v)}
+            />
+
+            <Input
+              label="Roll Number"
+              value={data.rollNumber}
+              edit={editMode}
+              onChange={(v) => handleChange("rollNumber", v)}
+            />
+
+            <div>
+              <p className="text-gray-500 text-sm">Department</p>
+              <p className="font-semibold">{data.department || "-"}</p>
+            </div>
+
+            <Input
+              label="Current Year"
+              value={data.currentYear}
+              edit={editMode}
+              onChange={(v) => handleChange("currentYear", v)}
+            />
+
+            <Input
+              label="Section"
+              value={data.section}
+              edit={editMode}
+              onChange={(v) => handleChange("section", v)}
+            />
+
+            <Input
+              label="Batch"
+              value={data.batch}
+              edit={editMode}
+              onChange={(v) => handleChange("batch", v)}
+            />
+
+            <Input
+              label="Religion"
+              value={data.religion}
+              edit={editMode}
+              onChange={(v) => handleChange("religion", v)}
+            />
+
+            <Input
+              label="Caste"
+              value={data.caste}
+              edit={editMode}
+              onChange={(v) => handleChange("caste", v)}
+            />
+
+            <Input
+              label="Community"
+              value={data.community}
+              edit={editMode}
+              onChange={(v) => handleChange("community", v)}
+            />
+          </Grid>
+        </Card>
+
+        {/* ==================================================
+            CONTACT
+        ================================================== */}
+
+        <Card title="Contact">
+          <Grid>
+            <Input
+              label="Phone"
+              value={data.studentPhone}
+              edit={editMode}
+              onChange={(v) => handleChange("studentPhone", v)}
+            />
+
+            <Input
+              label="Email"
+              value={data.email}
+              edit={editMode}
+              onChange={(v) => handleChange("email", v)}
+            />
+          </Grid>
+
+          <div className="mt-6">
+            <Input
+              label="Address"
+              value={data.address}
+              edit={editMode}
+              textarea
+              onChange={(v) => handleChange("address", v)}
+            />
+          </div>
+        </Card>
+
+        {/* ==================================================
+            ACADEMIC
+        ================================================== */}
+
+        <Card title="Academic Details">
+          <Grid>
+            <Input
+              label="10th Percentage"
+              value={data.tenthPercentage}
+              edit={editMode}
+              onChange={(v) => handleChange("tenthPercentage", v)}
+            />
+
+            <Input
+              label="12th Percentage"
+              value={data.twelthPercentage}
+              edit={editMode}
+              onChange={(v) => handleChange("twelthPercentage", v)}
+            />
+
+            <Input
+              label="Diploma Percentage"
+              value={data.diplomaPercentage}
+              edit={editMode}
+              onChange={(v) => handleChange("diplomaPercentage", v)}
+            />
+
+            <Input
+              label="Current Arrears"
+              value={data.currentArrears}
+              edit={editMode}
+              onChange={(v) => handleChange("currentArrears", v)}
+            />
+
+            <Input
+              label="History of Arrears"
+              value={data.historyOfArrears}
+              edit={editMode}
+              onChange={(v) => handleChange("historyOfArrears", v)}
+            />
+
+            <Input
+              label="CGPA"
+              value={data.cgpa}
+              edit={editMode}
+              onChange={(v) => handleChange("cgpa", v)}
+            />
+          </Grid>
+        </Card>
+
+        {/* ==================================================
+            PROFESSIONAL
+        ================================================== */}
+
+        <Card title="Professional">
+          <Grid>
+            <Input
+              label="LinkedIn"
+              value={data.linkedinLink}
+              edit={editMode}
+              onChange={(v) => handleChange("linkedinLink", v)}
+            />
+
+            <Input
+              label="GitHub"
+              value={data.githubLink}
+              edit={editMode}
+              onChange={(v) => handleChange("githubLink", v)}
+            />
+
+            <Input
+              label="Portfolio"
+              value={data.portfolioLink}
+              edit={editMode}
+              onChange={(v) => handleChange("portfolioLink", v)}
+            />
+
+            <Input
+              label="Skills"
+              value={data.skills}
+              edit={editMode}
+              onChange={(v) => handleChange("skills", v)}
+            />
+
+            <Input
+              label="Internship"
+              value={data.internship}
+              edit={editMode}
+              onChange={(v) => handleChange("internship", v)}
+            />
+          </Grid>
+
+          {/* RESUME */}
+
+          <div className="mt-6">
+            <p className="text-gray-500 text-sm mb-2">Resume</p>
+
+            {data.resumeLink && (
+              <a
+                href={data.resumeLink}
+                target="_blank"
+                rel="noreferrer"
+                className="text-orange-600 font-semibold hover:underline mr-4"
+              >
+                View Resume
+              </a>
+            )}
+
+            {editMode && (
+              <label className="inline-block bg-orange-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-orange-700">
+                Upload Resume
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleResumeUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
+
+          {/* PLACEMENT */}
+
+          <div className="mt-6">
+            <p className="text-gray-500 text-sm mb-2">Placement Status</p>
+
+            {editMode ? (
+              <select
+                value={data.placementStatus || "Not Placed"}
+                onChange={(e) =>
+                  handleChange("placementStatus", e.target.value)
+                }
+                className="border p-2 rounded-lg w-full md:w-1/2"
+              >
+                <option value="Not Placed">Not Placed</option>
+
+                <option value="Placed">Placed</option>
+
+                <option value="Internship">Internship</option>
+              </select>
+            ) : (
+              <p className="font-semibold">{data.placementStatus || "-"}</p>
+            )}
+          </div>
+        </Card>
+
+        {/* ==================================================
+            PARENT / GUARDIAN
+        ================================================== */}
+
+        <Card title="Parent / Guardian">
+          <Grid>
+            <Input
+              label="Father Name"
+              value={data.fatherName}
+              edit={editMode}
+              onChange={(v) => handleChange("fatherName", v)}
+            />
+
+            <Input
+              label="Mother Name"
+              value={data.motherName}
+              edit={editMode}
+              onChange={(v) => handleChange("motherName", v)}
+            />
+
+            <Input
+              label="Father Phone"
+              value={data.fatherPhone}
+              edit={editMode}
+              onChange={(v) => handleChange("fatherPhone", v)}
+            />
+
+            <Input
+              label="Mother Phone"
+              value={data.motherPhone}
+              edit={editMode}
+              onChange={(v) => handleChange("motherPhone", v)}
+            />
+          </Grid>
+        </Card>
+
+        {/* ==================================================
+            SAVE
+        ================================================== */}
+
+        {editMode && (
+          <div className="flex justify-end pb-8">
+            <button
+              onClick={handleUpdate}
+              className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700"
+            >
+              Save Changes
+            </button>
+          </div>
+        )}
+      </div>
+    </StudentLayout>
+  );
+}
+
+// ==================================================
+// CARD COMPONENT
+// ==================================================
+
+const Card = ({ title, children }) => (
+  <div className="bg-white p-6 rounded-2xl shadow border">
+    <h3 className="text-orange-600 font-semibold text-lg mb-5">{title}</h3>
+
+    {children}
   </div>
-
-  {/* STUDENT DETAILS */}
-  <div>
-
-    <h2 className="text-2xl font-bold text-orange-600">
-      {formData.name || "Student Name"}
-    </h2>
-
-    <p className="text-gray-600">
-      Excel Engineering College
-    </p>
-
-    <p className="text-gray-500">
-      {formData.department || "Department"} | {formData.batch || "Batch"}
-    </p>
-
-  </div>
-
-</div>
-{/* PERSONAL */}
-
-<label className="font-semibold col-span-2">Personal Details</label>
-
-<input name="name" placeholder="Full Name" value={formData.name||""} onChange={handleChange} className="border p-2"/>
-<input type="date" name="dob" value={formData.dob||""} onChange={handleChange} className="border p-2"/>
-<input name="gender" placeholder="Gender" value={formData.gender||""} onChange={handleChange} className="border p-2"/>
-<input name="registerNumber" placeholder="Register Number" value={formData.registerNumber||""} onChange={handleChange} className="border p-2"/>
-
-<input name="rollNumber" placeholder="Roll Number" value={formData.rollNumber||""} onChange={handleChange} className="border p-2"/>
-<input name="department" placeholder="Department" value={formData.department||""} onChange={handleChange} className="border p-2"/>
-<input name="currentYear" placeholder="Current Year" value={formData.currentYear||""} onChange={handleChange} className="border p-2"/>
-<input name="section" placeholder="Section" value={formData.section||""} onChange={handleChange} className="border p-2"/>
-<input name="batch" placeholder="Batch" value={formData.batch||""} onChange={handleChange} className="border p-2"/>
-
-{/* CONTACT */}
-
-<label className="font-semibold col-span-2">Contact Details</label>
-
-<input name="studentPhone" placeholder="Student Phone" value={formData.studentPhone||""} onChange={handleChange} className="border p-2"/>
-<input name="email" placeholder="Email" value={formData.email||""} onChange={handleChange} className="border p-2"/>
-<textarea name="address" placeholder="Address" value={formData.address||""} onChange={handleChange} className="border p-2 col-span-2"/>
-
-{/* ACADEMIC */}
-
-<label className="font-semibold col-span-2">Academic Details</label>
-
-<input name="tenthPercentage" placeholder="10th %" value={formData.tenthPercentage||""} onChange={handleChange} className="border p-2"/>
-<input name="twelthPercentage" placeholder="12th %" value={formData.twelthPercentage||""} onChange={handleChange} className="border p-2"/>
-<input name="diplomaPercentage" placeholder="Diploma %" value={formData.diplomaPercentage||""} onChange={handleChange} className="border p-2"/>
-<input name="currentArrears" placeholder="Current Arrears" value={formData.currentArrears||""} onChange={handleChange} className="border p-2"/>
-<input name="historyOfArrears" placeholder="History Of Arrears" value={formData.historyOfArrears||""} onChange={handleChange} className="border p-2"/>
-<input name="cgpa" placeholder="CGPA" value={formData.cgpa||""} onChange={handleChange} className="border p-2"/>
-
-{/* PROFESSIONAL */}
-
-<label className="font-semibold col-span-2">Professional</label>
-
-<div className="col-span-2">
-<label>Upload Resume</label>
-<input type="file" accept="application/pdf" onChange={handleResumeUpload}/>
-{formData.resumeLink && <a href={formData.resumeLink} target="_blank">View Resume</a>}
-</div>
-
-<input name="linkedinLink" placeholder="LinkedIn" value={formData.linkedinLink||""} onChange={handleChange} className="border p-2"/>
-<input name="githubLink" placeholder="GitHub" value={formData.githubLink||""} onChange={handleChange} className="border p-2"/>
-<input name="portfolioLink" placeholder="Portfolio" value={formData.portfolioLink||""} onChange={handleChange} className="border p-2"/>
-<input name="skills" placeholder="Skills" value={formData.skills||""} onChange={handleChange} className="border p-2"/>
-<input name="internship" placeholder="Internship" value={formData.internship||""} onChange={handleChange} className="border p-2"/>
-
-{/* PARENT */}
-
-<label className="font-semibold col-span-2">Parent Details</label>
-
-<input name="fatherName" placeholder="Father Name" value={formData.fatherName||""} onChange={handleChange} className="border p-2"/>
-<input name="motherName" placeholder="Mother Name" value={formData.motherName||""} onChange={handleChange} className="border p-2"/>
-<input name="fatherPhone" placeholder="Father Phone" value={formData.fatherPhone||""} onChange={handleChange} className="border p-2"/>
-<input name="motherPhone" placeholder="Mother Phone" value={formData.motherPhone||""} onChange={handleChange} className="border p-2"/>
-
-{/* PLACEMENT */}
-
-<label className="font-semibold col-span-2">Placement</label>
-
-<select name="placementStatus" value={formData.placementStatus||""} onChange={handleChange} className="border p-2">
-<option value="Not Placed">Not Placed</option>
-<option value="Placed">Placed</option>
-<option value="Internship">Internship</option>
-</select>
-
-<button className="bg-orange-600 text-white py-3 rounded col-span-2 hover:bg-orange-700">
-Update Profile
-</button>
-
-</form>
-
-</div>
-
-</StudentLayout>
-
 );
 
-}
+// ==================================================
+// GRID COMPONENT
+// ==================================================
+
+const Grid = ({ children }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+);
+
+// ==================================================
+// INPUT COMPONENT
+// ==================================================
+
+const Input = ({
+  label,
+  value,
+  edit,
+  onChange,
+  type = "text",
+  textarea = false,
+}) => {
+  return (
+    <div>
+      <p className="text-gray-500 text-sm mb-1">{label}</p>
+
+      {edit ? (
+        textarea ? (
+          <textarea
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            rows="3"
+            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+          />
+        ) : (
+          <input
+            type={type}
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+          />
+        )
+      ) : (
+        <p className="font-semibold text-gray-800 break-words">
+          {value || "-"}
+        </p>
+      )}
+    </div>
+  );
+};
 
 export default Profile;
