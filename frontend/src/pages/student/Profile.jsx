@@ -308,12 +308,25 @@ function Profile() {
               onChange={(v) => handleChange("dob", v)}
             />
 
-            <Input
-              label="Gender"
-              value={data.gender}
-              edit={editMode}
-              onChange={(v) => handleChange("gender", v)}
-            />
+            <div>
+  <p className="text-gray-500 text-sm mb-1">Gender</p>
+
+  {editMode ? (
+    <select
+      value={data.gender || ""}
+      onChange={(e) => handleChange("gender", e.target.value)}
+      className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+    >
+      <option value="">Select Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+  ) : (
+    <p className="font-semibold text-gray-800">
+      {data.gender || "-"}
+    </p>
+  )}
+</div>
 
             <Input
               label="Register Number"
@@ -334,19 +347,51 @@ function Profile() {
               <p className="font-semibold">{data.department || "-"}</p>
             </div>
 
-            <Input
-              label="Current Year"
-              value={data.currentYear}
-              edit={editMode}
-              onChange={(v) => handleChange("currentYear", v)}
-            />
+            <div>
+  <p className="text-gray-500 text-sm mb-1">Current Year</p>
 
-            <Input
-              label="Section"
-              value={data.section}
-              edit={editMode}
-              onChange={(v) => handleChange("section", v)}
-            />
+  {editMode ? (
+    <select
+      value={data.currentYear || ""}
+      onChange={(e) => handleChange("currentYear", e.target.value)}
+      className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+    >
+      <option value="">Select Year</option>
+      <option value="I">I</option>
+      <option value="II">II</option>
+      <option value="III">III</option>
+      <option value="IV">IV</option>
+    </select>
+  ) : (
+    <p className="font-semibold text-gray-800">
+      {data.currentYear || "-"}
+    </p>
+  )}
+</div>
+
+            <div>
+  <p className="text-gray-500 text-sm mb-1">Section</p>
+
+  {editMode ? (
+    <select
+      value={data.section || ""}
+      onChange={(e) => handleChange("section", e.target.value)}
+      className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+    >
+      <option value="">Select Section</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+      <option value="E">E</option>
+      <option value="F">F</option>
+    </select>
+  ) : (
+    <p className="font-semibold text-gray-800">
+      {data.section || "-"}
+    </p>
+  )}
+</div>
 
             <Input
               label="Batch"

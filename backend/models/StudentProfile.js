@@ -27,9 +27,10 @@ const studentProfileSchema = new mongoose.Schema(
     },
 
     gender: {
-      type: String,
-      default: ""
-    },
+  type: String,
+  enum: ["Male", "Female"],
+  default: ""
+},
 
     registerNumber: {
       type: String,
@@ -47,14 +48,16 @@ const studentProfileSchema = new mongoose.Schema(
     },
 
     currentYear: {
-      type: String,
-      default: ""
-    },
+  type: String,
+  enum: ["I", "II", "III", "IV"],
+  default: ""
+},
 
     section: {
-      type: String,
-      default: ""
-    },
+  type: String,
+  enum: ["A", "B", "C", "D", "E", "F"],
+  default: ""
+},
 
     batch: {
       type: String,
@@ -67,49 +70,25 @@ const studentProfileSchema = new mongoose.Schema(
 
     religion: {
       type: String,
-      enum: [
-        "",
-        "Hindu",
-        "Muslim",
-        "Christian",
-        "Sikh",
-        "Buddhist",
-        "Jain",
-        "Others"
-      ],
+      
       default: ""
     },
 
     caste: {
       type: String,
-      enum: [
-        "",
-        "General",
-        "OBC",
-        "SC",
-        "ST",
-        "Others"
-      ],
+      
       default: ""
     },
 
     community: {
       type: String,
-      enum: [
-        "",
-        "OC",
-        "BC",
-        "MBC",
-        "SC",
-        "ST"
-      ],
+
       default: ""
     },
 
     // ==================================================
     // CONTACT
     // ==================================================
-
     studentPhone: {
       type: String,
       default: ""
