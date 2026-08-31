@@ -446,12 +446,25 @@ function Profile() {
               onChange={(v) => handleChange("dob", v)}
             />
 
-            <Input
-              label="Gender"
-              value={data.gender}
-              edit={editMode}
-              onChange={(v) => handleChange("gender", v)}
-            />
+           <div>
+  <p className="text-gray-500 text-sm mb-1">Gender</p>
+
+  {editMode ? (
+    <select
+      value={data.gender || ""}
+      onChange={(e) => handleChange("gender", e.target.value)}
+      className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+    >
+      <option value="">Select Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+  ) : (
+    <p className="font-semibold text-gray-800">
+      {data.gender || "-"}
+    </p>
+  )}
+</div>
 
             <Input
               label="Roll Number"
