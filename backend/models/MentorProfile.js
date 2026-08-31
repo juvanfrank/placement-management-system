@@ -10,7 +10,7 @@ const mentorProfileSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true
+      unique: true,
     },
 
     // ==================================================
@@ -19,29 +19,26 @@ const mentorProfileSchema = new mongoose.Schema(
 
     name: {
       type: String,
-      default: ""
+      default: "",
     },
 
     age: {
       type: String,
-      default: ""
+      default: "",
     },
-
-   
 
     department: {
       type: String,
-      default: ""
+      default: "",
     },
 
-    className: {
-      type: String,
-      default: ""
+    year: {
+      type: Number,
     },
 
     section: {
       type: String,
-      default: ""
+      default: "",
     },
 
     // ==================================================
@@ -50,17 +47,17 @@ const mentorProfileSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      default: ""
+      default: "",
     },
 
     email: {
       type: String,
-      default: ""
+      default: "",
     },
 
     address: {
       type: String,
-      default: ""
+      default: "",
     },
 
     // ==================================================
@@ -69,15 +66,12 @@ const mentorProfileSchema = new mongoose.Schema(
 
     profilePhoto: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-module.exports = mongoose.model(
-  "MentorProfile",
-  mentorProfileSchema
-);
+module.exports = mongoose.model("MentorProfile", mentorProfileSchema);

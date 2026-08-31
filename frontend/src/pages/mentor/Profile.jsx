@@ -229,7 +229,7 @@ function MentorProfile() {
 
         <Card title="Personal Details">
           <Grid>
-            {/* NAME - FROM REGISTRATION */}
+            {/* NAME - NOT EDITABLE */}
 
             <Input
               label="Name"
@@ -247,9 +247,7 @@ function MentorProfile() {
               onChange={(v) => handleChange("age", v)}
             />
 
-            {/* ==================================================
-                DEPARTMENT - EDITABLE DROPDOWN
-            ================================================== */}
+            {/* DEPARTMENT - EDITABLE */}
 
             <DepartmentSelect
               value={data.department}
@@ -257,21 +255,23 @@ function MentorProfile() {
               onChange={(v) => handleChange("department", v)}
             />
 
-            {/* CLASS - EDITABLE */}
+            {/* YEAR - EDITABLE DROPDOWN */}
 
-            <Input
-              label="Class Name"
-              value={data.className}
+            <SelectInput
+              label="Year"
+              value={data.year}
               edit={editMode}
-              onChange={(v) => handleChange("className", v)}
+              options={["1", "2", "3", "4"]}
+              onChange={(v) => handleChange("year", v)}
             />
 
-            {/* SECTION - EDITABLE */}
+            {/* SECTION - EDITABLE DROPDOWN */}
 
-            <Input
+            <SelectInput
               label="Section"
               value={data.section}
               edit={editMode}
+              options={["A", "B", "C", "D", "E", "F"]}
               onChange={(v) => handleChange("section", v)}
             />
           </Grid>
@@ -292,7 +292,7 @@ function MentorProfile() {
               onChange={(v) => handleChange("phone", v)}
             />
 
-            {/* EMAIL - FROM REGISTRATION */}
+            {/* EMAIL - NOT EDITABLE */}
 
             <Input
               label="Email"
@@ -383,6 +383,38 @@ const DepartmentSelect = ({ value, edit, onChange }) => {
           <option value="MECH">Mechanical</option>
 
           <option value="CIVIL">Civil</option>
+        </select>
+      ) : (
+        <p className="font-semibold text-gray-800 break-words bg-gray-50 p-2 rounded-lg">
+          {value || "-"}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// ==================================================
+// YEAR / SECTION DROPDOWN
+// ==================================================
+
+const SelectInput = ({ label, value, edit, options, onChange }) => {
+  return (
+    <div>
+      <p className="text-gray-500 text-sm mb-1">{label}</p>
+
+      {edit ? (
+        <select
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none bg-white"
+        >
+          <option value="">Select {label}</option>
+
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
         </select>
       ) : (
         <p className="font-semibold text-gray-800 break-words bg-gray-50 p-2 rounded-lg">

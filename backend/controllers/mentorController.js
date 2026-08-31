@@ -11,10 +11,7 @@ const getLocalFileUrl = (filePath) => {
   }
 
   // Already a complete URL
-  if (
-    filePath.startsWith("http://") ||
-    filePath.startsWith("https://")
-  ) {
+  if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
     return filePath;
   }
 
@@ -27,10 +24,7 @@ const getLocalFileUrl = (filePath) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const userId =
-      req.user.id ||
-      req.user.userId ||
-      req.user._id;
+    const userId = req.user.id || req.user.userId || req.user._id;
 
     if (!userId) {
       return res.status(401).json({
@@ -42,8 +36,7 @@ exports.getProfile = async (req, res) => {
     // GET USER
     // ==================================================
 
-    const user = await User.findById(userId)
-      .select("-password");
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -82,23 +75,16 @@ exports.getProfile = async (req, res) => {
 
       // Mentor details
       age: profile.age || "",
-      className: profile.className || "",
+      year: profile.year || "",
       section: profile.section || "",
       phone: profile.phone || "",
       address: profile.address || "",
 
       // Profile photo
-      profilePhoto: getLocalFileUrl(
-        profile.profilePhoto
-      ),
+      profilePhoto: getLocalFileUrl(profile.profilePhoto),
     });
-
   } catch (error) {
-
-    console.error(
-      "GET MENTOR PROFILE ERROR:",
-      error
-    );
+    console.error("GET MENTOR PROFILE ERROR:", error);
 
     res.status(500).json({
       message: "Server error",
@@ -113,11 +99,7 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-
-    const userId =
-      req.user.id ||
-      req.user.userId ||
-      req.user._id;
+    const userId = req.user.id || req.user.userId || req.user._id;
 
     if (!userId) {
       return res.status(401).json({
@@ -127,27 +109,15 @@ exports.updateProfile = async (req, res) => {
 
     const data = req.body;
 
-    console.log(
-      "================================="
-    );
+    console.log("=================================");
 
-    console.log(
-      "MENTOR PROFILE UPDATE"
-    );
+    console.log("MENTOR PROFILE UPDATE");
 
-    console.log(
-      "USER ID:",
-      userId
-    );
+    console.log("USER ID:", userId);
 
-    console.log(
-      "RECEIVED DEPARTMENT:",
-      data.department
-    );
+    console.log("RECEIVED DEPARTMENT:", data.department);
 
-    console.log(
-      "================================="
-    );
+    console.log("=================================");
 
     // ==================================================
     // UPDATE USER
@@ -156,22 +126,21 @@ exports.updateProfile = async (req, res) => {
     // Name, email and department are stored
     // in the User collection.
 
-    const updatedUser =
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          name: data.name,
-          email: data.email,
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        name: data.name,
+        email: data.email,
 
-          // IMPORTANT:
-          // Mentor can change department
-          department: data.department,
-        },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
+        // IMPORTANT:
+        // Mentor can change department
+        department: data.department,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -183,91 +152,65 @@ exports.updateProfile = async (req, res) => {
     // UPDATE MENTOR PROFILE
     // ==================================================
 
-    const profile =
-      await MentorProfile.findOneAndUpdate(
-        {
-          userId,
-        },
+    const profile = await MentorProfile.findOneAndUpdate(
+      {
+        userId,
+      },
 
-        {
-          age: data.age || "",
+      {
+        age: data.age || "",
 
-          className:
-            data.className || "",
+        year: data.year || "",
 
-          section:
-            data.section || "",
+        section: data.section || "",
 
-          phone:
-            data.phone || "",
+        phone: data.phone || "",
 
-          address:
-            data.address || "",
+        address: data.address || "",
 
-          profilePhoto:
-            data.profilePhoto || "",
-        },
+        profilePhoto: data.profilePhoto || "",
+      },
 
-        {
-          new: true,
-          upsert: true,
-          runValidators: true,
-        }
-      );
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+      },
+    );
 
     // ==================================================
     // RESPONSE
     // ==================================================
 
     res.status(200).json({
-
-      message:
-        "Mentor profile updated successfully",
+      message: "Mentor profile updated successfully",
 
       profile: {
+        userId: updatedUser._id,
 
-        userId:
-          updatedUser._id,
+        name: updatedUser.name || "",
 
-        name:
-          updatedUser.name || "",
-
-        email:
-          updatedUser.email || "",
+        email: updatedUser.email || "",
 
         // IMPORTANT
         // Return the NEW department
-        department:
-          updatedUser.department || "",
+        department: updatedUser.department || "",
 
-        age:
-          profile.age || "",
+        age: profile.age || "",
 
-        className:
-          profile.className || "",
+        year: data.year || "",
 
-        section:
-          profile.section || "",
+        section: profile.section || "",
 
-        phone:
-          profile.phone || "",
+        phone: profile.phone || "",
 
-        address:
-          profile.address || "",
+        address: profile.address || "",
 
-        profilePhoto:
-          getLocalFileUrl(
-            profile.profilePhoto
-          ),
+        profilePhoto: getLocalFileUrl(profile.profilePhoto),
       },
     });
-
   } catch (error) {
-
-    console.error(
-      "UPDATE MENTOR PROFILE ERROR:",
-      error
-    );
+    console.error("UPDATE MENTOR PROFILE ERROR:", error);
 
     res.status(500).json({
       message: "Server error",
