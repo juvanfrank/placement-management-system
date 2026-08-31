@@ -9,7 +9,7 @@ const studentProfileSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+      required: true,
     },
 
     // ==================================================
@@ -18,47 +18,47 @@ const studentProfileSchema = new mongoose.Schema(
 
     name: {
       type: String,
-      default: ""
+      default: "",
     },
 
     dob: {
       type: String,
-      default: ""
+      default: "",
     },
 
     gender: {
       type: String,
-      default: ""
+      default: "",
     },
 
     registerNumber: {
       type: String,
-      default: ""
+      default: "",
     },
 
     rollNumber: {
       type: String,
-      default: ""
+      default: "",
     },
 
     department: {
       type: String,
-      default: ""
+      default: "",
     },
 
     currentYear: {
       type: String,
-      default: ""
+      default: "",
     },
 
     section: {
       type: String,
-      default: ""
+      default: "",
     },
 
     batch: {
       type: String,
-      default: ""
+      default: "",
     },
 
     // ==================================================
@@ -67,43 +67,19 @@ const studentProfileSchema = new mongoose.Schema(
 
     religion: {
       type: String,
-      enum: [
-        "",
-        "Hindu",
-        "Muslim",
-        "Christian",
-        "Sikh",
-        "Buddhist",
-        "Jain",
-        "Others"
-      ],
-      default: ""
+      
+      default: "",
     },
 
     caste: {
       type: String,
-      enum: [
-        "",
-        "General",
-        "OBC",
-        "SC",
-        "ST",
-        "Others"
-      ],
-      default: ""
+
+      default: "",
     },
 
     community: {
       type: String,
-      enum: [
-        "",
-        "OC",
-        "BC",
-        "MBC",
-        "SC",
-        "ST"
-      ],
-      default: ""
+      default: "",
     },
 
     // ==================================================
@@ -112,17 +88,17 @@ const studentProfileSchema = new mongoose.Schema(
 
     studentPhone: {
       type: String,
-      default: ""
+      default: "",
     },
 
     email: {
       type: String,
-      default: ""
+      default: "",
     },
 
     address: {
       type: String,
-      default: ""
+      default: "",
     },
 
     // ==================================================
@@ -131,32 +107,32 @@ const studentProfileSchema = new mongoose.Schema(
 
     tenthPercentage: {
       type: String,
-      default: ""
+      default: "",
     },
 
     twelthPercentage: {
       type: String,
-      default: ""
+      default: "",
     },
 
     diplomaPercentage: {
       type: String,
-      default: ""
+      default: "",
     },
 
     currentArrears: {
       type: String,
-      default: ""
+      default: "",
     },
 
     historyOfArrears: {
       type: String,
-      default: ""
+      default: "",
     },
 
     cgpa: {
       type: String,
-      default: ""
+      default: "",
     },
 
     // ==================================================
@@ -165,44 +141,40 @@ const studentProfileSchema = new mongoose.Schema(
 
     resumeLink: {
       type: String,
-      default: ""
+      default: "",
     },
 
     linkedinLink: {
       type: String,
-      default: ""
+      default: "",
     },
 
     githubLink: {
       type: String,
-      default: ""
+      default: "",
     },
 
     portfolioLink: {
       type: String,
-      default: ""
+      default: "",
     },
 
     skills: {
       type: [String],
-      default: []
+      default: [],
     },
 
     internship: {
       type: [String],
-      default: []
+      default: [],
     },
 
     placementStatus: {
       type: String,
 
-      enum: [
-        "Not Placed",
-        "Placed",
-        "Internship"
-      ],
+      enum: ["Not Placed", "Placed", "Internship"],
 
-      default: "Not Placed"
+      default: "Not Placed",
     },
 
     // ==================================================
@@ -211,22 +183,22 @@ const studentProfileSchema = new mongoose.Schema(
 
     fatherName: {
       type: String,
-      default: ""
+      default: "",
     },
 
     motherName: {
       type: String,
-      default: ""
+      default: "",
     },
 
     fatherPhone: {
       type: String,
-      default: ""
+      default: "",
     },
 
     motherPhone: {
       type: String,
-      default: ""
+      default: "",
     },
 
     // ==================================================
@@ -235,16 +207,13 @@ const studentProfileSchema = new mongoose.Schema(
 
     profilePhoto: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
 
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-module.exports = mongoose.model(
-  "StudentProfile",
-  studentProfileSchema
-);
+module.exports = mongoose.model("StudentProfile", studentProfileSchema);
