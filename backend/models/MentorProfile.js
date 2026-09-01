@@ -34,6 +34,7 @@ const mentorProfileSchema = new mongoose.Schema(
 
     year: {
       type: Number,
+      default: null,
     },
 
     section: {
@@ -71,7 +72,10 @@ const mentorProfileSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-module.exports = mongoose.model("MentorProfile", mentorProfileSchema);
+module.exports = mongoose.model(
+  "MentorProfile",
+  mentorProfileSchema
+);

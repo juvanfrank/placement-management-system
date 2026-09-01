@@ -27,10 +27,10 @@ const studentProfileSchema = new mongoose.Schema(
     },
 
     gender: {
-  type: String,
-  enum: ["Male", "Female"],
-  default: ""
-},
+      type: String,
+      enum: ["", "Male", "Female"],
+      default: "",
+    },
 
     registerNumber: {
       type: String,
@@ -49,12 +49,12 @@ const studentProfileSchema = new mongoose.Schema(
 
     currentYear: {
       type: String,
-      default: ""
+      default: "",
     },
 
     section: {
       type: String,
-      default: ""
+      default: "",
     },
 
     batch: {
@@ -68,48 +68,23 @@ const studentProfileSchema = new mongoose.Schema(
 
     religion: {
       type: String,
-      enum: [
-        "",
-        "Hindu",
-        "Muslim",
-        "Christian",
-        "Sikh",
-        "Buddhist",
-        "Jain",
-        "Others"
-      ],
-      default: ""
+      default: "",
     },
 
     caste: {
       type: String,
-      enum: [
-        "",
-        "General",
-        "OBC",
-        "SC",
-        "ST",
-        "Others"
-      ],
-      default: ""
+      default: "",
     },
 
     community: {
       type: String,
-      enum: [
-        "",
-        "OC",
-        "BC",
-        "MBC",
-        "SC",
-        "ST"
-      ],
-      default: ""
+      default: "",
     },
 
     // ==================================================
     // CONTACT
     // ==================================================
+
     studentPhone: {
       type: String,
       default: "",
@@ -195,9 +170,7 @@ const studentProfileSchema = new mongoose.Schema(
 
     placementStatus: {
       type: String,
-
       enum: ["Not Placed", "Placed", "Internship"],
-
       default: "Not Placed",
     },
 
@@ -234,10 +207,12 @@ const studentProfileSchema = new mongoose.Schema(
       default: "",
     },
   },
-
   {
     timestamps: true,
-  },
+  }
 );
 
-module.exports = mongoose.model("StudentProfile", studentProfileSchema);
+module.exports = mongoose.model(
+  "StudentProfile",
+  studentProfileSchema
+);
