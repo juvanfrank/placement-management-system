@@ -9,7 +9,7 @@ function MentorLayout({ children }) {
       <MentorSidebar />
 
       {/* Main Content */}
-      <div className="ml-52 min-h-screen">
+      <div className="ml-64 min-h-screen">
 
         <MentorHeader />
 

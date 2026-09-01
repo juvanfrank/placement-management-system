@@ -11,10 +11,12 @@ function MentorSidebar() {
   return (
     <div className="fixed left-0 top-0 w-64 h-screen bg-orange-600 text-white flex flex-col z-50">
 
+      {/* Header */}
       <div className="p-6 text-xl font-bold border-b border-orange-400">
         Mentor Panel
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 p-4 space-y-3">
 
         <Link
@@ -47,6 +49,7 @@ function MentorSidebar() {
 
       </nav>
 
+      {/* Logout */}
       <div className="p-4 border-t border-orange-400">
         <button
           onClick={handleLogout}

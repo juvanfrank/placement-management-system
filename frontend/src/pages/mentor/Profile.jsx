@@ -359,10 +359,16 @@ const Grid = ({ children }) => (
 // DEPARTMENT DROPDOWN
 // ==================================================
 
+// ==================================================
+// DEPARTMENT DROPDOWN
+// ==================================================
+
 const DepartmentSelect = ({ value, edit, onChange }) => {
   return (
     <div>
-      <p className="text-gray-500 text-sm mb-1">Department</p>
+      <p className="text-gray-500 text-sm mb-1">
+        Department
+      </p>
 
       {edit ? (
         <select
@@ -370,19 +376,37 @@ const DepartmentSelect = ({ value, edit, onChange }) => {
           onChange={(e) => onChange(e.target.value)}
           className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none bg-white"
         >
-          <option value="">Select Department</option>
+          <option value="">
+            Select Department
+          </option>
 
-          <option value="AI&DS">AI & DS</option>
+          <option value="AIDS">
+            AIDS - Artificial Intelligence & Data Science
+          </option>
 
-          <option value="CSE">CSE</option>
+          <option value="CSE">
+            CSE - Computer Science & Engineering
+          </option>
 
-          <option value="ECE">ECE</option>
+          <option value="ECE">
+            ECE - Electronics & Communication Engineering
+          </option>
 
-          <option value="EEE">EEE</option>
+          <option value="EEE">
+            EEE - Electrical & Electronics Engineering
+          </option>
 
-          <option value="MECH">Mechanical</option>
+          <option value="MECH">
+            MECH - Mechanical Engineering
+          </option>
 
-          <option value="CIVIL">Civil</option>
+          <option value="CIVIL">
+            CIVIL - Civil Engineering
+          </option>
+
+          <option value="IT">
+            IT - Information Technology
+          </option>
         </select>
       ) : (
         <p className="font-semibold text-gray-800 break-words bg-gray-50 p-2 rounded-lg">
