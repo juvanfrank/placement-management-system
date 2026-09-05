@@ -11,6 +11,12 @@ const userSchema = new mongoose.Schema(
     year: Number,
     cgpa: Number,
 
+    // Profile photo
+    profilePhoto: {
+      type: String,
+      default: ""
+    },
+
     role: {
       type: String,
       enum: ["student", "mentor", "hod", "admin"],
@@ -22,10 +28,10 @@ const userSchema = new mongoose.Schema(
       ref: "User",
       default: null
     }
-
   },
   { timestamps: true }
 );
 
 module.exports =
-  mongoose.models.User || mongoose.model("User", userSchema, "users");  
+  mongoose.models.User ||
+  mongoose.model("User", userSchema, "users");

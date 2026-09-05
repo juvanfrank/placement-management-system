@@ -1,23 +1,65 @@
 const express = require("express");
+
 const router = express.Router();
+
 const auth = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
-const User = require("../models/User");
 
-// 🏛 HOD sees all students in their department
-router.get("/students", auth, roleMiddleware("hod"), async (req, res) => {
-  try {
-    const hod = await User.findById(req.user.id);
+const hodController = require("../controllers/hodController");
 
-    const students = await User.find({
-      department: hod.department,
-      role: "student"
-    }).select("-password");
+// ==================================================
+// HOD PROFILE
+// ==================================================
 
-    res.json(students);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get(
+  "/profile",
+  auth,
+  roleMiddleware("hod"),
+  hodController.getProfile
+);
+
+// ==================================================
+// HOD STUDENTS
+// ==================================================
+
+router.get(
+  "/students",
+  auth,
+  roleMiddleware("hod"),
+  hodController.getStudents
+);
+
+// ==================================================
+// SINGLE STUDENT DETAILS
+// ==================================================
+
+router.get(
+  "/student/:id",
+  auth,
+  roleMiddleware("hod"),
+  hodController.getStudentDetails
+);
+
+// ==================================================
+// HOD MENTORS
+// ==================================================
+
+router.get(
+  "/mentors",
+  auth,
+  roleMiddleware("hod"),
+  hodController.getMentors
+);
+
+// ==================================================
+// SINGLE MENTOR DETAILS
+// ==================================================
+
+router.get(
+  "/mentor/:id",
+  auth,
+  roleMiddleware("hod"),
+  hodController.getMentorDetails
+);
 
 module.exports = router;

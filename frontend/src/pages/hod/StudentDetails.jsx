@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import MentorLayout from "../../components/MentorLayout";
+import HodLayout from "../../components/HodLayout";
 import StudentProfileView from "../../components/StudentProfileView";
 
 function StudentDetails() {
@@ -7,32 +7,25 @@ function StudentDetails() {
   const navigate = useNavigate();
 
   return (
-    <MentorLayout>
-
+    <HodLayout>
       <div className="space-y-5">
 
         {/* BACK BUTTON */}
-
         <button
-          type="button"
-          onClick={() =>
-            navigate("/mentor/students")
-          }
+          onClick={() => navigate("/hod/students")}
           className="text-orange-600 hover:text-orange-700 font-medium"
         >
           ← Back to Students
         </button>
 
         {/* COMMON STUDENT PROFILE */}
-
         <StudentProfileView
-          profileEndpoint={`/mentor/student/${id}`}
+          profileEndpoint={`/hod/student/${id}`}
           readOnly={true}
         />
 
       </div>
-
-    </MentorLayout>
+    </HodLayout>
   );
 }
 

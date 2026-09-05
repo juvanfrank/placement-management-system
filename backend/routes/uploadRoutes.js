@@ -588,5 +588,189 @@ router.post(
 
   }
 );
+// ==================================================
+// HOD PROFILE PHOTO UPLOAD
+// ==================================================
+
+const hodProfilePhotoDir = path.join(
+  __dirname,
+  "../uploads/hod-profile-photos"
+);
+
+if (!fs.existsSync(hodProfilePhotoDir)) {
+  fs.mkdirSync(hodProfilePhotoDir, {
+    recursive: true
+  });
+}
+
+const hodPhotoStorage = multer.diskStorage({
+
+  destination: (req, file, cb) => {
+    cb(null, hodProfilePhotoDir);
+  },
+
+  filename: (req, file, cb) => {
+
+    const extension =
+      path.extname(file.originalname);
+
+    const fileName =
+      "hod-profile-" +
+      Date.now() +
+      "-" +
+      Math.round(Math.random() * 1e9) +
+      extension;
+
+    cb(null, fileName);
+  }
+
+});
+
+const hodPhotoUpload = multer({
+
+  storage: hodPhotoStorage,
+
+  fileFilter: (req, file, cb) => {
+
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Only image files are allowed"
+        )
+      );
+    }
+
+  },
+
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  }
+
+});
+
+router.post(
+  "/hod-profile-photo",
+
+  authMiddleware,
+
+  hodPhotoUpload.single("photo"),
+
+  async (req, res) => {
+
+    try {
+
+      // Check uploaded file
+      if (!req.file) {
+
+        return res.status(400).json({
+          error: "No photo uploaded"
+        });
+
+      }
+
+      // ==================================================
+      // GET USER ID
+      // ==================================================
+
+      const userId =
+        req.user.id ||
+        req.user.userId ||
+        req.user._id;
+
+      if (!userId) {
+
+        return res.status(401).json({
+          error: "User ID not found in token"
+        });
+
+      }
+
+      // ==================================================
+      // CHECK USER IS HOD
+      // ==================================================
+
+      const User = require("../models/User");
+
+      const user =
+        await User.findOne({
+          _id: userId,
+          role: "hod"
+        });
+
+      if (!user) {
+
+        return res.status(403).json({
+          error:
+            "Only HOD users can upload HOD profile photo"
+        });
+
+      }
+
+      // ==================================================
+      // FILE URL
+      // ==================================================
+
+      const fileUrl =
+        `http://localhost:${process.env.PORT || 5000}` +
+        `/uploads/hod-profile-photos/${req.file.filename}`;
+
+      console.log(
+        "HOD photo saved:",
+        req.file.path
+      );
+
+      console.log(
+        "HOD photo URL:",
+        fileUrl
+      );
+
+      // ==================================================
+      // SAVE TO USER
+      // ==================================================
+
+      user.profilePhoto = fileUrl;
+
+      await user.save();
+
+      console.log(
+        "HOD profile photo saved to MongoDB"
+      );
+
+      // ==================================================
+      // RESPONSE
+      // ==================================================
+
+      return res.status(200).json({
+
+        message:
+          "HOD profile photo uploaded successfully",
+
+        url: fileUrl
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "HOD PHOTO UPLOAD ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+
+        error:
+          "HOD photo upload failed",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+  }
+);
 
 module.exports = router;

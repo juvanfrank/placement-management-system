@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const MentorProfile = require("../models/MentorProfile");
 const StudentProfile = require("../models/StudentProfile");
+const Certificate = require("../models/Certificate");
 
 // ==================================================
 // LOCAL FILE URL HELPER
@@ -116,17 +117,11 @@ exports.updateProfile = async (req, res) => {
     const data = req.body;
 
     console.log("=================================");
-
     console.log("MENTOR PROFILE UPDATE");
-
     console.log("USER ID:", userId);
-
     console.log("RECEIVED DEPARTMENT:", data.department);
-
     console.log("RECEIVED YEAR:", data.year);
-
     console.log("RECEIVED SECTION:", data.section);
-
     console.log("=================================");
 
     // ==================================================
@@ -162,7 +157,6 @@ exports.updateProfile = async (req, res) => {
       {
         userId,
       },
-
       {
         age: data.age || "",
 
@@ -179,7 +173,6 @@ exports.updateProfile = async (req, res) => {
 
         profilePhoto: data.profilePhoto || "",
       },
-
       {
         new: true,
         upsert: true,
@@ -277,15 +270,10 @@ exports.getStudents = async (req, res) => {
     const mentorSection = mentorProfile.section || "";
 
     console.log("=================================");
-
     console.log("MENTOR STUDENT MAPPING");
-
     console.log("Department:", mentorDepartment);
-
     console.log("Year:", mentorYear);
-
     console.log("Section:", mentorSection);
-
     console.log("=================================");
 
     // ==================================================
@@ -390,15 +378,12 @@ exports.getStudents = async (req, res) => {
       .filter(Boolean);
 
     // ==================================================
-    // SORT BY ROLL NUMBER
-    // ==================================================
-
-    // ==================================================
     // SORT BY ROLL NUMBER - ASCENDING
     // ==================================================
 
     students.sort((a, b) => {
       const rollA = String(a.rollNumber || "").trim();
+
       const rollB = String(b.rollNumber || "").trim();
 
       return rollA.localeCompare(rollB, undefined, {
@@ -428,6 +413,260 @@ exports.getStudents = async (req, res) => {
     console.error("GET MENTOR STUDENTS ERROR:", error);
 
     res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// ==================================================
+// GET SINGLE STUDENT DETAILS
+// ==================================================
+
+exports.getStudentDetails = async (req, res) => {
+  try {
+    const mentorUserId = req.user.id || req.user.userId || req.user._id;
+
+    const studentId = req.params.id;
+
+    if (!mentorUserId) {
+      return res.status(401).json({
+        message: "User ID not found",
+      });
+    }
+
+    if (!studentId) {
+      return res.status(400).json({
+        message: "Student ID is required",
+      });
+    }
+
+    // ==================================================
+    // GET MENTOR USER
+    // ==================================================
+
+    const mentorUser = await User.findById(mentorUserId).select("-password");
+
+    if (!mentorUser) {
+      return res.status(404).json({
+        message: "Mentor not found",
+      });
+    }
+
+    // ==================================================
+    // GET MENTOR PROFILE
+    // ==================================================
+
+    const mentorProfile = await MentorProfile.findOne({
+      userId: mentorUserId,
+    });
+
+    if (!mentorProfile) {
+      return res.status(404).json({
+        message: "Mentor profile not found",
+      });
+    }
+
+    // ==================================================
+    // MENTOR MAPPING DETAILS
+    // ==================================================
+
+    const mentorDepartment = mentorUser.department || "";
+
+    const mentorYear = mentorProfile.year;
+
+    const mentorSection = mentorProfile.section || "";
+
+    // ==================================================
+    // GET STUDENT USER
+    // ==================================================
+
+    const studentUser = await User.findById(studentId).select("-password");
+
+    if (!studentUser || studentUser.role !== "student") {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    // ==================================================
+    // GET STUDENT PROFILE
+    // ==================================================
+
+    const studentProfile = await StudentProfile.findOne({
+      userId: studentUser._id,
+    });
+
+    if (!studentProfile) {
+      return res.status(404).json({
+        message: "Student profile not found",
+      });
+    }
+
+    // ==================================================
+    // STUDENT MAPPING DETAILS
+    // ==================================================
+
+    const studentDepartment =
+      studentUser.department || studentProfile.department || "";
+
+    const studentYear = studentProfile.currentYear || "";
+
+    const studentSection = studentProfile.section || "";
+
+    // ==================================================
+    // VERIFY MENTOR ↔ STUDENT MAPPING
+    //
+    // Department + Year + Section
+    // ==================================================
+
+    if (
+      studentDepartment !== mentorDepartment ||
+      String(studentYear) !== String(mentorYear) ||
+      studentSection !== mentorSection
+    ) {
+      return res.status(403).json({
+        message: "This student is not assigned to this mentor's class",
+      });
+    }
+
+    // ==================================================
+    // GET APPROVED CERTIFICATES
+    // ==================================================
+
+    const certificates = await Certificate.find({
+      userId: studentUser._id,
+      status: "Approved",
+    }).sort({
+      createdAt: -1,
+    });
+
+    // ==================================================
+    // COMPLETE STUDENT DETAILS
+    // ==================================================
+
+    const student = {
+      id: studentUser._id,
+
+      userId: studentUser._id,
+
+      name: studentUser.name || studentProfile.name || "",
+
+      dob: studentProfile.dob || "",
+
+      gender: studentProfile.gender || "",
+
+      registerNumber:
+        studentUser.registerNumber || studentProfile.registerNumber || "",
+
+      rollNumber: studentProfile.rollNumber || "",
+
+      department: studentDepartment,
+
+      year: studentYear,
+
+      currentYear: studentYear,
+
+      section: studentSection,
+
+      batch: studentProfile.batch || "",
+
+      religion: studentProfile.religion || "",
+
+      caste: studentProfile.caste || "",
+
+      community: studentProfile.community || "",
+
+      studentPhone: studentProfile.studentPhone || "",
+
+      email:
+        studentUser.email ||
+        studentProfile.studentEmail ||
+        studentProfile.email ||
+        "",
+
+      address: studentProfile.address || "",
+
+      tenthPercentage: studentProfile.tenthPercentage || "",
+
+      twelthPercentage: studentProfile.twelthPercentage || "",
+
+      diplomaPercentage: studentProfile.diplomaPercentage || "",
+
+      currentArrears: studentProfile.currentArrears || "",
+
+      historyOfArrears: studentProfile.historyOfArrears || "",
+
+      cgpa: studentProfile.cgpa || studentUser.cgpa || "",
+
+      resumeLink: studentProfile.resumeLink || "",
+
+      linkedinLink: studentProfile.linkedinLink || "",
+
+      githubLink: studentProfile.githubLink || "",
+
+      portfolioLink: studentProfile.portfolioLink || "",
+
+      skills: studentProfile.skills || [],
+
+      internship: studentProfile.internship || [],
+
+      placementStatus: studentProfile.placementStatus || "Not Placed",
+
+      fatherName: studentProfile.fatherName || "",
+
+      motherName: studentProfile.motherName || "",
+
+      fatherPhone: studentProfile.fatherPhone || "",
+
+      motherPhone: studentProfile.motherPhone || "",
+
+      profilePhoto: getLocalFileUrl(studentProfile.profilePhoto),
+    };
+
+    // ==================================================
+    // CONCERNED MENTOR DETAILS
+    // ==================================================
+
+    const mentor = {
+      id: mentorUser._id,
+
+      userId: mentorUser._id,
+
+      name: mentorUser.name || "",
+
+      email: mentorUser.email || "",
+
+      department: mentorDepartment,
+
+      year: mentorYear ?? "",
+
+      section: mentorSection,
+
+      phone: mentorProfile.phone || "",
+
+      address: mentorProfile.address || "",
+
+      profilePhoto: getLocalFileUrl(mentorProfile.profilePhoto),
+    };
+
+    // ==================================================
+    // FINAL RESPONSE
+    // ==================================================
+
+    return res.status(200).json({
+      student,
+
+      mentor,
+
+      certificates,
+
+      certificateCount: certificates.length,
+    });
+  } catch (error) {
+    console.error("GET MENTOR STUDENT DETAILS ERROR:", error);
+
+    return res.status(500).json({
       message: "Server error",
       error: error.message,
     });

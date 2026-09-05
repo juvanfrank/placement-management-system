@@ -39,4 +39,15 @@ router.get(
   mentorController.getStudents
 );
 
+// ==================================================
+// SINGLE STUDENT DETAILS
+// ==================================================
+
+router.get(
+  "/student/:id",
+  auth,
+  roleMiddleware("mentor"),
+  mentorController.getStudentDetails
+);
+
 module.exports = router;

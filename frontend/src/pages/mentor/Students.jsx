@@ -27,6 +27,7 @@ function Students() {
 
       if (!token) {
         setError("Please login again.");
+        setLoading(false);
         return;
       }
 
@@ -38,23 +39,42 @@ function Students() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       const data = await response.json();
 
-      console.log("MENTOR STUDENTS RESPONSE:", data);
+      console.log(
+        "MENTOR STUDENTS RESPONSE:",
+        data
+      );
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to load students");
+        throw new Error(
+          data.message ||
+            "Failed to load students"
+        );
       }
 
-      setStudents(data.students || []);
-      setMentor(data.mentor || null);
-    } catch (error) {
-      console.error("FETCH STUDENTS ERROR:", error);
+      setStudents(
+        Array.isArray(data.students)
+          ? data.students
+          : []
+      );
 
-      setError(error.message || "Unable to load students");
+      setMentor(
+        data.mentor || null
+      );
+    } catch (error) {
+      console.error(
+        "FETCH STUDENTS ERROR:",
+        error
+      );
+
+      setError(
+        error.message ||
+          "Unable to load students"
+      );
     } finally {
       setLoading(false);
     }
@@ -65,7 +85,17 @@ function Students() {
   // ==================================================
 
   const handleStudentClick = (student) => {
-    navigate(`/mentor/student/${student.id}`);
+    if (!student.id) {
+      console.error(
+        "Student ID is missing:",
+        student
+      );
+      return;
+    }
+
+    navigate(
+      `/mentor/student/${student.id}`
+    );
   };
 
   // ==================================================
@@ -76,7 +106,9 @@ function Students() {
     return (
       <MentorLayout>
         <div className="bg-white shadow rounded-xl p-6">
-          <p className="text-gray-600">Loading students...</p>
+          <p className="text-gray-600">
+            Loading students...
+          </p>
         </div>
       </MentorLayout>
     );
@@ -88,99 +120,169 @@ function Students() {
 
   return (
     <MentorLayout>
-      {/* HEADER */}
+      <div className="space-y-6">
 
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-orange-600">Class Students</h2>
+        {/* HEADER */}
 
-        {mentor && (
-          <p className="text-gray-600 mt-2">
-            {mentor.department} | Year {mentor.year} | Section {mentor.section}
-          </p>
-        )}
-      </div>
-
-      {/* ERROR */}
-
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-5">
-          {error}
-        </div>
-      )}
-
-      {/* NO STUDENTS */}
-
-      {!error && students.length === 0 && (
-        <div className="bg-white shadow rounded-xl p-8 text-center">
-          <p className="text-gray-600 text-lg">No students found.</p>
+        <div>
+          <h2 className="text-2xl font-bold text-orange-600">
+            Class Students
+          </h2>
 
           {mentor && (
-            <p className="text-gray-500 mt-2">
-              Students matching <strong>{mentor.department}</strong> - Year{" "}
-              <strong>{mentor.year}</strong> - Section{" "}
-              <strong>{mentor.section}</strong> will appear here.
+            <p className="text-gray-600 mt-2">
+              {mentor.department} | Year{" "}
+              {mentor.year} | Section{" "}
+              {mentor.section}
             </p>
           )}
         </div>
-      )}
 
-      {/* STUDENTS TABLE */}
+        {/* ERROR */}
 
-      {students.length > 0 && (
-        <div className="bg-white shadow rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-orange-500 text-white">
-              <tr>
-                <th className="p-3 text-center">S.No</th>
+        {error && (
+          <div className="bg-red-100 border border-red-200 text-red-700 p-4 rounded-lg">
+            {error}
+          </div>
+        )}
 
-                <th className="p-3 text-center">Roll No</th>
+        {/* NO STUDENTS */}
 
-                <th className="p-3 text-left">Student Name</th>
+        {!error &&
+          students.length === 0 && (
+            <div className="bg-white shadow rounded-xl p-8 text-center">
 
-                <th className="p-3 text-center">Year</th>
+              <p className="text-gray-600 text-lg">
+                No students found.
+              </p>
 
-                <th className="p-3 text-center">Section</th>
-              </tr>
-            </thead>
+              {mentor && (
+                <p className="text-gray-500 mt-2">
+                  Students matching{" "}
+                  <strong>
+                    {mentor.department}
+                  </strong>{" "}
+                  - Year{" "}
+                  <strong>
+                    {mentor.year}
+                  </strong>{" "}
+                  - Section{" "}
+                  <strong>
+                    {mentor.section}
+                  </strong>{" "}
+                  will appear here.
+                </p>
+              )}
 
-            <tbody>
-              {students.map((student, index) => (
-                <tr
-                  key={student.id || student.rollNumber || index}
-                  className="border-b hover:bg-orange-50"
-                >
-                  {/* S.NO */}
+            </div>
+          )}
 
-                  <td className="p-3 text-center">{index + 1}</td>
+        {/* STUDENTS TABLE */}
 
-                  {/* ROLL NUMBER */}
+        {students.length > 0 && (
+          <div className="bg-white shadow rounded-xl overflow-hidden">
 
-                  <td className="p-3 text-center font-medium">
-                    {student.rollNumber || "-"}
-                  </td>
+            <table className="w-full">
 
-                  {/* STUDENT NAME */}
+              <thead className="bg-orange-500 text-white">
 
-                  <td
-                    className="p-3 text-left text-blue-600 cursor-pointer hover:underline font-medium"
-                    onClick={() => handleStudentClick(student)}
-                  >
-                    {student.name || "-"}
-                  </td>
+                <tr>
 
-                  {/* YEAR */}
+                  <th className="p-3 text-center">
+                    S.No
+                  </th>
 
-                  <td className="p-3 text-center">{student.year || "-"}</td>
+                  <th className="p-3 text-center">
+                    Roll No
+                  </th>
 
-                  {/* SECTION */}
+                  <th className="p-3 text-left">
+                    Student Name
+                  </th>
 
-                  <td className="p-3 text-center">{student.section || "-"}</td>
+                  <th className="p-3 text-center">
+                    Year
+                  </th>
+
+                  <th className="p-3 text-center">
+                    Section
+                  </th>
+
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+
+              </thead>
+
+              <tbody>
+
+                {students.map(
+                  (student, index) => (
+                    <tr
+                      key={
+                        student.id ||
+                        student.rollNumber ||
+                        index
+                      }
+                      className="border-b hover:bg-orange-50"
+                    >
+
+                      {/* S.NO */}
+
+                      <td className="p-3 text-center">
+                        {index + 1}
+                      </td>
+
+                      {/* ROLL NUMBER */}
+
+                      <td className="p-3 text-center font-medium">
+                        {student.rollNumber ||
+                          "-"}
+                      </td>
+
+                      {/* STUDENT NAME */}
+
+                      <td className="p-3 text-left">
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleStudentClick(
+                              student
+                            )
+                          }
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer"
+                        >
+                          {student.name ||
+                            "-"}
+                        </button>
+
+                      </td>
+
+                      {/* YEAR */}
+
+                      <td className="p-3 text-center">
+                        {student.year ||
+                          "-"}
+                      </td>
+
+                      {/* SECTION */}
+
+                      <td className="p-3 text-center">
+                        {student.section ||
+                          "-"}
+                      </td>
+
+                    </tr>
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+        )}
+
+      </div>
     </MentorLayout>
   );
 }

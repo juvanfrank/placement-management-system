@@ -41,7 +41,7 @@ function Login() {
         window.location.replace("/mentor/profile");
       }
       else if (role === "hod") {
-        window.location.replace("/hod-dashboard");
+        window.location.replace("/hod/profile");
       }
       else if (role === "admin") {
         window.location.replace("/admin-dashboard");
