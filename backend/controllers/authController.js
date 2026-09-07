@@ -27,12 +27,15 @@ exports.register = async (req, res) => {
       });
     }
 
+    // Normalize email
+    const normalizedEmail = email.trim().toLowerCase();
+
     // ==================================================
     // CHECK EXISTING EMAIL
     // ==================================================
 
     const existingUser = await User.findOne({
-      email,
+      email: normalizedEmail,
     });
 
     if (existingUser) {
@@ -44,21 +47,20 @@ exports.register = async (req, res) => {
     // ==================================================
     // REGISTER NUMBER
     // ==================================================
-    // Only students need register numbers.
-    // Mentors/HOD/Admin should not store an empty
-    // registerNumber value.
-    // ==================================================
 
     if (role === "student") {
-      if (!registerNumber) {
+      if (!registerNumber || !registerNumber.trim()) {
         return res.status(400).json({
           message: "Register number is required for students",
         });
       }
 
+      const normalizedRegisterNumber =
+        registerNumber.trim();
+
       const existingRegisterNumber =
         await User.findOne({
-          registerNumber,
+          registerNumber: normalizedRegisterNumber,
         });
 
       if (existingRegisterNumber) {
@@ -72,16 +74,18 @@ exports.register = async (req, res) => {
     // HASH PASSWORD
     // ==================================================
 
-    const hashedPassword =
-      await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
 
     // ==================================================
     // CREATE USER DATA
     // ==================================================
 
     const userData = {
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       role,
       department,
@@ -90,36 +94,60 @@ exports.register = async (req, res) => {
     // Register number only for students
     if (role === "student") {
       userData.registerNumber =
-        registerNumber;
+        registerNumber.trim();
     }
 
     // ==================================================
     // CREATE USER
     // ==================================================
 
-    const user =
-      await User.create(userData);
+    const user = await User.create(userData);
 
     // ==================================================
     // RESPONSE
     // ==================================================
 
     res.status(201).json({
-      message:
-        `${user.role} registered successfully`,
+      message: `${user.role} registered successfully`,
     });
 
   } catch (error) {
-    console.error(
-      "REGISTRATION ERROR:",
-      error
-    );
 
-    // Duplicate key error
+    console.error("REGISTRATION ERROR:", error);
+
+    // ==================================================
+    // SHOW EXACT DUPLICATE ERROR
+    // ==================================================
+
     if (error.code === 11000) {
+
+      console.log(
+        "DUPLICATE KEY PATTERN:",
+        error.keyPattern
+      );
+
+      console.log(
+        "DUPLICATE KEY VALUE:",
+        error.keyValue
+      );
+
+      const duplicateField =
+        Object.keys(error.keyPattern || {})[0];
+
+      if (duplicateField === "email") {
+        return res.status(400).json({
+          message: "Email already exists",
+        });
+      }
+
+      if (duplicateField === "registerNumber") {
+        return res.status(400).json({
+          message: "Register number already exists",
+        });
+      }
+
       return res.status(400).json({
-        message:
-          "Email or register number already exists",
+        message: "Duplicate data already exists",
       });
     }
 
@@ -130,23 +158,28 @@ exports.register = async (req, res) => {
   }
 };
 
+
 // ==================================================
 // LOGIN
 // ==================================================
 
 exports.login = async (req, res) => {
   try {
+
     const {
       email,
       password,
     } = req.body;
+
+    const normalizedEmail =
+      email.trim().toLowerCase();
 
     // ==================================================
     // FIND USER
     // ==================================================
 
     const user = await User.findOne({
-      email,
+      email: normalizedEmail,
     });
 
     if (!user) {
@@ -204,6 +237,7 @@ exports.login = async (req, res) => {
     });
 
   } catch (error) {
+
     console.error(
       "LOGIN ERROR:",
       error

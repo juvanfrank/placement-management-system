@@ -2,16 +2,32 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    registerNumber: { type: String, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    name: {
+      type: String,
+      required: true
+    },
+
+    registerNumber: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true
+    },
+
+    password: {
+      type: String,
+      required: true
+    },
 
     department: String,
     year: Number,
     cgpa: Number,
 
-    // Profile photo
     profilePhoto: {
       type: String,
       default: ""
@@ -29,7 +45,9 @@ const userSchema = new mongoose.Schema(
       default: null
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
 
 module.exports =
