@@ -7,6 +7,8 @@ const fs = require("fs");
 
 const StudentProfile = require("../models/StudentProfile");
 const MentorProfile = require("../models/MentorProfile");
+const User = require("../models/User");
+
 const authMiddleware = require("../middleware/authMiddleware");
 
 // ==================================================
@@ -47,7 +49,9 @@ const profilePhotoStorage = multer.diskStorage({
 
   filename: (req, file, cb) => {
 
-    const extension = path.extname(file.originalname);
+    const extension = path.extname(
+      file.originalname
+    );
 
     const fileName =
       "profile-" +
@@ -73,7 +77,9 @@ const resumeStorage = multer.diskStorage({
 
   filename: (req, file, cb) => {
 
-    const extension = path.extname(file.originalname);
+    const extension = path.extname(
+      file.originalname
+    );
 
     const fileName =
       "resume-" +
@@ -125,7 +131,10 @@ const resumeUpload = multer({
 
   fileFilter: (req, file, cb) => {
 
-    if (file.mimetype === "application/pdf") {
+    if (
+      file.mimetype ===
+      "application/pdf"
+    ) {
       cb(null, true);
     } else {
       cb(
@@ -144,23 +153,20 @@ const resumeUpload = multer({
 });
 
 // ==================================================
-// PROFILE PHOTO ROUTE
+// STUDENT PROFILE PHOTO UPLOAD
 // ==================================================
 
 router.post(
   "/profile-photo",
 
-  // JWT authentication
   authMiddleware,
 
-  // Upload file
   profilePhotoUpload.single("photo"),
 
   async (req, res) => {
 
     try {
 
-      // Check uploaded file
       if (!req.file) {
 
         return res.status(400).json({
@@ -168,10 +174,6 @@ router.post(
         });
 
       }
-
-      // ==================================================
-      // GET USER ID FROM JWT
-      // ==================================================
 
       const userId =
         req.user.id ||
@@ -186,32 +188,9 @@ router.post(
 
       }
 
-      // ==================================================
-      // LOCAL FILE URL
-      // ==================================================
-
       const fileUrl =
         `http://localhost:${process.env.PORT || 5000}` +
         `/uploads/profile-photos/${req.file.filename}`;
-
-      console.log(
-        "Profile photo saved:",
-        req.file.path
-      );
-
-      console.log(
-        "User ID:",
-        userId
-      );
-
-      console.log(
-        "Profile photo URL:",
-        fileUrl
-      );
-
-      // ==================================================
-      // SAVE URL INTO MONGODB
-      // ==================================================
 
       await StudentProfile.findOneAndUpdate(
 
@@ -228,14 +207,6 @@ router.post(
         }
 
       );
-
-      console.log(
-        "Profile photo saved to MongoDB"
-      );
-
-      // ==================================================
-      // RESPONSE
-      // ==================================================
 
       return res.status(200).json({
 
@@ -269,23 +240,20 @@ router.post(
 );
 
 // ==================================================
-// RESUME ROUTE
+// RESUME UPLOAD
 // ==================================================
 
 router.post(
   "/resume",
 
-  // JWT authentication
   authMiddleware,
 
-  // Upload file
   resumeUpload.single("resume"),
 
   async (req, res) => {
 
     try {
 
-      // Check uploaded file
       if (!req.file) {
 
         return res.status(400).json({
@@ -293,10 +261,6 @@ router.post(
         });
 
       }
-
-      // ==================================================
-      // GET USER ID
-      // ==================================================
 
       const userId =
         req.user.id ||
@@ -306,32 +270,15 @@ router.post(
       if (!userId) {
 
         return res.status(401).json({
-          error: "User ID not found in token"
+          error:
+            "User ID not found in token"
         });
 
       }
 
-      // ==================================================
-      // LOCAL RESUME URL
-      // ==================================================
-
       const fileUrl =
         `http://localhost:${process.env.PORT || 5000}` +
         `/uploads/resumes/${req.file.filename}`;
-
-      console.log(
-        "Resume saved:",
-        req.file.path
-      );
-
-      console.log(
-        "Resume URL:",
-        fileUrl
-      );
-
-      // ==================================================
-      // SAVE RESUME URL INTO MONGODB
-      // ==================================================
 
       await StudentProfile.findOneAndUpdate(
 
@@ -348,14 +295,6 @@ router.post(
         }
 
       );
-
-      console.log(
-        "Resume saved to MongoDB"
-      );
-
-      // ==================================================
-      // RESPONSE
-      // ==================================================
 
       return res.status(200).json({
 
@@ -389,45 +328,6 @@ router.post(
 );
 
 // ==================================================
-// MULTER ERROR HANDLER
-// ==================================================
-
-router.use(
-  (error, req, res, next) => {
-
-    if (error instanceof multer.MulterError) {
-
-      return res.status(400).json({
-
-        error:
-          "File upload error",
-
-        message:
-          error.message
-
-      });
-
-    }
-
-    if (error) {
-
-      return res.status(400).json({
-
-        error:
-          "File upload error",
-
-        message:
-          error.message
-
-      });
-
-    }
-
-    next();
-
-  }
-);
-// ==================================================
 // MENTOR PROFILE PHOTO UPLOAD
 // ==================================================
 
@@ -437,9 +337,12 @@ const mentorProfilePhotoDir = path.join(
 );
 
 if (!fs.existsSync(mentorProfilePhotoDir)) {
-  fs.mkdirSync(mentorProfilePhotoDir, {
-    recursive: true
-  });
+  fs.mkdirSync(
+    mentorProfilePhotoDir,
+    {
+      recursive: true
+    }
+  );
 }
 
 const mentorPhotoStorage =
@@ -452,7 +355,9 @@ const mentorPhotoStorage =
     filename: (req, file, cb) => {
 
       const extension =
-        path.extname(file.originalname);
+        path.extname(
+          file.originalname
+        );
 
       const fileName =
         "mentor-profile-" +
@@ -472,7 +377,9 @@ const mentorPhotoUpload = multer({
 
   fileFilter: (req, file, cb) => {
 
-    if (file.mimetype.startsWith("image/")) {
+    if (
+      file.mimetype.startsWith("image/")
+    ) {
       cb(null, true);
     } else {
       cb(
@@ -517,7 +424,8 @@ router.post(
       if (!userId) {
 
         return res.status(401).json({
-          error: "User ID not found in token"
+          error:
+            "User ID not found in token"
         });
 
       }
@@ -526,21 +434,9 @@ router.post(
         `http://localhost:${process.env.PORT || 5000}` +
         `/uploads/mentor-profile-photos/${req.file.filename}`;
 
-      console.log(
-        "Mentor photo saved:",
-        req.file.path
-      );
-
-      console.log(
-        "Mentor photo URL:",
-        fileUrl
-      );
-
       await MentorProfile.findOneAndUpdate(
 
-        {
-          userId
-        },
+        { userId },
 
         {
           profilePhoto: fileUrl
@@ -554,11 +450,7 @@ router.post(
 
       );
 
-      console.log(
-        "Mentor photo saved to MongoDB"
-      );
-
-      res.status(200).json({
+      return res.status(200).json({
 
         message:
           "Mentor profile photo uploaded successfully",
@@ -574,7 +466,7 @@ router.post(
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
 
         error:
           "Mentor photo upload failed",
@@ -588,6 +480,7 @@ router.post(
 
   }
 );
+
 // ==================================================
 // HOD PROFILE PHOTO UPLOAD
 // ==================================================
@@ -598,9 +491,12 @@ const hodProfilePhotoDir = path.join(
 );
 
 if (!fs.existsSync(hodProfilePhotoDir)) {
-  fs.mkdirSync(hodProfilePhotoDir, {
-    recursive: true
-  });
+  fs.mkdirSync(
+    hodProfilePhotoDir,
+    {
+      recursive: true
+    }
+  );
 }
 
 const hodPhotoStorage = multer.diskStorage({
@@ -612,7 +508,9 @@ const hodPhotoStorage = multer.diskStorage({
   filename: (req, file, cb) => {
 
     const extension =
-      path.extname(file.originalname);
+      path.extname(
+        file.originalname
+      );
 
     const fileName =
       "hod-profile-" +
@@ -632,7 +530,9 @@ const hodPhotoUpload = multer({
 
   fileFilter: (req, file, cb) => {
 
-    if (file.mimetype.startsWith("image/")) {
+    if (
+      file.mimetype.startsWith("image/")
+    ) {
       cb(null, true);
     } else {
       cb(
@@ -661,7 +561,6 @@ router.post(
 
     try {
 
-      // Check uploaded file
       if (!req.file) {
 
         return res.status(400).json({
@@ -670,28 +569,10 @@ router.post(
 
       }
 
-      // ==================================================
-      // GET USER ID
-      // ==================================================
-
       const userId =
         req.user.id ||
         req.user.userId ||
         req.user._id;
-
-      if (!userId) {
-
-        return res.status(401).json({
-          error: "User ID not found in token"
-        });
-
-      }
-
-      // ==================================================
-      // CHECK USER IS HOD
-      // ==================================================
-
-      const User = require("../models/User");
 
       const user =
         await User.findOne({
@@ -708,39 +589,13 @@ router.post(
 
       }
 
-      // ==================================================
-      // FILE URL
-      // ==================================================
-
       const fileUrl =
         `http://localhost:${process.env.PORT || 5000}` +
         `/uploads/hod-profile-photos/${req.file.filename}`;
 
-      console.log(
-        "HOD photo saved:",
-        req.file.path
-      );
-
-      console.log(
-        "HOD photo URL:",
-        fileUrl
-      );
-
-      // ==================================================
-      // SAVE TO USER
-      // ==================================================
-
       user.profilePhoto = fileUrl;
 
       await user.save();
-
-      console.log(
-        "HOD profile photo saved to MongoDB"
-      );
-
-      // ==================================================
-      // RESPONSE
-      // ==================================================
 
       return res.status(200).json({
 
@@ -769,6 +624,231 @@ router.post(
       });
 
     }
+
+  }
+);
+
+// ==================================================
+// ADMIN PROFILE PHOTO UPLOAD
+// ==================================================
+
+const adminProfilePhotoDir = path.join(
+  __dirname,
+  "../uploads/admin-profile-photos"
+);
+
+if (!fs.existsSync(adminProfilePhotoDir)) {
+  fs.mkdirSync(
+    adminProfilePhotoDir,
+    {
+      recursive: true
+    }
+  );
+}
+
+const adminPhotoStorage = multer.diskStorage({
+
+  destination: (req, file, cb) => {
+    cb(null, adminProfilePhotoDir);
+  },
+
+  filename: (req, file, cb) => {
+
+    const extension =
+      path.extname(
+        file.originalname
+      );
+
+    const fileName =
+      "admin-profile-" +
+      Date.now() +
+      "-" +
+      Math.round(Math.random() * 1e9) +
+      extension;
+
+    cb(null, fileName);
+  }
+
+});
+
+const adminPhotoUpload = multer({
+
+  storage: adminPhotoStorage,
+
+  fileFilter: (req, file, cb) => {
+
+    if (
+      file.mimetype.startsWith("image/")
+    ) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Only image files are allowed"
+        )
+      );
+    }
+
+  },
+
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  }
+
+});
+
+router.post(
+  "/admin-profile-photo",
+
+  authMiddleware,
+
+  adminPhotoUpload.single("photo"),
+
+  async (req, res) => {
+
+    try {
+
+      if (!req.file) {
+
+        return res.status(400).json({
+          error: "No photo uploaded"
+        });
+
+      }
+
+      const userId =
+        req.user.id ||
+        req.user.userId ||
+        req.user._id;
+
+      if (!userId) {
+
+        return res.status(401).json({
+          error:
+            "User ID not found in token"
+        });
+
+      }
+
+      // ==============================================
+      // CHECK ADMIN
+      // ==============================================
+
+      const user =
+        await User.findOne({
+          _id: userId,
+          role: "admin"
+        });
+
+      if (!user) {
+
+        return res.status(403).json({
+          error:
+            "Only Admin users can upload Admin profile photo"
+        });
+
+      }
+
+      // ==============================================
+      // FILE URL
+      // ==============================================
+
+      const fileUrl =
+        `http://localhost:${process.env.PORT || 5000}` +
+        `/uploads/admin-profile-photos/${req.file.filename}`;
+
+      console.log(
+        "Admin photo saved:",
+        req.file.path
+      );
+
+      console.log(
+        "Admin photo URL:",
+        fileUrl
+      );
+
+      // ==============================================
+      // SAVE TO USER
+      // ==============================================
+
+      user.profilePhoto =
+        fileUrl;
+
+      await user.save();
+
+      console.log(
+        "Admin profile photo saved to MongoDB"
+      );
+
+      return res.status(200).json({
+
+        message:
+          "Admin profile photo uploaded successfully",
+
+        url: fileUrl
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN PHOTO UPLOAD ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+
+        error:
+          "Admin photo upload failed",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+  }
+);
+
+// ==================================================
+// MULTER ERROR HANDLER
+// ==================================================
+
+router.use(
+  (error, req, res, next) => {
+
+    if (
+      error instanceof multer.MulterError
+    ) {
+
+      return res.status(400).json({
+
+        error:
+          "File upload error",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+    if (error) {
+
+      return res.status(400).json({
+
+        error:
+          "File upload error",
+
+        message:
+          error.message
+
+      });
+
+    }
+
+    next();
 
   }
 );

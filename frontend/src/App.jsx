@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-// Admin
+// Admin Dashboard
 import AdminDashboard from "./pages/AdminDashboard";
 
 // Student
@@ -27,27 +27,66 @@ import HodStudentDetails from "./pages/hod/StudentDetails";
 import HodMentors from "./pages/hod/Mentors";
 import HodMentorDetails from "./pages/hod/MentorDetails";
 
+// Admin
+import AdminProfile from "./pages/admin/Profile";
+import Departments from "./pages/admin/Departments";
+import DepartmentYears from "./pages/admin/DepartmentYears";
+import DepartmentSections from "./pages/admin/DepartmentSections";
+import AdminStudents from "./pages/admin/Students";
+import AdminStudentDetails from "./pages/admin/StudentDetails";
+
 function App() {
   return (
     <Router>
       <Routes>
 
         {/* ==================== AUTH ==================== */}
+
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
 
         {/* ==================== ADMIN ==================== */}
+
         <Route
           path="/admin-dashboard"
           element={<AdminDashboard />}
         />
 
+        <Route
+          path="/admin/profile"
+          element={<AdminProfile />}
+        />
+
+        <Route
+          path="/admin/departments"
+          element={<Departments />}
+        />
+
+        <Route
+          path="/admin/departments/:department"
+          element={<DepartmentYears />}
+        />
+
+        <Route
+          path="/admin/departments/:department/year/:year"
+          element={<DepartmentSections />}
+        />
+
+        <Route
+          path="/admin/departments/:department/year/:year/section/:section"
+          element={<AdminStudents />}
+        />
+
+        <Route
+          path="/admin/student/:id"
+          element={<AdminStudentDetails />}
+        />
+
 
         {/* ==================== STUDENT ==================== */}
 
-        {/* Student starts from Profile */}
         <Route
           path="/student/profile"
           element={<StudentProfile />}
@@ -71,7 +110,6 @@ function App() {
 
         {/* ==================== MENTOR ==================== */}
 
-        {/* Mentor starts from Profile */}
         <Route
           path="/mentor/profile"
           element={<MentorProfile />}
@@ -100,7 +138,6 @@ function App() {
 
         {/* ==================== HOD ==================== */}
 
-        {/* HOD starts from Profile */}
         <Route
           path="/hod/profile"
           element={<HodProfile />}

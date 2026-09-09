@@ -1,39 +1,97 @@
 const express = require("express");
+
 const router = express.Router();
-const auth = require("../middleware/authMiddleware");
-const admin = require("../middleware/adminMiddleware");
-const User = require("../models/User");
 
-// Get All Students (Admin Only)
-router.get("/students", auth, admin, async (req, res) => {
-  try {
-    const students = await Student.find().select("-password");
-    res.json(students);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-// 🔎 Admin Search Students
-router.get("/search", auth, admin, async (req, res) => {
-  try {
-    const { department, minCgpa } = req.query;
+const auth =
+  require("../middleware/authMiddleware");
 
-    let filter = {};
+const roleMiddleware =
+  require("../middleware/roleMiddleware");
 
-    if (department) {
-      filter.department = department;
-    }
+const adminController =
+  require("../controllers/adminController");
 
-    if (minCgpa) {
-      filter.cgpa = { $gte: Number(minCgpa) };
-    }
 
-    const students = await Student.find(filter).select("-password");
+// ==================================================
+// ADMIN PROFILE
+// ==================================================
 
-    res.json(students);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get(
+  "/profile",
+  auth,
+  roleMiddleware("admin"),
+  adminController.getProfile
+);
+
+// ==================================================
+// UPDATE ADMIN PROFILE
+// ==================================================
+
+router.put(
+  "/profile",
+  auth,
+  roleMiddleware("admin"),
+  adminController.updateProfile
+);
+
+// ==================================================
+// GET ALL DEPARTMENTS
+// ==================================================
+
+router.get(
+  "/departments",
+  auth,
+  roleMiddleware("admin"),
+  adminController.getDepartments
+);
+
+
+// ==================================================
+// GET YEARS BY DEPARTMENT
+// ==================================================
+
+router.get(
+  "/departments/:department/years",
+  auth,
+  roleMiddleware("admin"),
+  adminController.getYears
+);
+
+
+// ==================================================
+// GET SECTIONS BY DEPARTMENT + YEAR
+// ==================================================
+
+router.get(
+  "/departments/:department/year/:year/sections",
+  auth,
+  roleMiddleware("admin"),
+  adminController.getSections
+);
+
+
+// ==================================================
+// GET STUDENTS BY CLASS
+// ==================================================
+
+router.get(
+  "/departments/:department/year/:year/section/:section/students",
+  auth,
+  roleMiddleware("admin"),
+  adminController.getStudentsByClass
+);
+
+
+// ==================================================
+// GET SINGLE STUDENT DETAILS
+// ==================================================
+
+router.get(
+  "/student/:id",
+  auth,
+  roleMiddleware("admin"),
+  adminController.getStudentDetails
+);
+
 
 module.exports = router;

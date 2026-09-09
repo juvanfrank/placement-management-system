@@ -58,6 +58,7 @@ exports.getProfile = async (req, res) => {
     if (!profile) {
       profile = await StudentProfile.create({
         userId,
+        department: user.department || "",
       });
     }
 
@@ -68,73 +69,94 @@ exports.getProfile = async (req, res) => {
     res.status(200).json({
       // ==================================================
       // USER DETAILS
-      // These come from User collection
       // ==================================================
 
-      name: user.name,
-      email: user.email,
-      registerNumber: user.registerNumber,
+      name: user.name || "",
 
-      // IMPORTANT:
-      // Department comes from registration/User
-      department: user.department || "",
+      email: user.email || "",
+
+      registerNumber:
+        user.registerNumber || "",
+
+      department:
+        profile.department ||
+        user.department ||
+        "",
 
       // ==================================================
       // PERSONAL
       // ==================================================
 
-      dob: profile.dob,
-      gender: profile.gender,
-      rollNumber: profile.rollNumber,
-      currentYear: profile.currentYear,
-      section: profile.section,
-      batch: profile.batch,
+      dob: profile.dob || "",
 
-      religion: profile.religion,
-      caste: profile.caste,
-      community: profile.community,
+      gender: profile.gender || "",
+
+      rollNumber:
+        profile.rollNumber || "",
+
+      currentYear:
+        profile.currentYear || "",
+
+      section:
+        profile.section || "",
+
+      batch:
+        profile.batch || "",
+
+      religion:
+        profile.religion || "",
+
+      caste:
+        profile.caste || "",
+
+      community:
+        profile.community || "",
 
       // ==================================================
       // ACADEMIC
       // ==================================================
 
-      cgpa: profile.cgpa,
+      cgpa:
+        profile.cgpa || "",
 
-      skills: profile.skills,
+      skills:
+        profile.skills || [],
 
-      internship: profile.internship,
+      internship:
+        profile.internship || [],
 
       placementStatus:
-        profile.placementStatus,
+        profile.placementStatus ||
+        "Not Placed",
 
       // ==================================================
       // CONTACT
       // ==================================================
 
       studentPhone:
-        profile.studentPhone,
+        profile.studentPhone || "",
 
       address:
-        profile.address,
+        profile.address || "",
 
       // ==================================================
       // ACADEMIC DETAILS
       // ==================================================
 
       tenthPercentage:
-        profile.tenthPercentage,
+        profile.tenthPercentage || "",
 
       twelthPercentage:
-        profile.twelthPercentage,
+        profile.twelthPercentage || "",
 
       diplomaPercentage:
-        profile.diplomaPercentage,
+        profile.diplomaPercentage || "",
 
       currentArrears:
-        profile.currentArrears,
+        profile.currentArrears || "",
 
       historyOfArrears:
-        profile.historyOfArrears,
+        profile.historyOfArrears || "",
 
       // ==================================================
       // PROFESSIONAL
@@ -146,32 +168,32 @@ exports.getProfile = async (req, res) => {
         ),
 
       linkedinLink:
-        profile.linkedinLink,
+        profile.linkedinLink || "",
 
       githubLink:
-        profile.githubLink,
+        profile.githubLink || "",
 
       portfolioLink:
-        profile.portfolioLink,
+        profile.portfolioLink || "",
 
       // ==================================================
       // PARENT DETAILS
       // ==================================================
 
       fatherName:
-        profile.fatherName,
+        profile.fatherName || "",
 
       motherName:
-        profile.motherName,
+        profile.motherName || "",
 
       fatherPhone:
-        profile.fatherPhone,
+        profile.fatherPhone || "",
 
       motherPhone:
-        profile.motherPhone,
+        profile.motherPhone || "",
 
       // ==================================================
-      // LOCAL PROFILE PHOTO
+      // PROFILE PHOTO
       // ==================================================
 
       profilePhoto:
@@ -181,6 +203,7 @@ exports.getProfile = async (req, res) => {
     });
 
   } catch (error) {
+
     console.error(
       "GET PROFILE ERROR:",
       error
@@ -188,9 +211,11 @@ exports.getProfile = async (req, res) => {
 
     res.status(500).json({
       message: "Server error",
+      error: error.message,
     });
   }
 };
+
 
 // ==================================================
 // UPDATE PROFILE
@@ -198,28 +223,34 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
+
     const userId =
       req.user.id ||
       req.user.userId ||
       req.user._id;
 
     console.log(
-      "REQ BODY:",
+      "STUDENT PROFILE UPDATE:",
       req.body
     );
 
-    let data = req.body;
+    const data = req.body;
 
     // ==================================================
     // CONVERT SKILLS TO ARRAY
     // ==================================================
 
     if (typeof data.skills === "string") {
-      data.skills = data.skills
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+
+      data.skills =
+        data.skills
+          .split(",")
+          .map((skill) =>
+            skill.trim()
+          )
+          .filter(Boolean);
     }
+
 
     // ==================================================
     // CONVERT INTERNSHIP TO ARRAY
@@ -228,34 +259,46 @@ exports.updateProfile = async (req, res) => {
     if (
       typeof data.internship === "string"
     ) {
-      data.internship = data.internship
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+
+      data.internship =
+        data.internship
+          .split(",")
+          .map((item) =>
+            item.trim()
+          )
+          .filter(Boolean);
     }
 
-    // ==================================================
-    // UPDATE USER
-    // ==================================================
 
-    // IMPORTANT:
-    // Department is NOT updated here.
-    //
-    // Department is controlled by registration
-    // and stored in the User collection.
+    // ==================================================
+    // UPDATE USER COLLECTION
+    // ==================================================
 
     await User.findByIdAndUpdate(
+
       userId,
+
       {
-        name: data.name,
-        email: data.email,
+        name:
+          data.name,
+
+        email:
+          data.email,
+
         registerNumber:
           data.registerNumber,
+
+        // IMPORTANT
+        // Save department in User
+        department:
+          data.department,
       },
+
       {
         runValidators: true,
       }
     );
+
 
     // ==================================================
     // UPDATE STUDENT PROFILE
@@ -263,49 +306,64 @@ exports.updateProfile = async (req, res) => {
 
     const profile =
       await StudentProfile.findOneAndUpdate(
-        { userId },
 
         {
-          // ==================================================
+          userId,
+        },
+
+        {
+          // ==============================================
+          // DEPARTMENT
+          // ==============================================
+
+          // IMPORTANT FOR ADMIN PANEL
+          department:
+            data.department || "",
+
+
+          // ==============================================
           // PERSONAL
-          // ==================================================
+          // ==============================================
 
           dob:
-            data.dob,
+            data.dob || "",
 
           gender:
-            data.gender,
+            data.gender || "",
 
           rollNumber:
-            data.rollNumber,
-
-          // DO NOT SAVE DEPARTMENT HERE
-          // Department belongs to User.
+            data.rollNumber || "",
 
           currentYear:
-            data.currentYear,
+            data.currentYear || "",
 
           section:
-            data.section,
+            data.section || "",
 
           batch:
-            data.batch,
+            data.batch || "",
+
+
+          // ==============================================
+          // RELIGION / COMMUNITY
+          // ==============================================
 
           religion:
-            data.religion,
+            data.religion || "",
 
           caste:
-            data.caste,
+            data.caste || "",
 
           community:
-            data.community,
+            data.community || "",
 
-          // ==================================================
+
+          // ==============================================
           // ACADEMIC
-          // ==================================================
+          // ==============================================
 
           cgpa:
-            data.cgpa,
+            data.cgpa || "",
 
           skills:
             data.skills || [],
@@ -314,104 +372,120 @@ exports.updateProfile = async (req, res) => {
             data.internship || [],
 
           placementStatus:
-            data.placementStatus,
+            data.placementStatus ||
+            "Not Placed",
 
-          // ==================================================
+
+          // ==============================================
           // CONTACT
-          // ==================================================
+          // ==============================================
 
           studentPhone:
-            data.studentPhone,
+            data.studentPhone || "",
 
           address:
-            data.address,
+            data.address || "",
 
-          // ==================================================
+
+          // ==============================================
           // ACADEMIC DETAILS
-          // ==================================================
+          // ==============================================
 
           tenthPercentage:
-            data.tenthPercentage,
+            data.tenthPercentage || "",
 
           twelthPercentage:
-            data.twelthPercentage,
+            data.twelthPercentage || "",
 
           diplomaPercentage:
-            data.diplomaPercentage,
+            data.diplomaPercentage || "",
 
           currentArrears:
-            data.currentArrears,
+            data.currentArrears || "",
 
           historyOfArrears:
-            data.historyOfArrears,
+            data.historyOfArrears || "",
 
-          // ==================================================
+
+          // ==============================================
           // PROFESSIONAL
-          // ==================================================
+          // ==============================================
 
           resumeLink:
-            data.resumeLink,
+            data.resumeLink || "",
 
           linkedinLink:
-            data.linkedinLink,
+            data.linkedinLink || "",
 
           githubLink:
-            data.githubLink,
+            data.githubLink || "",
 
           portfolioLink:
-            data.portfolioLink,
+            data.portfolioLink || "",
 
-          // ==================================================
+
+          // ==============================================
           // PARENT DETAILS
-          // ==================================================
+          // ==============================================
 
           fatherName:
-            data.fatherName,
+            data.fatherName || "",
 
           motherName:
-            data.motherName,
+            data.motherName || "",
 
           fatherPhone:
-            data.fatherPhone,
+            data.fatherPhone || "",
 
           motherPhone:
-            data.motherPhone,
+            data.motherPhone || "",
 
-          // ==================================================
+
+          // ==============================================
           // PROFILE PHOTO
-          // ==================================================
+          // ==============================================
 
           profilePhoto:
-            data.profilePhoto,
+            data.profilePhoto || "",
         },
 
         {
-          returnDocument: "after",
+          new: true,
           runValidators: true,
           upsert: true,
+          setDefaultsOnInsert: true,
         }
       );
+
 
     // ==================================================
     // RESPONSE
     // ==================================================
 
     res.status(200).json({
+
       message:
         "Profile updated successfully",
 
       profile,
+
     });
 
   } catch (error) {
+
     console.error(
       "UPDATE PROFILE ERROR:",
       error
     );
 
     res.status(500).json({
-      message: "Server error",
-      error: error.message,
+
+      message:
+        "Server error",
+
+      error:
+        error.message,
+
     });
   }
 };

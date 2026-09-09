@@ -17,10 +17,12 @@ function Register() {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -32,17 +34,26 @@ function Register() {
       alert("Registration Successful 🎉");
 
       navigate("/");
+
     } catch (error) {
-      alert("Registration Failed ❌");
-      console.log(error);
+
+      console.log("REGISTRATION ERROR:", error);
+
+      alert(
+        error.response?.data?.message ||
+        "Registration Failed ❌"
+      );
     }
   };
 
   return (
     <div
       className="min-h-screen flex items-center justify-center relative bg-cover bg-center"
-      style={{ backgroundImage: `url(${collegeBg})` }}
+      style={{
+        backgroundImage: `url(${collegeBg})`,
+      }}
     >
+
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-black/60"></div>
 
@@ -79,7 +90,7 @@ function Register() {
             className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
           />
 
-          {/* REGISTER NUMBER */}
+          {/* REGISTER NUMBER - ONLY STUDENT */}
           {formData.role === "student" && (
             <input
               type="text"
@@ -143,46 +154,51 @@ function Register() {
             </option>
           </select>
 
-          {/* DEPARTMENT */}
-          <select
-            name="department"
-            value={formData.department}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none bg-white"
-          >
-            <option value="">
-              Select Department
-            </option>
+          {/* DEPARTMENT - NOT FOR ADMIN */}
+          {formData.role !== "admin" &&
+            formData.role !== "" && (
+              <select
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+                className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none bg-white"
+              >
 
-            <option value="AIDS">
-              AIDS - Artificial Intelligence & Data Science
-            </option>
+                <option value="">
+                  Select Department
+                </option>
 
-            <option value="CSE">
-              CSE - Computer Science & Engineering
-            </option>
+                <option value="AIDS">
+                  AIDS - Artificial Intelligence & Data Science
+                </option>
 
-            <option value="ECE">
-              ECE - Electronics & Communication Engineering
-            </option>
+                <option value="CSE">
+                  CSE - Computer Science & Engineering
+                </option>
 
-            <option value="EEE">
-              EEE - Electrical & Electronics Engineering
-            </option>
+                <option value="ECE">
+                  ECE - Electronics & Communication Engineering
+                </option>
 
-            <option value="MECH">
-              MECH - Mechanical Engineering
-            </option>
+                <option value="EEE">
+                  EEE - Electrical & Electronics Engineering
+                </option>
 
-            <option value="CIVIL">
-              CIVIL - Civil Engineering
-            </option>
+                <option value="MECH">
+                  MECH - Mechanical Engineering
+                </option>
 
-            <option value="IT">
-              IT - Information Technology
-            </option>
-          </select>
+                <option value="CIVIL">
+                  CIVIL - Civil Engineering
+                </option>
+
+                <option value="IT">
+                  IT - Information Technology
+                </option>
+
+              </select>
+            )}
 
           {/* REGISTER */}
           <button
@@ -196,6 +212,7 @@ function Register() {
 
         {/* LOGIN */}
         <p className="text-center text-sm mt-6">
+
           Already have an account?{" "}
 
           <Link
@@ -204,9 +221,11 @@ function Register() {
           >
             Login
           </Link>
+
         </p>
 
       </div>
+
     </div>
   );
 }

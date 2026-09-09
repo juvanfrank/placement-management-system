@@ -8,22 +8,22 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const {
-      name,
-      registerNumber,
-      email,
-      password,
-      role,
-      department,
-    } = req.body;
+    const { name, registerNumber, email, password, role, department } =
+      req.body;
 
     // ==================================================
     // VALIDATION
     // ==================================================
 
-    if (!name || !email || !password || !role || !department) {
+    if (!name || !email || !password || !role) {
       return res.status(400).json({
         message: "Please fill all required fields",
+      });
+    }
+
+    if (["student", "mentor", "hod"].includes(role) && !department) {
+      return res.status(400).json({
+        message: "Department is required for this role",
       });
     }
 
@@ -55,13 +55,11 @@ exports.register = async (req, res) => {
         });
       }
 
-      const normalizedRegisterNumber =
-        registerNumber.trim();
+      const normalizedRegisterNumber = registerNumber.trim();
 
-      const existingRegisterNumber =
-        await User.findOne({
-          registerNumber: normalizedRegisterNumber,
-        });
+      const existingRegisterNumber = await User.findOne({
+        registerNumber: normalizedRegisterNumber,
+      });
 
       if (existingRegisterNumber) {
         return res.status(400).json({
@@ -74,10 +72,7 @@ exports.register = async (req, res) => {
     // HASH PASSWORD
     // ==================================================
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // ==================================================
     // CREATE USER DATA
@@ -93,8 +88,7 @@ exports.register = async (req, res) => {
 
     // Register number only for students
     if (role === "student") {
-      userData.registerNumber =
-        registerNumber.trim();
+      userData.registerNumber = registerNumber.trim();
     }
 
     // ==================================================
@@ -110,9 +104,7 @@ exports.register = async (req, res) => {
     res.status(201).json({
       message: `${user.role} registered successfully`,
     });
-
   } catch (error) {
-
     console.error("REGISTRATION ERROR:", error);
 
     // ==================================================
@@ -120,19 +112,11 @@ exports.register = async (req, res) => {
     // ==================================================
 
     if (error.code === 11000) {
+      console.log("DUPLICATE KEY PATTERN:", error.keyPattern);
 
-      console.log(
-        "DUPLICATE KEY PATTERN:",
-        error.keyPattern
-      );
+      console.log("DUPLICATE KEY VALUE:", error.keyValue);
 
-      console.log(
-        "DUPLICATE KEY VALUE:",
-        error.keyValue
-      );
-
-      const duplicateField =
-        Object.keys(error.keyPattern || {})[0];
+      const duplicateField = Object.keys(error.keyPattern || {})[0];
 
       if (duplicateField === "email") {
         return res.status(400).json({
@@ -158,21 +142,15 @@ exports.register = async (req, res) => {
   }
 };
 
-
 // ==================================================
 // LOGIN
 // ==================================================
 
 exports.login = async (req, res) => {
   try {
+    const { email, password } = req.body;
 
-    const {
-      email,
-      password,
-    } = req.body;
-
-    const normalizedEmail =
-      email.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
     // ==================================================
     // FIND USER
@@ -192,11 +170,7 @@ exports.login = async (req, res) => {
     // CHECK PASSWORD
     // ==================================================
 
-    const isMatch =
-      await bcrypt.compare(
-        password,
-        user.password
-      );
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -216,7 +190,7 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
-      }
+      },
     );
 
     // ==================================================
@@ -231,17 +205,11 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        department:
-          user.department || "",
+        department: user.department || "",
       },
     });
-
   } catch (error) {
-
-    console.error(
-      "LOGIN ERROR:",
-      error
-    );
+    console.error("LOGIN ERROR:", error);
 
     res.status(500).json({
       message: "Server error",

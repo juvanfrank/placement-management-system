@@ -44,7 +44,7 @@ function Login() {
         window.location.replace("/hod/profile");
       }
       else if (role === "admin") {
-        window.location.replace("/admin-dashboard");
+        window.location.replace("/admin/profile");
       }
 
     } catch (error) {
