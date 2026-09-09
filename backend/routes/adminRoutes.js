@@ -81,6 +81,17 @@ router.get(
   adminController.getStudentsByClass
 );
 
+// ==================================================
+// SEARCH STUDENTS
+// ==================================================
+
+router.get(
+  "/search-students",
+  auth,
+  roleMiddleware("admin"),
+  adminController.searchStudents
+);
+
 
 // ==================================================
 // GET SINGLE STUDENT DETAILS

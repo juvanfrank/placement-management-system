@@ -129,6 +129,12 @@ const studentProfileSchema = new mongoose.Schema(
       default: "",
     },
 
+    // NEW: NUMBER OF HISTORY OF ARREARS
+    historyOfArrearsCount: {
+      type: String,
+      default: "",
+    },
+
     cgpa: {
       type: String,
       default: "",

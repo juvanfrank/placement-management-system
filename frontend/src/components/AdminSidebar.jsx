@@ -3,12 +3,20 @@ import { NavLink, useNavigate } from "react-router-dom";
 function AdminSidebar() {
   const navigate = useNavigate();
 
+  // ==========================================
+  // LOGOUT
+  // ==========================================
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
     navigate("/");
   };
+
+  // ==========================================
+  // MENU ITEMS
+  // ==========================================
 
   const menuItems = [
     {
@@ -18,6 +26,10 @@ function AdminSidebar() {
     {
       name: "Departments",
       path: "/admin/departments",
+    },
+    {
+      name: "Student Search",
+      path: "/admin/search",
     },
   ];
 

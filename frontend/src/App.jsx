@@ -34,35 +34,23 @@ import DepartmentYears from "./pages/admin/DepartmentYears";
 import DepartmentSections from "./pages/admin/DepartmentSections";
 import AdminStudents from "./pages/admin/Students";
 import AdminStudentDetails from "./pages/admin/StudentDetails";
+import AdminSearch from "./pages/admin/Search";
 
 function App() {
   return (
     <Router>
       <Routes>
-
         {/* ==================== AUTH ==================== */}
 
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-
         {/* ==================== ADMIN ==================== */}
 
-        <Route
-          path="/admin-dashboard"
-          element={<AdminDashboard />}
-        />
+        <Route path="/admin/profile" element={<AdminProfile />} />
 
-        <Route
-          path="/admin/profile"
-          element={<AdminProfile />}
-        />
-
-        <Route
-          path="/admin/departments"
-          element={<Departments />}
-        />
+        <Route path="/admin/departments" element={<Departments />} />
 
         <Route
           path="/admin/departments/:department"
@@ -79,90 +67,43 @@ function App() {
           element={<AdminStudents />}
         />
 
-        <Route
-          path="/admin/student/:id"
-          element={<AdminStudentDetails />}
-        />
+        <Route path="/admin/student/:id" element={<AdminStudentDetails />} />
 
+        <Route path="/admin/search" element={<AdminSearch />} />
 
         {/* ==================== STUDENT ==================== */}
 
-        <Route
-          path="/student/profile"
-          element={<StudentProfile />}
-        />
+        <Route path="/student/profile" element={<StudentProfile />} />
 
-        <Route
-          path="/student/certificates"
-          element={<StudentCertificates />}
-        />
+        <Route path="/student/certificates" element={<StudentCertificates />} />
 
-        <Route
-          path="/student/resume"
-          element={<StudentResume />}
-        />
+        <Route path="/student/resume" element={<StudentResume />} />
 
-        <Route
-          path="/student/cgpa"
-          element={<StudentCgpa />}
-        />
-
+        <Route path="/student/cgpa" element={<StudentCgpa />} />
 
         {/* ==================== MENTOR ==================== */}
 
-        <Route
-          path="/mentor/profile"
-          element={<MentorProfile />}
-        />
+        <Route path="/mentor/profile" element={<MentorProfile />} />
 
-        <Route
-          path="/mentor/students"
-          element={<MentorStudents />}
-        />
+        <Route path="/mentor/students" element={<MentorStudents />} />
 
-        <Route
-          path="/mentor/certificates"
-          element={<MentorCertificates />}
-        />
+        <Route path="/mentor/certificates" element={<MentorCertificates />} />
 
-        <Route
-          path="/mentor/cgpa"
-          element={<MentorCgpa />}
-        />
+        <Route path="/mentor/cgpa" element={<MentorCgpa />} />
 
-        <Route
-          path="/mentor/student/:id"
-          element={<MentorStudentDetails />}
-        />
-
+        <Route path="/mentor/student/:id" element={<MentorStudentDetails />} />
 
         {/* ==================== HOD ==================== */}
 
-        <Route
-          path="/hod/profile"
-          element={<HodProfile />}
-        />
+        <Route path="/hod/profile" element={<HodProfile />} />
 
-        <Route
-          path="/hod/students"
-          element={<HodStudents />}
-        />
+        <Route path="/hod/students" element={<HodStudents />} />
 
-        <Route
-          path="/hod/student/:id"
-          element={<HodStudentDetails />}
-        />
+        <Route path="/hod/student/:id" element={<HodStudentDetails />} />
 
-        <Route
-          path="/hod/mentors"
-          element={<HodMentors />}
-        />
+        <Route path="/hod/mentors" element={<HodMentors />} />
 
-        <Route
-          path="/hod/mentor/:id"
-          element={<HodMentorDetails />}
-        />
-
+        <Route path="/hod/mentor/:id" element={<HodMentorDetails />} />
       </Routes>
     </Router>
   );

@@ -1120,3 +1120,330 @@ exports.getStudentDetails =
     }
 
   };
+
+  // ==================================================
+// SEARCH STUDENTS
+// ADMIN
+// ==================================================
+
+// ==================================================
+// SEARCH STUDENTS
+// ADMIN
+// ==================================================
+
+exports.searchStudents = async (req, res) => {
+  try {
+    const {
+      department,
+      year,
+      minCgpa,
+      skills,
+      historyOfArrears,
+      historyOfArrearsCount,
+      currentArrears,
+    } = req.query;
+
+    // ==========================================
+    // GET ALL STUDENT PROFILES
+    // ==========================================
+
+    let studentProfiles =
+      await StudentProfile.find({})
+        .populate({
+          path: "userId",
+          select:
+            "name email registerNumber department",
+        })
+        .lean();
+
+    // ==========================================
+    // REMOVE INVALID USERS
+    // ==========================================
+
+    studentProfiles =
+      studentProfiles.filter(
+        (profile) => profile.userId
+      );
+
+    // ==========================================
+    // DEPARTMENT FILTER
+    // ==========================================
+
+    if (department && department.trim()) {
+      studentProfiles =
+        studentProfiles.filter(
+          (profile) =>
+            String(profile.department || "")
+              .trim()
+              .toLowerCase() ===
+            department.trim().toLowerCase()
+        );
+    }
+
+    // ==========================================
+    // YEAR FILTER
+    // ==========================================
+
+    if (year && String(year).trim()) {
+      studentProfiles =
+        studentProfiles.filter(
+          (profile) =>
+            String(
+              profile.currentYear || ""
+            ).trim() ===
+            String(year).trim()
+        );
+    }
+
+    // ==========================================
+    // MINIMUM CGPA FILTER
+    // ==========================================
+
+    if (
+      minCgpa !== undefined &&
+      minCgpa !== ""
+    ) {
+      const minimumCgpa =
+        Number(minCgpa);
+
+      studentProfiles =
+        studentProfiles.filter(
+          (profile) => {
+            const studentCgpa =
+              Number(profile.cgpa);
+
+            return (
+              !isNaN(studentCgpa) &&
+              studentCgpa >= minimumCgpa
+            );
+          }
+        );
+    }
+
+    // ==========================================
+    // SKILLS FILTER
+    //
+    // java / JAVA / Java
+    // ALL WILL MATCH
+    // ==========================================
+
+    if (skills && skills.trim()) {
+      const searchSkills =
+        skills
+          .split(",")
+          .map((skill) =>
+            skill.trim().toLowerCase()
+          )
+          .filter(Boolean);
+
+      studentProfiles =
+        studentProfiles.filter(
+          (profile) => {
+            const studentSkills =
+              (profile.skills || [])
+                .map((skill) =>
+                  String(skill)
+                    .trim()
+                    .toLowerCase()
+                );
+
+            // Student must have ALL skills
+
+            return searchSkills.every(
+              (searchSkill) =>
+                studentSkills.includes(
+                  searchSkill
+                )
+            );
+          }
+        );
+    }
+
+    // ==========================================
+    // HISTORY OF ARREARS
+    // ==========================================
+
+    if (
+      historyOfArrears &&
+      historyOfArrears.trim()
+    ) {
+      studentProfiles =
+        studentProfiles.filter(
+          (profile) =>
+            String(
+              profile.historyOfArrears || ""
+            )
+              .trim()
+              .toLowerCase() ===
+            historyOfArrears
+              .trim()
+              .toLowerCase()
+        );
+    }
+
+    // ==========================================
+    // HISTORY OF ARREARS COUNT
+    //
+    // Student count <= entered count
+    // ==========================================
+
+    if (
+      historyOfArrearsCount !== undefined &&
+      historyOfArrearsCount !== ""
+    ) {
+      const maxHistoryArrears =
+        Number(historyOfArrearsCount);
+
+      studentProfiles =
+        studentProfiles.filter(
+          (profile) => {
+            const studentCount =
+              Number(
+                profile.historyOfArrearsCount
+              );
+
+            return (
+              !isNaN(studentCount) &&
+              studentCount <=
+                maxHistoryArrears
+            );
+          }
+        );
+    }
+
+    // ==========================================
+    // CURRENT ARREARS
+    //
+    // Student arrears <= entered number
+    // ==========================================
+
+    if (
+      currentArrears !== undefined &&
+      currentArrears !== ""
+    ) {
+      const maxCurrentArrears =
+        Number(currentArrears);
+
+      studentProfiles =
+        studentProfiles.filter(
+          (profile) => {
+            const studentArrears =
+              Number(
+                profile.currentArrears
+              );
+
+            return (
+              !isNaN(studentArrears) &&
+              studentArrears <=
+                maxCurrentArrears
+            );
+          }
+        );
+    }
+
+    // ==========================================
+    // FORMAT RESULTS
+    // ==========================================
+
+    const students =
+      studentProfiles.map(
+        (profile) => {
+          const user =
+            profile.userId || {};
+
+          return {
+            id: user._id,
+
+            _id: user._id,
+
+            name:
+              profile.name ||
+              user.name ||
+              "",
+
+            email:
+              profile.email ||
+              user.email ||
+              "",
+
+            registerNumber:
+              profile.registerNumber ||
+              user.registerNumber ||
+              "",
+
+            department:
+              profile.department ||
+              user.department ||
+              "",
+
+            year:
+              profile.currentYear ||
+              "",
+
+            section:
+              profile.section ||
+              "",
+
+            cgpa:
+              profile.cgpa ||
+              "",
+
+            skills:
+              profile.skills || [],
+
+            historyOfArrears:
+              profile.historyOfArrears ||
+              "",
+
+            historyOfArrearsCount:
+              profile.historyOfArrearsCount ||
+              "",
+
+            currentArrears:
+              profile.currentArrears ||
+              "",
+          };
+        }
+      );
+
+    // ==========================================
+    // SORT BY NAME
+    // ==========================================
+
+    students.sort(
+      (a, b) =>
+        String(a.name || "")
+          .localeCompare(
+            String(b.name || ""),
+            undefined,
+            {
+              sensitivity: "base",
+            }
+          )
+    );
+
+    // ==========================================
+    // RESPONSE
+    // ==========================================
+
+    return res.status(200).json({
+      count: students.length,
+      students,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "SEARCH STUDENTS ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Unable to search students",
+
+      error:
+        error.message,
+    });
+  }
+};

@@ -226,7 +226,7 @@ function Profile() {
     setData((prev) => {
       const skills = [...(prev.skills || [])];
 
-      skills[index] = value;
+      skills[index] = value.trimStart().toLowerCase();
 
       return {
         ...prev,
@@ -254,9 +254,21 @@ function Profile() {
     try {
       const token = localStorage.getItem("token");
 
-      // Convert internship objects into strings
-      // so the existing backend schema continues
-      // to work without backend changes.
+      // ==================================================
+      // CLEAN SKILLS
+      // ==================================================
+
+      const cleanedSkills = [
+        ...new Set(
+          (data.skills || [])
+            .map((skill) => String(skill).trim().toLowerCase())
+            .filter(Boolean),
+        ),
+      ];
+
+      // ==================================================
+      // CLEAN INTERNSHIP DATA
+      // ==================================================
 
       const internshipData = (data.internship || [])
         .filter(
@@ -268,30 +280,31 @@ function Profile() {
         )
         .map(
           (intern) =>
-            `${intern.companyName || ""} | ${
-              intern.domainName || ""
-            } | ${intern.fromDate || ""} | ${intern.toDate || ""}`,
+            `${intern.companyName || ""} | ${intern.domainName || ""} | ${
+              intern.fromDate || ""
+            } | ${intern.toDate || ""}`,
         );
+
+      // ==================================================
+      // FINAL DATA
+      // ==================================================
 
       const submitData = {
         ...data,
 
-        // Skills
-        skills: (data.skills || [])
-          .map((skill) => skill.trim())
-          .filter(Boolean),
+        skills: cleanedSkills,
 
-        // Internship
         internship: internshipData,
 
-        // Prevent Mongoose enum validation
-        // errors for empty values.
+        // Prevent Mongoose enum validation errors
         religion: data.religion || undefined,
-
         caste: data.caste || undefined,
-
         community: data.community || undefined,
       };
+
+      // ==================================================
+      // UPDATE PROFILE
+      // ==================================================
 
       await axios.put(`${API}/api/student/profile`, submitData, {
         headers: {
@@ -311,7 +324,6 @@ function Profile() {
       alert(error.response?.data?.message || "Profile update failed");
     }
   };
-
   // ==================================================
   // CANCEL EDIT
   // ==================================================
@@ -446,25 +458,25 @@ function Profile() {
               onChange={(v) => handleChange("dob", v)}
             />
 
-           <div>
-  <p className="text-gray-500 text-sm mb-1">Gender</p>
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Gender</p>
 
-  {editMode ? (
-    <select
-      value={data.gender || ""}
-      onChange={(e) => handleChange("gender", e.target.value)}
-      className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
-    >
-      <option value="">Select Gender</option>
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-    </select>
-  ) : (
-    <p className="font-semibold text-gray-800">
-      {data.gender || "-"}
-    </p>
-  )}
-</div>
+              {editMode ? (
+                <select
+                  value={data.gender || ""}
+                  onChange={(e) => handleChange("gender", e.target.value)}
+                  className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              ) : (
+                <p className="font-semibold text-gray-800">
+                  {data.gender || "-"}
+                </p>
+              )}
+            </div>
 
             <Input
               label="Roll Number"
@@ -561,8 +573,8 @@ function Profile() {
         </Card>
 
         {/* ==================================================
-            ACADEMIC
-        ================================================== */}
+    ACADEMIC
+================================================== */}
 
         <Card title="Academic Details">
           <Grid>
@@ -594,12 +606,36 @@ function Profile() {
               onChange={(v) => handleChange("currentArrears", v)}
             />
 
-            <Input
+            {/* HISTORY OF ARREARS YES / NO */}
+
+            <SelectInput
               label="History of Arrears"
               value={data.historyOfArrears}
               edit={editMode}
-              onChange={(v) => handleChange("historyOfArrears", v)}
+              options={["Yes", "No"]}
+              onChange={(v) => {
+                setData((prev) => ({
+                  ...prev,
+                  historyOfArrears: v,
+
+                  // Clear count when No is selected
+                  historyOfArrearsCount:
+                    v === "No" ? "" : prev.historyOfArrearsCount,
+                }));
+              }}
             />
+
+            {/* NUMBER OF HISTORY OF ARREARS */}
+
+            {data.historyOfArrears === "Yes" && (
+              <Input
+                label="Number of History of Arrears"
+                type="number"
+                value={data.historyOfArrearsCount}
+                edit={editMode}
+                onChange={(v) => handleChange("historyOfArrearsCount", v)}
+              />
+            )}
 
             <Input
               label="CGPA"
@@ -609,7 +645,6 @@ function Profile() {
             />
           </Grid>
         </Card>
-
         {/* ==================================================
             PROFESSIONAL
         ================================================== */}
