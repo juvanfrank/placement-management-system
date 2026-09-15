@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/AdminLayout";
 import api from "../../services/api";
@@ -14,7 +14,9 @@ function Search() {
     department: "",
     year: "",
     minCgpa: "",
-    skills: "",
+    minTenthPercentage: "",
+    minTwelthPercentage: "",
+    skills: [],
     historyOfArrears: "",
     historyOfArrearsCount: "",
     currentArrears: "",
@@ -31,6 +33,61 @@ function Search() {
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
+
+  // ==========================================
+  // SKILLS DROPDOWN STATES
+  // ==========================================
+
+  const [availableSkills, setAvailableSkills] = useState([]);
+
+  const [skillsOpen, setSkillsOpen] = useState(false);
+
+  const [skillsLoading, setSkillsLoading] = useState(false);
+
+  // ==========================================
+  // FETCH AVAILABLE SKILLS
+  // ==========================================
+
+  useEffect(() => {
+    fetchAvailableSkills();
+  }, []);
+
+  const fetchAvailableSkills = async () => {
+    try {
+      setSkillsLoading(true);
+
+      const response = await api.get("/admin/search-students");
+
+      const studentList = response.data.students || [];
+
+      const skillSet = new Set();
+
+      studentList.forEach((student) => {
+        if (Array.isArray(student.skills)) {
+          student.skills.forEach((skill) => {
+            const normalizedSkill = String(skill)
+              .trim()
+              .toLowerCase();
+
+            if (normalizedSkill) {
+              skillSet.add(normalizedSkill);
+            }
+          });
+        }
+      });
+
+      const uniqueSkills = Array.from(skillSet).sort();
+
+      setAvailableSkills(uniqueSkills);
+    } catch (error) {
+      console.error(
+        "FETCH AVAILABLE SKILLS ERROR:",
+        error.response || error
+      );
+    } finally {
+      setSkillsLoading(false);
+    }
+  };
 
   // ==========================================
   // HANDLE FILTER CHANGE
@@ -54,6 +111,47 @@ function Search() {
   };
 
   // ==========================================
+  // HANDLE SKILL SELECTION
+  // ==========================================
+
+  const handleSkillToggle = (skill) => {
+    const normalizedSkill = String(skill)
+      .trim()
+      .toLowerCase();
+
+    setFilters((prev) => {
+      const currentSkills = prev.skills || [];
+
+      if (currentSkills.includes(normalizedSkill)) {
+        return {
+          ...prev,
+          skills: currentSkills.filter(
+            (item) => item !== normalizedSkill
+          ),
+        };
+      }
+
+      return {
+        ...prev,
+        skills: [...currentSkills, normalizedSkill],
+      };
+    });
+  };
+
+  // ==========================================
+  // REMOVE SELECTED SKILL
+  // ==========================================
+
+  const removeSkill = (skill) => {
+    setFilters((prev) => ({
+      ...prev,
+      skills: prev.skills.filter(
+        (item) => item !== skill
+      ),
+    }));
+  };
+
+  // ==========================================
   // SEARCH STUDENTS
   // ==========================================
 
@@ -70,16 +168,30 @@ function Search() {
         filters
       );
 
-      // Remove empty filters
+      // ==========================================
+      // REMOVE EMPTY FILTERS
+      // ==========================================
+
       const params = {};
 
       Object.keys(filters).forEach((key) => {
+        const value = filters[key];
+
+        // Skills array
+        if (key === "skills") {
+          if (Array.isArray(value) && value.length > 0) {
+            params.skills = value.join(",");
+          }
+
+          return;
+        }
+
         if (
-          filters[key] !== "" &&
-          filters[key] !== null &&
-          filters[key] !== undefined
+          value !== "" &&
+          value !== null &&
+          value !== undefined
         ) {
-          params[key] = filters[key];
+          params[key] = value;
         }
       });
 
@@ -98,9 +210,7 @@ function Search() {
       setStudents(
         response.data.students || []
       );
-
     } catch (error) {
-
       console.error(
         "SEARCH STUDENTS ERROR:",
         error.response || error
@@ -112,11 +222,8 @@ function Search() {
       );
 
       setStudents([]);
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
@@ -129,7 +236,9 @@ function Search() {
       department: "",
       year: "",
       minCgpa: "",
-      skills: "",
+      minTenthPercentage: "",
+      minTwelthPercentage: "",
+      skills: [],
       historyOfArrears: "",
       historyOfArrearsCount: "",
       currentArrears: "",
@@ -147,7 +256,26 @@ function Search() {
   // ==========================================
 
   const handleStudentClick = (student) => {
-    navigate(`/admin/student/${student.id}`);
+    navigate(
+      `/admin/student/${student.id || student._id}`
+    );
+  };
+
+  // ==========================================
+  // DISPLAY SKILL NAME
+  // ==========================================
+
+  const formatSkillName = (skill) => {
+    if (!skill) return "";
+
+    return skill
+      .split(" ")
+      .map(
+        (word) =>
+          word.charAt(0).toUpperCase() +
+          word.slice(1)
+      )
+      .join(" ");
   };
 
   return (
@@ -181,7 +309,9 @@ function Search() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+          {/* ========================================== */}
           {/* DEPARTMENT */}
+          {/* ========================================== */}
 
           <div>
 
@@ -232,8 +362,9 @@ function Search() {
 
           </div>
 
-
+          {/* ========================================== */}
           {/* YEAR */}
+          {/* ========================================== */}
 
           <div>
 
@@ -272,8 +403,9 @@ function Search() {
 
           </div>
 
-
+          {/* ========================================== */}
           {/* MINIMUM CGPA */}
+          {/* ========================================== */}
 
           <div>
 
@@ -295,32 +427,165 @@ function Search() {
 
           </div>
 
-
-          {/* SKILLS */}
+          {/* ========================================== */}
+          {/* 10TH PERCENTAGE */}
+          {/* ========================================== */}
 
           <div>
+
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Minimum 10th Percentage
+            </label>
+
+            <input
+              type="number"
+              name="minTenthPercentage"
+              value={filters.minTenthPercentage}
+              onChange={handleChange}
+              placeholder="Example: 80"
+              min="0"
+              max="100"
+              step="0.1"
+              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
+            />
+
+            <p className="text-xs text-gray-500 mt-1">
+              Students with 10th percentage greater than or equal to this value
+            </p>
+
+          </div>
+
+          {/* ========================================== */}
+          {/* 12TH PERCENTAGE */}
+          {/* ========================================== */}
+
+          <div>
+
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Minimum 12th Percentage
+            </label>
+
+            <input
+              type="number"
+              name="minTwelthPercentage"
+              value={filters.minTwelthPercentage}
+              onChange={handleChange}
+              placeholder="Example: 75"
+              min="0"
+              max="100"
+              step="0.1"
+              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
+            />
+
+            <p className="text-xs text-gray-500 mt-1">
+              Students with 12th percentage greater than or equal to this value
+            </p>
+
+          </div>
+
+          {/* ========================================== */}
+          {/* SKILLS */}
+          {/* ========================================== */}
+
+          <div className="relative">
 
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Skills
             </label>
 
-            <input
-              type="text"
-              name="skills"
-              value={filters.skills}
-              onChange={handleChange}
-              placeholder="Example: java, python"
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
-            />
+            {/* SELECTED SKILLS */}
+            <div
+              onClick={() =>
+                setSkillsOpen((prev) => !prev)
+              }
+              className="min-h-[48px] w-full p-2 border rounded-lg cursor-pointer bg-white flex flex-wrap items-center gap-2 focus-within:ring-2 focus-within:ring-orange-400"
+            >
+
+              {filters.skills.length === 0 ? (
+                <span className="text-gray-400 px-1">
+                  Select skills
+                </span>
+              ) : (
+                filters.skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                  >
+                    {formatSkillName(skill)}
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeSkill(skill);
+                      }}
+                      className="text-orange-600 hover:text-red-600 font-bold"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))
+              )}
+
+              <span className="ml-auto text-gray-500 px-2">
+                ▼
+              </span>
+
+            </div>
+
+            {/* SKILLS DROPDOWN */}
+            {skillsOpen && (
+              <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+
+                {skillsLoading ? (
+                  <div className="p-4 text-sm text-gray-500 text-center">
+                    Loading skills...
+                  </div>
+                ) : availableSkills.length === 0 ? (
+                  <div className="p-4 text-sm text-gray-500 text-center">
+                    No skills available
+                  </div>
+                ) : (
+                  availableSkills.map((skill) => {
+                    const selected =
+                      filters.skills.includes(skill);
+
+                    return (
+                      <label
+                        key={skill}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-orange-50 cursor-pointer"
+                      >
+
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={() =>
+                            handleSkillToggle(skill)
+                          }
+                          className="w-4 h-4 accent-orange-500"
+                        />
+
+                        <span className="text-gray-700">
+                          {formatSkillName(skill)}
+                        </span>
+
+                      </label>
+                    );
+                  })
+                )}
+
+              </div>
+            )}
 
             <p className="text-xs text-gray-500 mt-1">
-              Enter multiple skills separated by commas
+              Select one or more skills
             </p>
 
           </div>
 
-
+          {/* ========================================== */}
           {/* HISTORY OF ARREARS */}
+          {/* ========================================== */}
 
           <div>
 
@@ -351,8 +616,9 @@ function Search() {
 
           </div>
 
-
+          {/* ========================================== */}
           {/* HISTORY OF ARREARS COUNT */}
+          {/* ========================================== */}
 
           {filters.historyOfArrears === "Yes" && (
 
@@ -367,21 +633,22 @@ function Search() {
                 name="historyOfArrearsCount"
                 value={filters.historyOfArrearsCount}
                 onChange={handleChange}
-                placeholder="Example: 2"
-                min="1"
+                placeholder="Example: 1"
+                min="0"
                 className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
               />
 
               <p className="text-xs text-gray-500 mt-1">
-                Students with previous arrears less than or equal to this number
+                Includes students with no history and students with arrears up to this count
               </p>
 
             </div>
 
           )}
 
-
+          {/* ========================================== */}
           {/* CURRENT ARREARS */}
+          {/* ========================================== */}
 
           <div>
 
@@ -400,13 +667,12 @@ function Search() {
             />
 
             <p className="text-xs text-gray-500 mt-1">
-              Students with arrears less than or equal to this value
+              Students with current arrears less than or equal to this value
             </p>
 
           </div>
 
         </div>
-
 
         {/* ========================================== */}
         {/* BUTTONS */}
@@ -427,17 +693,14 @@ function Search() {
             disabled={loading}
             className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition font-medium disabled:opacity-50"
           >
-
             {loading
               ? "Searching..."
               : "🔍 Search Students"}
-
           </button>
 
         </div>
 
       </div>
-
 
       {/* ========================================== */}
       {/* SEARCH RESULTS */}
@@ -473,7 +736,6 @@ function Search() {
 
           </div>
 
-
           {/* LOADING */}
 
           {loading && (
@@ -484,7 +746,6 @@ function Search() {
 
           )}
 
-
           {/* ERROR */}
 
           {!loading && error && (
@@ -494,7 +755,6 @@ function Search() {
             </div>
 
           )}
-
 
           {/* NO RESULTS */}
 
@@ -509,7 +769,6 @@ function Search() {
               </div>
 
             )}
-
 
           {/* TABLE */}
 
@@ -557,7 +816,6 @@ function Search() {
 
                   </thead>
 
-
                   <tbody>
 
                     {students.map(
@@ -572,10 +830,11 @@ function Search() {
                           className="border-b hover:bg-orange-50 transition"
                         >
 
+                          {/* S.NO */}
+
                           <td className="p-4 text-center">
                             {index + 1}
                           </td>
-
 
                           {/* STUDENT NAME */}
 
@@ -593,7 +852,6 @@ function Search() {
 
                           </td>
 
-
                           {/* REGISTER NUMBER */}
 
                           <td className="p-4 text-center">
@@ -603,7 +861,6 @@ function Search() {
 
                           </td>
 
-
                           {/* DEPARTMENT */}
 
                           <td className="p-4 text-center">
@@ -612,7 +869,6 @@ function Search() {
                               "N/A"}
 
                           </td>
-
 
                           {/* YEAR */}
 
@@ -624,7 +880,6 @@ function Search() {
 
                           </td>
 
-
                           {/* CGPA */}
 
                           <td className="p-4 text-center font-medium">
@@ -633,7 +888,6 @@ function Search() {
                               "N/A"}
 
                           </td>
-
 
                           {/* SKILLS */}
 
@@ -644,7 +898,6 @@ function Search() {
                               {student.skills &&
                               student.skills.length > 0
                                 ? (
-
                                   student.skills.map(
                                     (
                                       skill,
@@ -656,13 +909,14 @@ function Search() {
                                         className="bg-orange-100 text-orange-600 px-2 py-1 rounded-md text-xs"
                                       >
 
-                                        {skill}
+                                        {formatSkillName(
+                                          skill
+                                        )}
 
                                       </span>
 
                                     )
                                   )
-
                                 ) : (
 
                                   <span className="text-gray-400 text-sm">
