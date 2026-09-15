@@ -509,11 +509,22 @@ exports.getStudentDetails = async (req, res) => {
 
       address: studentProfile.address || "",
 
+      tenthSchoolName: studentProfile.tenthSchoolName || "",
+
       tenthPercentage: studentProfile.tenthPercentage || "",
+
+      tenthCompletionYear: studentProfile.tenthCompletionYear || "",
+
+      twelthSchoolName: studentProfile.twelthSchoolName || "",
 
       twelthPercentage: studentProfile.twelthPercentage || "",
 
+      twelthCompletionYear: studentProfile.twelthCompletionYear || "",
+
       diplomaPercentage: studentProfile.diplomaPercentage || "",
+
+      diplomaCompletionYear: studentProfile.diplomaCompletionYear || "",
+
 
       currentArrears: studentProfile.currentArrears || "",
 
@@ -528,6 +539,12 @@ exports.getStudentDetails = async (req, res) => {
       githubLink: studentProfile.githubLink || "",
 
       portfolioLink: studentProfile.portfolioLink || "",
+
+      hackerrankLink:studentProfile.hackerrankLink || "" ,
+
+      leetcodeLink:studentProfile.leetcodeLink || "" ,
+
+
 
       skills: studentProfile.skills || [],
 

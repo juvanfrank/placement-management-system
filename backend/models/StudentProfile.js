@@ -103,8 +103,21 @@ const studentProfileSchema = new mongoose.Schema(
     // ==================================================
     // ACADEMIC
     // ==================================================
+    tenthSchoolName: {
+      type: String,
+      default: "",
+    },
 
     tenthPercentage: {
+      type: String,
+      default: "",
+    },
+    tenthCompletionYear: {
+      type: String,
+      default: "",
+    },
+
+    twelthSchoolName: {
       type: String,
       default: "",
     },
@@ -114,7 +127,17 @@ const studentProfileSchema = new mongoose.Schema(
       default: "",
     },
 
+    twelthCompletionYear: {
+      type: String,
+      default: "",
+    },
+
     diplomaPercentage: {
+      type: String,
+      default: "",
+    },
+
+    diplomaCompletionYear: {
       type: String,
       default: "",
     },
@@ -160,6 +183,16 @@ const studentProfileSchema = new mongoose.Schema(
     },
 
     portfolioLink: {
+      type: String,
+      default: "",
+    },
+
+    hackerrankLink: {
+      type: String,
+      default: "",
+    },
+
+    leetcodeLink: {
       type: String,
       default: "",
     },
@@ -215,10 +248,7 @@ const studentProfileSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-module.exports = mongoose.model(
-  "StudentProfile",
-  studentProfileSchema
-);
+module.exports = mongoose.model("StudentProfile", studentProfileSchema);

@@ -117,12 +117,21 @@ exports.getProfile = async (req, res) => {
       // ==================================================
       // ACADEMIC DETAILS
       // ==================================================
+      tenthSchoolName: profile.tenthSchoolName || "",
 
       tenthPercentage: profile.tenthPercentage || "",
 
+      tenthCompletionYear: profile.tenthCompletionYear || "",
+
+      twelthSchoolName: profile.twelthSchoolName || "",
+
       twelthPercentage: profile.twelthPercentage || "",
 
+      twelthCompletionYear: profile.twelthCompletionYear || "",
+
       diplomaPercentage: profile.diplomaPercentage || "",
+
+      diplomaCompletionYear: profile.diplomaCompletionYear || "",
 
       currentArrears: profile.currentArrears || "",
 
@@ -141,6 +150,10 @@ exports.getProfile = async (req, res) => {
       githubLink: profile.githubLink || "",
 
       portfolioLink: profile.portfolioLink || "",
+
+      hackerrankLink: profile.hackerrankLink || "",
+
+      leetcodeLink: profile.leetcodeLink || "",
 
       // ==================================================
       // PARENT DETAILS
@@ -294,12 +307,21 @@ exports.updateProfile = async (req, res) => {
         // ==============================================
         // ACADEMIC DETAILS
         // ==============================================
+        tenthSchoolName: data.tenthSchoolName,
 
         tenthPercentage: data.tenthPercentage || "",
 
+        tenthCompletionYear: data.tenthCompletionYear,
+
+        twelthSchoolName: data.twelthSchoolName,
+
         twelthPercentage: data.twelthPercentage || "",
 
+        twelthCompletionYear: data.twelthCompletionYear,
+
         diplomaPercentage: data.diplomaPercentage || "",
+
+        diplomaCompletionYear: data.diplomaCompletionYear,
 
         currentArrears: data.currentArrears || "",
 
@@ -318,6 +340,10 @@ exports.updateProfile = async (req, res) => {
         githubLink: data.githubLink || "",
 
         portfolioLink: data.portfolioLink || "",
+
+        hackerrankLink: data.hackerrankLink,
+
+        leetcodeLink: data.leetcodeLink,
 
         // ==============================================
         // PARENT DETAILS

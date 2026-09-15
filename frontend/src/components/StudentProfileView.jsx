@@ -20,7 +20,7 @@ function StudentProfileView({
         const response = await api.get(profileEndpoint);
 
         console.log("=================================");
-        console.log("HOD STUDENT RESPONSE:", response.data);
+        console.log("STUDENT PROFILE RESPONSE:", response.data);
         console.log("=================================");
 
         const data = response.data;
@@ -255,9 +255,26 @@ function StudentProfileView({
           value={student.batch}
         />
 
+        {/* 10TH DETAILS */}
+        <InfoItem
+          label="10th School Name"
+          value={student.tenthSchoolName}
+        />
+
         <InfoItem
           label="10th Percentage"
           value={student.tenthPercentage}
+        />
+
+        <InfoItem
+          label="10th Year of Completion"
+          value={student.tenthCompletionYear}
+        />
+
+        {/* 12TH DETAILS */}
+        <InfoItem
+          label="12th School Name"
+          value={student.twelthSchoolName}
         />
 
         <InfoItem
@@ -266,8 +283,19 @@ function StudentProfileView({
         />
 
         <InfoItem
+          label="12th Year of Completion"
+          value={student.twelthCompletionYear}
+        />
+
+        {/* DIPLOMA DETAILS */}
+        <InfoItem
           label="Diploma Percentage"
           value={student.diplomaPercentage}
+        />
+
+        <InfoItem
+          label="Diploma Year of Completion"
+          value={student.diplomaCompletionYear}
         />
 
         <InfoItem
@@ -278,6 +306,11 @@ function StudentProfileView({
         <InfoItem
           label="History of Arrears"
           value={student.historyOfArrears}
+        />
+
+        <InfoItem
+          label="History of Arrears Count"
+          value={student.historyOfArrearsCount}
         />
 
         <InfoItem
@@ -378,6 +411,16 @@ function StudentProfileView({
           value={student.portfolioLink}
         />
 
+        <LinkItem
+          label="HackerRank"
+          value={student.hackerrankLink}
+        />
+
+        <LinkItem
+          label="LeetCode"
+          value={student.leetcodeLink}
+        />
+
       </ProfileSection>
 
       {/* CONCERNED MENTOR */}
@@ -472,12 +515,12 @@ function StudentProfileView({
 
       </ProfileSection>
 
-      {/* HOD READ ONLY FOOTER */}
+      {/* READ ONLY FOOTER */}
       {readOnly && (
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
           <p className="text-sm text-gray-500 text-center">
-            HOD can view this student profile but cannot
-            edit or delete student information.
+            This profile is available for viewing only.
+            Student information cannot be edited or deleted from this page.
           </p>
         </div>
       )}
