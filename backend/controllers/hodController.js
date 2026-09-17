@@ -12,7 +12,10 @@ const getLocalFileUrl = (filePath) => {
     return "";
   }
 
-  if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+  if (
+    filePath.startsWith("http://") ||
+    filePath.startsWith("https://")
+  ) {
     return filePath;
   }
 
@@ -25,7 +28,10 @@ const getLocalFileUrl = (filePath) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const userId = req.user.id || req.user.userId || req.user._id;
+    const userId =
+      req.user.id ||
+      req.user.userId ||
+      req.user._id;
 
     const user = await User.findById(userId).select("-password");
 
@@ -61,7 +67,10 @@ exports.getProfile = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
   try {
-    const userId = req.user.id || req.user.userId || req.user._id;
+    const userId =
+      req.user.id ||
+      req.user.userId ||
+      req.user._id;
 
     // --------------------------------------------------
     // GET HOD
@@ -94,7 +103,9 @@ exports.getStudents = async (req, res) => {
       department: hodDepartment,
     }).select("-password");
 
-    const userIds = studentUsers.map((student) => student._id);
+    const userIds = studentUsers.map(
+      (student) => student._id
+    );
 
     // --------------------------------------------------
     // GET STUDENT PROFILES
@@ -113,7 +124,10 @@ exports.getStudents = async (req, res) => {
     const profileMap = new Map();
 
     studentProfiles.forEach((profile) => {
-      profileMap.set(profile.userId.toString(), profile);
+      profileMap.set(
+        profile.userId.toString(),
+        profile
+      );
     });
 
     // --------------------------------------------------
@@ -122,7 +136,9 @@ exports.getStudents = async (req, res) => {
 
     const students = studentUsers
       .map((user) => {
-        const profile = profileMap.get(user._id.toString());
+        const profile = profileMap.get(
+          user._id.toString()
+        );
 
         if (!profile) {
           return null;
@@ -131,23 +147,46 @@ exports.getStudents = async (req, res) => {
         return {
           id: user._id,
 
-          name: user.name || profile.name || "",
+          name:
+            user.name ||
+            profile.name ||
+            "",
 
-          registerNumber: user.registerNumber || profile.registerNumber || "",
+          registerNumber:
+            user.registerNumber ||
+            profile.registerNumber ||
+            "",
 
-          rollNumber: profile.rollNumber || "",
+          rollNumber:
+            profile.rollNumber ||
+            "",
 
-          email: user.email || profile.email || "",
+          email:
+            user.email ||
+            profile.email ||
+            "",
 
-          department: user.department || profile.department || "",
+          department:
+            user.department ||
+            profile.department ||
+            "",
 
-          year: profile.currentYear || "",
+          year:
+            profile.currentYear ||
+            "",
 
-          section: profile.section || "",
+          section:
+            profile.section ||
+            "",
 
-          placementStatus: profile.placementStatus || "Not Placed",
+          placementStatus:
+            profile.placementStatus ||
+            "Not Placed",
 
-          profilePhoto: getLocalFileUrl(profile.profilePhoto),
+          profilePhoto:
+            getLocalFileUrl(
+              profile.profilePhoto
+            ),
         };
       })
       .filter(Boolean);
@@ -173,7 +212,7 @@ exports.getStudents = async (req, res) => {
         {
           numeric: true,
           sensitivity: "base",
-        },
+        }
       );
     });
 
@@ -183,13 +222,14 @@ exports.getStudents = async (req, res) => {
 
     res.status(200).json({
       department: hodDepartment,
-
       count: students.length,
-
       students,
     });
   } catch (error) {
-    console.error("GET HOD STUDENTS ERROR:", error);
+    console.error(
+      "GET HOD STUDENTS ERROR:",
+      error
+    );
 
     res.status(500).json({
       message: "Server error",
@@ -206,7 +246,10 @@ exports.getStudents = async (req, res) => {
 
 exports.getMentors = async (req, res) => {
   try {
-    const userId = req.user.id || req.user.userId || req.user._id;
+    const userId =
+      req.user.id ||
+      req.user.userId ||
+      req.user._id;
 
     // --------------------------------------------------
     // GET HOD
@@ -220,13 +263,15 @@ exports.getMentors = async (req, res) => {
       });
     }
 
-    const hodDepartment = hod.department || "";
+    const hodDepartment =
+      hod.department || "";
 
     if (!hodDepartment) {
       return res.status(200).json({
         department: "",
         mentors: [],
-        message: "HOD department is not assigned",
+        message:
+          "HOD department is not assigned",
       });
     }
 
@@ -239,22 +284,28 @@ exports.getMentors = async (req, res) => {
       department: hodDepartment,
     }).select("-password");
 
-    const mentorIds = mentorUsers.map((mentor) => mentor._id);
+    const mentorIds = mentorUsers.map(
+      (mentor) => mentor._id
+    );
 
     // --------------------------------------------------
     // GET MENTOR PROFILES
     // --------------------------------------------------
 
-    const mentorProfiles = await MentorProfile.find({
-      userId: {
-        $in: mentorIds,
-      },
-    });
+    const mentorProfiles =
+      await MentorProfile.find({
+        userId: {
+          $in: mentorIds,
+        },
+      });
 
     const profileMap = new Map();
 
     mentorProfiles.forEach((profile) => {
-      profileMap.set(profile.userId.toString(), profile);
+      profileMap.set(
+        profile.userId.toString(),
+        profile
+      );
     });
 
     // --------------------------------------------------
@@ -262,24 +313,41 @@ exports.getMentors = async (req, res) => {
     // --------------------------------------------------
 
     const mentors = mentorUsers.map((user) => {
-      const profile = profileMap.get(user._id.toString());
+      const profile = profileMap.get(
+        user._id.toString()
+      );
 
       return {
         id: user._id,
 
-        name: user.name || profile?.name || "",
+        name:
+          user.name ||
+          profile?.name ||
+          "",
 
-        email: user.email || "",
+        email:
+          user.email ||
+          "",
 
-        department: user.department || "",
+        department:
+          user.department ||
+          "",
 
-        year: profile?.year ?? "",
+        year:
+          profile?.year ?? "",
 
-        section: profile?.section || "",
+        section:
+          profile?.section ||
+          "",
 
-        phone: profile?.phone || "",
+        phone:
+          profile?.phone ||
+          "",
 
-        profilePhoto: getLocalFileUrl(profile?.profilePhoto),
+        profilePhoto:
+          getLocalFileUrl(
+            profile?.profilePhoto
+          ),
       };
     });
 
@@ -295,18 +363,21 @@ exports.getMentors = async (req, res) => {
         return yearA - yearB;
       }
 
-      return String(a.name).localeCompare(String(b.name));
+      return String(a.name).localeCompare(
+        String(b.name)
+      );
     });
 
     res.status(200).json({
       department: hodDepartment,
-
       count: mentors.length,
-
       mentors,
     });
   } catch (error) {
-    console.error("GET HOD MENTORS ERROR:", error);
+    console.error(
+      "GET HOD MENTORS ERROR:",
+      error
+    );
 
     res.status(500).json({
       message: "Server error",
@@ -350,9 +421,10 @@ exports.getStudentDetails = async (req, res) => {
     // GET STUDENT PROFILE
     // --------------------------------------------------
 
-    const studentProfile = await StudentProfile.findOne({
-      userId: studentUser._id,
-    });
+    const studentProfile =
+      await StudentProfile.findOne({
+        userId: studentUser._id,
+      });
 
     if (!studentProfile) {
       return res.status(404).json({
@@ -381,186 +453,374 @@ exports.getStudentDetails = async (req, res) => {
     let mentor = null;
 
     const studentDepartment =
-      studentUser.department || studentProfile.department || "";
+      studentUser.department ||
+      studentProfile.department ||
+      "";
 
-    const studentYear = studentProfile.currentYear || "";
+    const studentYear =
+      studentProfile.currentYear || "";
 
-    const studentSection = studentProfile.section || "";
+    const studentSection =
+      studentProfile.section || "";
 
-    console.log("=================================");
-    console.log("STUDENT-MENTOR MAPPING");
-    console.log("Student:", studentUser.name);
-    console.log("Department:", studentDepartment);
-    console.log("Year:", studentYear);
-    console.log("Section:", studentSection);
-    console.log("=================================");
+    console.log(
+      "================================="
+    );
+    console.log(
+      "HOD STUDENT-MENTOR MAPPING"
+    );
+    console.log(
+      "Student:",
+      studentUser.name
+    );
+    console.log(
+      "Department:",
+      studentDepartment
+    );
+    console.log(
+      "Year:",
+      studentYear
+    );
+    console.log(
+      "Section:",
+      studentSection
+    );
+    console.log(
+      "================================="
+    );
 
     // --------------------------------------------------
-    // ONLY FIND MENTOR IF MAPPING DETAILS EXIST
+    // FIND MENTOR USING DEPARTMENT + YEAR + SECTION
     // --------------------------------------------------
 
-    if (studentDepartment && studentYear && studentSection) {
-      // --------------------------------------------------
-      // GET MENTORS FROM SAME DEPARTMENT
-      // --------------------------------------------------
-
+    if (
+      studentDepartment &&
+      studentYear &&
+      studentSection
+    ) {
       const mentorUsers = await User.find({
         role: "mentor",
         department: studentDepartment,
       }).select("-password");
 
-      const mentorUserIds = mentorUsers.map((mentorUser) => mentorUser._id);
-
-      // --------------------------------------------------
-      // GET MENTOR PROFILES
-      // --------------------------------------------------
-
-      const mentorProfiles = await MentorProfile.find({
-        userId: {
-          $in: mentorUserIds,
-        },
-        year: Number(studentYear),
-        section: studentSection,
-      });
-
-      // --------------------------------------------------
-      // FIND MATCHING MENTOR
-      // --------------------------------------------------
-
-      if (mentorProfiles.length > 0) {
-        const matchingProfile = mentorProfiles[0];
-
-        const matchingMentorUser = mentorUsers.find(
-          (mentorUser) =>
-            mentorUser._id.toString() === matchingProfile.userId.toString(),
+      const mentorUserIds =
+        mentorUsers.map(
+          (mentorUser) => mentorUser._id
         );
 
-        if (matchingMentorUser) {
+      const mentorProfiles =
+        await MentorProfile.find({
+          userId: {
+            $in: mentorUserIds,
+          },
+          year: String(studentYear),
+          section: studentSection,
+        });
+
+      if (mentorProfiles.length > 0) {
+        const mentorProfile =
+          mentorProfiles[0];
+
+        const mentorUser =
+          mentorUsers.find(
+            (user) =>
+              user._id.toString() ===
+              mentorProfile.userId.toString()
+          );
+
+        if (mentorUser) {
           mentor = {
-            id: matchingMentorUser._id,
+            id: mentorUser._id,
 
-            name: matchingMentorUser.name || matchingProfile.name || "",
+            name:
+              mentorUser.name ||
+              mentorProfile.name ||
+              "",
 
-            email: matchingMentorUser.email || matchingProfile.email || "",
+            email:
+              mentorUser.email ||
+              mentorProfile.email ||
+              "",
 
             department:
-              matchingMentorUser.department || matchingProfile.department || "",
+              mentorUser.department ||
+              mentorProfile.department ||
+              "",
 
-            year: matchingProfile.year ?? "",
+            year:
+              mentorProfile.year ?? "",
 
-            section: matchingProfile.section || "",
+            section:
+              mentorProfile.section ||
+              "",
 
-            phone: matchingProfile.phone || "",
+            phone:
+              mentorProfile.phone ||
+              "",
 
-            address: matchingProfile.address || "",
+            address:
+              mentorProfile.address ||
+              "",
 
-            profilePhoto: getLocalFileUrl(matchingProfile.profilePhoto),
+            profilePhoto:
+              getLocalFileUrl(
+                mentorProfile.profilePhoto
+              ),
           };
         }
       }
     }
 
-    // --------------------------------------------------
-    // GET APPROVED CERTIFICATES ONLY
-    // --------------------------------------------------
+    // ==================================================
+    // GET APPROVED CERTIFICATES
+    // ==================================================
 
-    const certificates = await Certificate.find({
-      userId: studentUser._id,
-      status: "Approved",
-    }).sort({
-      createdAt: -1,
-    });
+    const certificates =
+      await Certificate.find({
+        studentId: studentUser._id,
+        status: "approved",
+      }).sort({
+        createdAt: -1,
+      });
 
-    // --------------------------------------------------
-    // COMPLETE STUDENT PROFILE
-    // --------------------------------------------------
+    // ==================================================
+    // COMPLETE STUDENT OBJECT
+    // ==================================================
 
     const student = {
       id: studentUser._id,
 
-      name: studentUser.name || studentProfile.name || "",
+      // Registration details
+      name:
+        studentUser.name ||
+        studentProfile.name ||
+        "",
 
-      email: studentUser.email || studentProfile.email || "",
+      email:
+        studentUser.email ||
+        studentProfile.email ||
+        "",
 
       registerNumber:
-        studentUser.registerNumber || studentProfile.registerNumber || "",
+        studentUser.registerNumber ||
+        studentProfile.registerNumber ||
+        "",
 
-      rollNumber: studentProfile.rollNumber || "",
+      rollNumber:
+        studentProfile.rollNumber ||
+        "",
 
-      department: studentUser.department || studentProfile.department || "",
+      department:
+        studentUser.department ||
+        studentProfile.department ||
+        "",
 
-      year: studentProfile.currentYear || "",
+      year:
+        studentProfile.currentYear ||
+        "",
 
-      section: studentProfile.section || "",
+      section:
+        studentProfile.section ||
+        "",
 
-      dob: studentProfile.dob || "",
+      // Personal details
+      dob:
+        studentProfile.dob ||
+        "",
 
-      gender: studentProfile.gender || "",
+      gender:
+        studentProfile.gender ||
+        "",
 
-      batch: studentProfile.batch || "",
+      batch:
+        studentProfile.batch ||
+        "",
 
-      religion: studentProfile.religion || "",
+      religion:
+        studentProfile.religion ||
+        "",
 
-      caste: studentProfile.caste || "",
+      caste:
+        studentProfile.caste ||
+        "",
 
-      community: studentProfile.community || "",
+      community:
+        studentProfile.community ||
+        "",
 
-      studentPhone: studentProfile.studentPhone || "",
+      aadharNumber:
+        studentProfile.aadharNumber ||
+        "",
 
-      address: studentProfile.address || "",
+      // Contact details
+      studentPhone:
+        studentProfile.studentPhone ||
+        "",
 
-      tenthSchoolName: studentProfile.tenthSchoolName || "",
+      address:
+        studentProfile.address ||
+        "",
 
-      tenthPercentage: studentProfile.tenthPercentage || "",
+      pincode:
+        studentProfile.pincode ||
+        "",
 
-      tenthCompletionYear: studentProfile.tenthCompletionYear || "",
+      district:
+        studentProfile.district ||
+        "",
 
-      twelthSchoolName: studentProfile.twelthSchoolName || "",
+      state:
+        studentProfile.state ||
+        "",
 
-      twelthPercentage: studentProfile.twelthPercentage || "",
+      languagesKnown:
+        studentProfile.languagesKnown ||
+        "",
 
-      twelthCompletionYear: studentProfile.twelthCompletionYear || "",
+      hostelerDayScholar:
+        studentProfile.hostelerDayScholar ||
+        "",
 
-      diplomaPercentage: studentProfile.diplomaPercentage || "",
+      parentsNumber:
+        studentProfile.parentsNumber ||
+        "",
 
-      diplomaCompletionYear: studentProfile.diplomaCompletionYear || "",
+      // Academic details
+      mediumOfStudy:
+        studentProfile.mediumOfStudy ||
+        "",
 
+      // 10th
+      tenthSchoolName:
+        studentProfile.tenthSchoolName ||
+        "",
 
-      currentArrears: studentProfile.currentArrears || "",
+      tenthPercentage:
+        studentProfile.tenthPercentage ||
+        "",
 
-      historyOfArrears: studentProfile.historyOfArrears || "",
+      tenthBoard:
+        studentProfile.tenthBoard ||
+        "",
 
-      cgpa: studentProfile.cgpa || "",
+      tenthCompletionYear:
+        studentProfile.tenthCompletionYear ||
+        "",
 
-      resumeLink: studentProfile.resumeLink || "",
+      // 12th
+      twelthSchoolName:
+        studentProfile.twelthSchoolName ||
+        "",
 
-      linkedinLink: studentProfile.linkedinLink || "",
+      twelthPercentage:
+        studentProfile.twelthPercentage ||
+        "",
 
-      githubLink: studentProfile.githubLink || "",
+      twelthBoard:
+        studentProfile.twelthBoard ||
+        "",
 
-      portfolioLink: studentProfile.portfolioLink || "",
+      twelthCompletionYear:
+        studentProfile.twelthCompletionYear ||
+        "",
 
-      hackerrankLink:studentProfile.hackerrankLink || "" ,
+      // Diploma
+      diplomaPercentage:
+        studentProfile.diplomaPercentage ||
+        "",
 
-      leetcodeLink:studentProfile.leetcodeLink || "" ,
+      diplomaCollege:
+        studentProfile.diplomaCollege ||
+        "",
 
+      diplomaCompletionYear:
+        studentProfile.diplomaCompletionYear ||
+        "",
 
+      diplomaDegreePercentage:
+        studentProfile.diplomaDegreePercentage ||
+        "",
 
-      skills: studentProfile.skills || [],
+      // Arrears
+      currentArrears:
+        studentProfile.currentArrears ||
+        "",
 
-      internship: studentProfile.internship || [],
+      historyOfArrears:
+        studentProfile.historyOfArrears ||
+        "",
 
-      placementStatus: studentProfile.placementStatus || "Not Placed",
+      // CGPA
+      cgpa:
+        studentProfile.cgpa ||
+        "",
 
-      fatherName: studentProfile.fatherName || "",
+      // Professional / Resume
+      resumeLink:
+        studentProfile.resumeLink ||
+        "",
 
-      motherName: studentProfile.motherName || "",
+      linkedinLink:
+        studentProfile.linkedinLink ||
+        "",
 
-      fatherPhone: studentProfile.fatherPhone || "",
+      githubLink:
+        studentProfile.githubLink ||
+        "",
 
-      motherPhone: studentProfile.motherPhone || "",
+      portfolioLink:
+        studentProfile.portfolioLink ||
+        "",
 
-      profilePhoto: getLocalFileUrl(studentProfile.profilePhoto),
+      hackerrankLink:
+        studentProfile.hackerrankLink ||
+        "",
+
+      leetcodeLink:
+        studentProfile.leetcodeLink ||
+        "",
+
+      // Skills
+      skills:
+        studentProfile.skills ||
+        [],
+
+      // Internship
+      internship:
+        studentProfile.internship ||
+        [],
+
+      // Placement
+      placementStatus:
+        studentProfile.placementStatus ||
+        "Not Placed",
+
+      // Parent / Guardian
+      fatherName:
+        studentProfile.fatherName ||
+        "",
+
+      motherName:
+        studentProfile.motherName ||
+        "",
+
+      fatherOccupation:
+        studentProfile.fatherOccupation ||
+        "",
+
+      fatherPhone:
+        studentProfile.fatherPhone ||
+        "",
+
+      motherPhone:
+        studentProfile.motherPhone ||
+        "",
+
+      // Photo
+      profilePhoto:
+        getLocalFileUrl(
+          studentProfile.profilePhoto
+        ),
     };
 
     // --------------------------------------------------
@@ -574,10 +834,14 @@ exports.getStudentDetails = async (req, res) => {
 
       certificates,
 
-      certificateCount: certificates.length,
+      certificateCount:
+        certificates.length,
     });
   } catch (error) {
-    console.error("GET HOD STUDENT DETAILS ERROR:", error);
+    console.error(
+      "GET HOD STUDENT DETAILS ERROR:",
+      error
+    );
 
     res.status(500).json({
       message: "Server error",
@@ -607,9 +871,15 @@ exports.getMentorDetails = async (req, res) => {
     // GET HOD
     // --------------------------------------------------
 
-    const hodId = req.user.id || req.user.userId || req.user._id;
+    const hodId =
+      req.user.id ||
+      req.user.userId ||
+      req.user._id;
 
-    const hod = await User.findById(hodId).select("-password");
+    const hod =
+      await User.findById(hodId).select(
+        "-password"
+      );
 
     if (!hod) {
       return res.status(404).json({
@@ -621,10 +891,11 @@ exports.getMentorDetails = async (req, res) => {
     // GET MENTOR USER
     // --------------------------------------------------
 
-    const mentorUser = await User.findOne({
-      _id: mentorId,
-      role: "mentor",
-    }).select("-password");
+    const mentorUser =
+      await User.findOne({
+        _id: mentorId,
+        role: "mentor",
+      }).select("-password");
 
     if (!mentorUser) {
       return res.status(404).json({
@@ -638,9 +909,14 @@ exports.getMentorDetails = async (req, res) => {
     // HOD can only view mentors from same department.
     // --------------------------------------------------
 
-    if (hod.department && mentorUser.department !== hod.department) {
+    if (
+      hod.department &&
+      mentorUser.department !==
+        hod.department
+    ) {
       return res.status(403).json({
-        message: "You are not authorized to view this mentor",
+        message:
+          "You are not authorized to view this mentor",
       });
     }
 
@@ -648,9 +924,10 @@ exports.getMentorDetails = async (req, res) => {
     // GET MENTOR PROFILE
     // --------------------------------------------------
 
-    const mentorProfile = await MentorProfile.findOne({
-      userId: mentorUser._id,
-    });
+    const mentorProfile =
+      await MentorProfile.findOne({
+        userId: mentorUser._id,
+      });
 
     if (!mentorProfile) {
       return res.status(404).json({
@@ -663,19 +940,41 @@ exports.getMentorDetails = async (req, res) => {
     // ==================================================
 
     const mentorDepartment =
-      mentorUser.department || mentorProfile.department || "";
+      mentorUser.department ||
+      mentorProfile.department ||
+      "";
 
-    const mentorYear = mentorProfile.year;
+    const mentorYear =
+      mentorProfile.year;
 
-    const mentorSection = mentorProfile.section || "";
+    const mentorSection =
+      mentorProfile.section || "";
 
-    console.log("=================================");
-    console.log("HOD MENTOR-STUDENT MAPPING");
-    console.log("Mentor:", mentorUser.name);
-    console.log("Department:", mentorDepartment);
-    console.log("Year:", mentorYear);
-    console.log("Section:", mentorSection);
-    console.log("=================================");
+    console.log(
+      "================================="
+    );
+    console.log(
+      "HOD MENTOR-STUDENT MAPPING"
+    );
+    console.log(
+      "Mentor:",
+      mentorUser.name
+    );
+    console.log(
+      "Department:",
+      mentorDepartment
+    );
+    console.log(
+      "Year:",
+      mentorYear
+    );
+    console.log(
+      "Section:",
+      mentorSection
+    );
+    console.log(
+      "================================="
+    );
 
     // --------------------------------------------------
     // GET STUDENTS USING SAME MAPPING LOGIC
@@ -693,26 +992,33 @@ exports.getMentorDetails = async (req, res) => {
       // GET STUDENT USERS FROM SAME DEPARTMENT
       // --------------------------------------------------
 
-      const studentUsers = await User.find({
-        role: "student",
-        department: mentorDepartment,
-      }).select("-password");
+      const studentUsers =
+        await User.find({
+          role: "student",
+          department: mentorDepartment,
+        }).select("-password");
 
-      const studentUserIds = studentUsers.map((student) => student._id);
+      const studentUserIds =
+        studentUsers.map(
+          (student) => student._id
+        );
 
       // --------------------------------------------------
       // GET STUDENT PROFILES
       // --------------------------------------------------
 
-      const studentProfiles = await StudentProfile.find({
-        userId: {
-          $in: studentUserIds,
-        },
+      const studentProfiles =
+        await StudentProfile.find({
+          userId: {
+            $in: studentUserIds,
+          },
 
-        currentYear: String(mentorYear),
+          currentYear:
+            String(mentorYear),
 
-        section: mentorSection,
-      });
+          section:
+            mentorSection,
+        });
 
       // --------------------------------------------------
       // PROFILE MAP
@@ -720,49 +1026,81 @@ exports.getMentorDetails = async (req, res) => {
 
       const profileMap = new Map();
 
-      studentProfiles.forEach((profile) => {
-        profileMap.set(profile.userId.toString(), profile);
-      });
+      studentProfiles.forEach(
+        (profile) => {
+          profileMap.set(
+            profile.userId.toString(),
+            profile
+          );
+        }
+      );
 
       // --------------------------------------------------
       // COMBINE USER + PROFILE
       // --------------------------------------------------
 
-      assignedStudents = studentUsers
-        .map((studentUser) => {
-          const studentProfile = profileMap.get(studentUser._id.toString());
+      assignedStudents =
+        studentUsers
+          .map((studentUser) => {
+            const studentProfile =
+              profileMap.get(
+                studentUser._id.toString()
+              );
 
-          if (!studentProfile) {
-            return null;
-          }
+            if (!studentProfile) {
+              return null;
+            }
 
-          return {
-            id: studentUser._id,
+            return {
+              id: studentUser._id,
 
-            name: studentUser.name || studentProfile.name || "",
+              name:
+                studentUser.name ||
+                studentProfile.name ||
+                "",
 
-            registerNumber:
-              studentUser.registerNumber || studentProfile.registerNumber || "",
+              registerNumber:
+                studentUser.registerNumber ||
+                studentProfile.registerNumber ||
+                "",
 
-            email: studentUser.email || studentProfile.email || "",
+              email:
+                studentUser.email ||
+                studentProfile.email ||
+                "",
 
-            department:
-              studentUser.department || studentProfile.department || "",
+              department:
+                studentUser.department ||
+                studentProfile.department ||
+                "",
 
-            year: studentProfile.currentYear || "",
+              year:
+                studentProfile.currentYear ||
+                "",
 
-            section: studentProfile.section || "",
+              section:
+                studentProfile.section ||
+                "",
 
-            rollNumber: studentProfile.rollNumber || "",
+              rollNumber:
+                studentProfile.rollNumber ||
+                "",
 
-            cgpa: studentProfile.cgpa || "",
+              cgpa:
+                studentProfile.cgpa ||
+                "",
 
-            placementStatus: studentProfile.placementStatus || "Not Placed",
+              placementStatus:
+                studentProfile.placementStatus ||
+                "Not Placed",
 
-            profilePhoto: getLocalFileUrl(studentProfile.profilePhoto),
-          };
-        })
-        .filter(Boolean);
+              profilePhoto:
+                getLocalFileUrl(
+                  studentProfile.profilePhoto
+                ),
+            };
+          })
+          .filter(Boolean);
     }
 
     // --------------------------------------------------
@@ -770,13 +1108,17 @@ exports.getMentorDetails = async (req, res) => {
     // --------------------------------------------------
 
     assignedStudents.sort((a, b) => {
-      return String(a.rollNumber || "").localeCompare(
-        String(b.rollNumber || ""),
+      return String(
+        a.rollNumber || ""
+      ).localeCompare(
+        String(
+          b.rollNumber || ""
+        ),
         undefined,
         {
           numeric: true,
           sensitivity: "base",
-        },
+        }
       );
     });
 
@@ -787,23 +1129,42 @@ exports.getMentorDetails = async (req, res) => {
     const mentor = {
       id: mentorUser._id,
 
-      name: mentorUser.name || mentorProfile.name || "",
+      name:
+        mentorUser.name ||
+        mentorProfile.name ||
+        "",
 
-      email: mentorUser.email || mentorProfile.email || "",
+      email:
+        mentorUser.email ||
+        mentorProfile.email ||
+        "",
 
-      department: mentorDepartment,
+      department:
+        mentorDepartment,
 
-      age: mentorProfile.age || "",
+      age:
+        mentorProfile.age ||
+        "",
 
-      year: mentorProfile.year ?? "",
+      year:
+        mentorProfile.year ?? "",
 
-      section: mentorProfile.section || "",
+      section:
+        mentorProfile.section ||
+        "",
 
-      phone: mentorProfile.phone || "",
+      phone:
+        mentorProfile.phone ||
+        "",
 
-      address: mentorProfile.address || "",
+      address:
+        mentorProfile.address ||
+        "",
 
-      profilePhoto: getLocalFileUrl(mentorProfile.profilePhoto),
+      profilePhoto:
+        getLocalFileUrl(
+          mentorProfile.profilePhoto
+        ),
     };
 
     // --------------------------------------------------
@@ -813,12 +1174,17 @@ exports.getMentorDetails = async (req, res) => {
     res.status(200).json({
       mentor,
 
-      students: assignedStudents,
+      students:
+        assignedStudents,
 
-      studentCount: assignedStudents.length,
+      studentCount:
+        assignedStudents.length,
     });
   } catch (error) {
-    console.error("GET HOD MENTOR DETAILS ERROR:", error);
+    console.error(
+      "GET HOD MENTOR DETAILS ERROR:",
+      error
+    );
 
     res.status(500).json({
       message: "Server error",

@@ -61,7 +61,7 @@ exports.getProfile = async (req, res) => {
 
     res.status(200).json({
       // ==================================================
-      // USER DETAILS
+      // USER DETAILS - FROM REGISTRATION
       // ==================================================
 
       name: user.name || "",
@@ -73,7 +73,7 @@ exports.getProfile = async (req, res) => {
       department: profile.department || user.department || "",
 
       // ==================================================
-      // PERSONAL
+      // PERSONAL DETAILS
       // ==================================================
 
       dob: profile.dob || "",
@@ -88,6 +88,8 @@ exports.getProfile = async (req, res) => {
 
       batch: profile.batch || "",
 
+      aadharNumber: profile.aadharNumber || "",
+
       religion: profile.religion || "",
 
       caste: profile.caste || "",
@@ -95,31 +97,36 @@ exports.getProfile = async (req, res) => {
       community: profile.community || "",
 
       // ==================================================
-      // ACADEMIC
-      // ==================================================
-
-      cgpa: profile.cgpa || "",
-
-      skills: profile.skills || [],
-
-      internship: profile.internship || [],
-
-      placementStatus: profile.placementStatus || "Not Placed",
-
-      // ==================================================
-      // CONTACT
+      // CONTACT DETAILS
       // ==================================================
 
       studentPhone: profile.studentPhone || "",
 
       address: profile.address || "",
 
+      pincode: profile.pincode || "",
+
+      district: profile.district || "",
+
+      state: profile.state || "",
+
+      languagesKnown: profile.languagesKnown || "",
+
+      hostelerDayScholar: profile.hostelerDayScholar || "",
+
+      parentsNumber: profile.parentsNumber || "",
+
       // ==================================================
       // ACADEMIC DETAILS
       // ==================================================
+
+      mediumOfStudy: profile.mediumOfStudy || "",
+
       tenthSchoolName: profile.tenthSchoolName || "",
 
       tenthPercentage: profile.tenthPercentage || "",
+
+      tenthBoard: profile.tenthBoard || "",
 
       tenthCompletionYear: profile.tenthCompletionYear || "",
 
@@ -127,17 +134,26 @@ exports.getProfile = async (req, res) => {
 
       twelthPercentage: profile.twelthPercentage || "",
 
+      twelthBoard: profile.twelthBoard || "",
+
       twelthCompletionYear: profile.twelthCompletionYear || "",
 
       diplomaPercentage: profile.diplomaPercentage || "",
 
+      diplomaCollege: profile.diplomaCollege || "",
+
       diplomaCompletionYear: profile.diplomaCompletionYear || "",
 
-      currentArrears: profile.currentArrears || "",
+      diplomaDegreePercentage:
+        profile.diplomaDegreePercentage || "",
+
+      cgpa: profile.cgpa || "",
 
       historyOfArrears: profile.historyOfArrears || "",
 
       historyOfArrearsCount: profile.historyOfArrearsCount || "",
+
+      currentArrears: profile.currentArrears || "",
 
       // ==================================================
       // PROFESSIONAL
@@ -156,12 +172,32 @@ exports.getProfile = async (req, res) => {
       leetcodeLink: profile.leetcodeLink || "",
 
       // ==================================================
-      // PARENT DETAILS
+      // INTERNSHIP
+      // ==================================================
+
+      internship: profile.internship || [],
+
+      // ==================================================
+      // SKILLS
+      // ==================================================
+
+      skills: profile.skills || [],
+
+      // ==================================================
+      // PLACEMENT DETAILS
+      // ==================================================
+
+      placementStatus: profile.placementStatus || "Not Placed",
+
+      // ==================================================
+      // PARENT / GUARDIAN DETAILS
       // ==================================================
 
       fatherName: profile.fatherName || "",
 
       motherName: profile.motherName || "",
+
+      fatherOccupation: profile.fatherOccupation || "",
 
       fatherPhone: profile.fatherPhone || "",
 
@@ -221,21 +257,18 @@ exports.updateProfile = async (req, res) => {
     // UPDATE USER COLLECTION
     // ==================================================
 
+    // Registration details are stored in User
     await User.findByIdAndUpdate(
       userId,
-
       {
         name: data.name,
-
         email: data.email,
-
         registerNumber: data.registerNumber,
 
         // IMPORTANT
         // Save department in User
         department: data.department,
       },
-
       {
         runValidators: true,
       },
@@ -259,7 +292,7 @@ exports.updateProfile = async (req, res) => {
         department: data.department || "",
 
         // ==============================================
-        // PERSONAL
+        // PERSONAL DETAILS
         // ==============================================
 
         dob: data.dob || "",
@@ -274,9 +307,7 @@ exports.updateProfile = async (req, res) => {
 
         batch: data.batch || "",
 
-        // ==============================================
-        // RELIGION / COMMUNITY
-        // ==============================================
+        aadharNumber: data.aadharNumber || "",
 
         religion: data.religion || "",
 
@@ -285,49 +316,64 @@ exports.updateProfile = async (req, res) => {
         community: data.community || "",
 
         // ==============================================
-        // ACADEMIC
-        // ==============================================
-
-        cgpa: data.cgpa || "",
-
-        skills: data.skills || [],
-
-        internship: data.internship || [],
-
-        placementStatus: data.placementStatus || "Not Placed",
-
-        // ==============================================
-        // CONTACT
+        // CONTACT DETAILS
         // ==============================================
 
         studentPhone: data.studentPhone || "",
 
+        // KEEP EXISTING FIELD NAME
         address: data.address || "",
+
+        pincode: data.pincode || "",
+
+        district: data.district || "",
+
+        state: data.state || "",
+
+        languagesKnown: data.languagesKnown || "",
+
+        hostelerDayScholar: data.hostelerDayScholar || "",
+
+        parentsNumber: data.parentsNumber || "",
 
         // ==============================================
         // ACADEMIC DETAILS
         // ==============================================
-        tenthSchoolName: data.tenthSchoolName,
+
+        mediumOfStudy: data.mediumOfStudy || "",
+
+        tenthSchoolName: data.tenthSchoolName || "",
 
         tenthPercentage: data.tenthPercentage || "",
 
-        tenthCompletionYear: data.tenthCompletionYear,
+        tenthBoard: data.tenthBoard || "",
 
-        twelthSchoolName: data.twelthSchoolName,
+        tenthCompletionYear: data.tenthCompletionYear || "",
+
+        twelthSchoolName: data.twelthSchoolName || "",
 
         twelthPercentage: data.twelthPercentage || "",
 
-        twelthCompletionYear: data.twelthCompletionYear,
+        twelthBoard: data.twelthBoard || "",
+
+        twelthCompletionYear: data.twelthCompletionYear || "",
 
         diplomaPercentage: data.diplomaPercentage || "",
 
-        diplomaCompletionYear: data.diplomaCompletionYear,
+        diplomaCollege: data.diplomaCollege || "",
 
-        currentArrears: data.currentArrears || "",
+        diplomaCompletionYear: data.diplomaCompletionYear || "",
+
+        diplomaDegreePercentage:
+          data.diplomaDegreePercentage || "",
+
+        cgpa: data.cgpa || "",
 
         historyOfArrears: data.historyOfArrears || "",
 
-        historyOfArrearsCount: data.historyOfArrearsCount,
+        historyOfArrearsCount: data.historyOfArrearsCount || "",
+
+        currentArrears: data.currentArrears || "",
 
         // ==============================================
         // PROFESSIONAL
@@ -341,17 +387,37 @@ exports.updateProfile = async (req, res) => {
 
         portfolioLink: data.portfolioLink || "",
 
-        hackerrankLink: data.hackerrankLink,
+        hackerrankLink: data.hackerrankLink || "",
 
-        leetcodeLink: data.leetcodeLink,
+        leetcodeLink: data.leetcodeLink || "",
 
         // ==============================================
-        // PARENT DETAILS
+        // INTERNSHIP
+        // ==============================================
+
+        internship: data.internship || [],
+
+        // ==============================================
+        // SKILLS
+        // ==============================================
+
+        skills: data.skills || [],
+
+        // ==============================================
+        // PLACEMENT DETAILS
+        // ==============================================
+
+        placementStatus: data.placementStatus || "Not Placed",
+
+        // ==============================================
+        // PARENT / GUARDIAN DETAILS
         // ==============================================
 
         fatherName: data.fatherName || "",
 
         motherName: data.motherName || "",
+
+        fatherOccupation: data.fatherOccupation || "",
 
         fatherPhone: data.fatherPhone || "",
 
@@ -378,7 +444,6 @@ exports.updateProfile = async (req, res) => {
 
     res.status(200).json({
       message: "Profile updated successfully",
-
       profile,
     });
   } catch (error) {
@@ -386,7 +451,6 @@ exports.updateProfile = async (req, res) => {
 
     res.status(500).json({
       message: "Server error",
-
       error: error.message,
     });
   }

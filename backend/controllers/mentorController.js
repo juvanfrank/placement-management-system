@@ -362,7 +362,8 @@ exports.getStudents = async (req, res) => {
 
           email: user.email || profile.email || "",
 
-          registerNumber: user.registerNumber || profile.registerNumber || "",
+          registerNumber:
+            user.registerNumber || profile.registerNumber || "",
 
           rollNumber: profile.rollNumber || "",
 
@@ -550,6 +551,10 @@ exports.getStudentDetails = async (req, res) => {
 
       userId: studentUser._id,
 
+      // ==============================================
+      // PERSONAL DETAILS
+      // ==============================================
+
       name: studentUser.name || studentProfile.name || "",
 
       dob: studentProfile.dob || "",
@@ -571,11 +576,17 @@ exports.getStudentDetails = async (req, res) => {
 
       batch: studentProfile.batch || "",
 
+      aadharNumber: studentProfile.aadharNumber || "",
+
       religion: studentProfile.religion || "",
 
       caste: studentProfile.caste || "",
 
       community: studentProfile.community || "",
+
+      // ==============================================
+      // CONTACT DETAILS
+      // ==============================================
 
       studentPhone: studentProfile.studentPhone || "",
 
@@ -587,29 +598,70 @@ exports.getStudentDetails = async (req, res) => {
 
       address: studentProfile.address || "",
 
+      pincode: studentProfile.pincode || "",
+
+      district: studentProfile.district || "",
+
+      state: studentProfile.state || "",
+
+      languagesKnown: studentProfile.languagesKnown || "",
+
+      hostelerDayScholar:
+        studentProfile.hostelerDayScholar || "",
+
+      parentsNumber: studentProfile.parentsNumber || "",
+
+      // ==============================================
+      // ACADEMIC DETAILS
+      // ==============================================
+
+      mediumOfStudy: studentProfile.mediumOfStudy || "",
+
       tenthSchoolName: studentProfile.tenthSchoolName || "",
 
       tenthPercentage: studentProfile.tenthPercentage || "",
 
-      tenthCompletionYear: studentProfile.tenthCompletionYear || "",
+      tenthBoard: studentProfile.tenthBoard || "",
+
+      tenthCompletionYear:
+        studentProfile.tenthCompletionYear || "",
 
       twelthSchoolName: studentProfile.twelthSchoolName || "",
 
       twelthPercentage: studentProfile.twelthPercentage || "",
 
-      twelthCompletionYear: studentProfile.twelthCompletionYear || "",
+      twelthBoard: studentProfile.twelthBoard || "",
+
+      twelthCompletionYear:
+        studentProfile.twelthCompletionYear || "",
 
       diplomaPercentage: studentProfile.diplomaPercentage || "",
 
-      diplomaCompletionYear: studentProfile.diplomaCompletionYear || "",
+      diplomaCollege: studentProfile.diplomaCollege || "",
 
-      currentArrears: studentProfile.currentArrears || "",
+      diplomaCompletionYear:
+        studentProfile.diplomaCompletionYear || "",
 
-      historyOfArrears: studentProfile.historyOfArrears || "",
+      diplomaDegreePercentage:
+        studentProfile.diplomaDegreePercentage || "",
 
-      cgpa: studentProfile.cgpa || studentUser.cgpa || "",
+      cgpa:
+        studentProfile.cgpa || studentUser.cgpa || "",
 
-      resumeLink: studentProfile.resumeLink || "",
+      historyOfArrears:
+        studentProfile.historyOfArrears || "",
+
+      historyOfArrearsCount:
+        studentProfile.historyOfArrearsCount || "",
+
+      currentArrears:
+        studentProfile.currentArrears || "",
+
+      // ==============================================
+      // PROFESSIONAL
+      // ==============================================
+
+      resumeLink: getLocalFileUrl(studentProfile.resumeLink),
 
       linkedinLink: studentProfile.linkedinLink || "",
 
@@ -617,26 +669,53 @@ exports.getStudentDetails = async (req, res) => {
 
       portfolioLink: studentProfile.portfolioLink || "",
 
-      hackerrankLink:studentProfile.hackerrankLink || "" ,
+      hackerrankLink:
+        studentProfile.hackerrankLink || "",
 
+      leetcodeLink:
+        studentProfile.leetcodeLink || "",
 
-      leetcodeLink: studentProfile.leetcodeLink || "" ,
+      // ==============================================
+      // SKILLS
+      // ==============================================
 
       skills: studentProfile.skills || [],
 
+      // ==============================================
+      // INTERNSHIP
+      // ==============================================
+
       internship: studentProfile.internship || [],
 
-      placementStatus: studentProfile.placementStatus || "Not Placed",
+      // ==============================================
+      // PLACEMENT
+      // ==============================================
+
+      placementStatus:
+        studentProfile.placementStatus || "Not Placed",
+
+      // ==============================================
+      // PARENT / GUARDIAN DETAILS
+      // ==============================================
 
       fatherName: studentProfile.fatherName || "",
 
       motherName: studentProfile.motherName || "",
 
+      fatherOccupation:
+        studentProfile.fatherOccupation || "",
+
       fatherPhone: studentProfile.fatherPhone || "",
 
       motherPhone: studentProfile.motherPhone || "",
 
-      profilePhoto: getLocalFileUrl(studentProfile.profilePhoto),
+      // ==============================================
+      // PROFILE PHOTO
+      // ==============================================
+
+      profilePhoto: getLocalFileUrl(
+        studentProfile.profilePhoto
+      ),
     };
 
     // ==================================================
@@ -662,7 +741,9 @@ exports.getStudentDetails = async (req, res) => {
 
       address: mentorProfile.address || "",
 
-      profilePhoto: getLocalFileUrl(mentorProfile.profilePhoto),
+      profilePhoto: getLocalFileUrl(
+        mentorProfile.profilePhoto
+      ),
     };
 
     // ==================================================
@@ -679,7 +760,10 @@ exports.getStudentDetails = async (req, res) => {
       certificateCount: certificates.length,
     });
   } catch (error) {
-    console.error("GET MENTOR STUDENT DETAILS ERROR:", error);
+    console.error(
+      "GET MENTOR STUDENT DETAILS ERROR:",
+      error
+    );
 
     return res.status(500).json({
       message: "Server error",
