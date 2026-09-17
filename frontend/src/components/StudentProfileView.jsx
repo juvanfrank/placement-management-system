@@ -49,6 +49,10 @@ function StudentProfileView({
     }
   }, [profileEndpoint]);
 
+  // ==================================================
+  // DISPLAY HELPERS
+  // ==================================================
+
   const displayValue = (value) => {
     if (
       value === null ||
@@ -69,6 +73,10 @@ function StudentProfileView({
     return value.join(", ");
   };
 
+  // ==================================================
+  // LOADING
+  // ==================================================
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -78,6 +86,10 @@ function StudentProfileView({
       </div>
     );
   }
+
+  // ==================================================
+  // ERROR
+  // ==================================================
 
   if (error) {
     return (
@@ -93,6 +105,10 @@ function StudentProfileView({
     );
   }
 
+  // ==================================================
+  // NO STUDENT
+  // ==================================================
+
   if (!student) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
@@ -103,25 +119,36 @@ function StudentProfileView({
     );
   }
 
+  // ==================================================
+  // MAIN UI
+  // ==================================================
+
   return (
     <div className="space-y-6">
 
-      {/* READ ONLY MESSAGE */}
+      {/* ==============================================
+          READ ONLY MESSAGE
+      ============================================== */}
+
       {readOnly && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
           <p className="text-blue-700 text-sm">
-            This student profile is available in
-            <strong> read-only mode</strong>.
+            This student profile is available in{" "}
+            <strong>read-only mode</strong>.
           </p>
         </div>
       )}
 
-      {/* HEADER */}
+      {/* ==============================================
+          HEADER
+      ============================================== */}
+
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
 
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
 
           {/* PROFILE PHOTO */}
+
           <div className="flex-shrink-0">
 
             {student.profilePhoto ? (
@@ -146,6 +173,7 @@ function StudentProfileView({
           </div>
 
           {/* BASIC INFO */}
+
           <div className="flex-1 text-center md:text-left">
 
             <h1 className="text-3xl font-bold text-gray-800">
@@ -187,12 +215,25 @@ function StudentProfileView({
         </div>
       </div>
 
-      {/* PERSONAL INFORMATION */}
+      {/* ==============================================
+          PERSONAL INFORMATION
+      ============================================== */}
+
       <ProfileSection title="Personal Information">
 
         <InfoItem
           label="Full Name"
           value={student.name}
+        />
+
+        <InfoItem
+          label="Register Number"
+          value={student.registerNumber}
+        />
+
+        <InfoItem
+          label="Roll Number"
+          value={student.rollNumber}
         />
 
         <InfoItem
@@ -220,20 +261,72 @@ function StudentProfileView({
           value={student.community}
         />
 
+        <InfoItem
+          label="Aadhar Number"
+          value={student.aadharNumber}
+        />
+
       </ProfileSection>
 
-      {/* ACADEMIC INFORMATION */}
+      {/* ==============================================
+          CONTACT INFORMATION
+      ============================================== */}
+
+      <ProfileSection title="Contact Information">
+
+        <InfoItem
+          label="Email"
+          value={student.email}
+        />
+
+        <InfoItem
+          label="Personal Phone Number"
+          value={student.studentPhone}
+        />
+
+        <InfoItem
+          label="Parents Number"
+          value={student.parentsNumber}
+        />
+
+        <InfoItem
+          label="Hosteler / Dayscholar"
+          value={student.hostelerDayScholar}
+        />
+
+        <InfoItem
+          label="Languages Known"
+          value={student.languagesKnown}
+        />
+
+        <InfoItem
+          label="Pincode"
+          value={student.pincode}
+        />
+
+        <InfoItem
+          label="District"
+          value={student.district}
+        />
+
+        <InfoItem
+          label="State"
+          value={student.state}
+        />
+
+        <InfoItem
+          label="Permanent Address"
+          value={student.address}
+          fullWidth
+        />
+
+      </ProfileSection>
+
+      {/* ==============================================
+          ACADEMIC INFORMATION
+      ============================================== */}
+
       <ProfileSection title="Academic Information">
-
-        <InfoItem
-          label="Register Number"
-          value={student.registerNumber}
-        />
-
-        <InfoItem
-          label="Roll Number"
-          value={student.rollNumber}
-        />
 
         <InfoItem
           label="Department"
@@ -255,11 +348,23 @@ function StudentProfileView({
           value={student.batch}
         />
 
-        {/* 10TH DETAILS */}
         <InfoItem
-          label="10th School Name"
-          value={student.tenthSchoolName}
+          label="Medium of Study"
+          value={student.mediumOfStudy}
         />
+
+        <InfoItem
+          label="Current CGPA"
+          value={student.cgpa}
+        />
+
+      </ProfileSection>
+
+      {/* ==============================================
+          10TH DETAILS
+      ============================================== */}
+
+      <ProfileSection title="10th Details">
 
         <InfoItem
           label="10th Percentage"
@@ -267,15 +372,27 @@ function StudentProfileView({
         />
 
         <InfoItem
-          label="10th Year of Completion"
+          label="10th Board"
+          value={student.tenthBoard}
+        />
+
+        <InfoItem
+          label="10th School Name"
+          value={student.tenthSchoolName}
+        />
+
+        <InfoItem
+          label="10th Year of Passing"
           value={student.tenthCompletionYear}
         />
 
-        {/* 12TH DETAILS */}
-        <InfoItem
-          label="12th School Name"
-          value={student.twelthSchoolName}
-        />
+      </ProfileSection>
+
+      {/* ==============================================
+          12TH DETAILS
+      ============================================== */}
+
+      <ProfileSection title="12th Details">
 
         <InfoItem
           label="12th Percentage"
@@ -283,25 +400,55 @@ function StudentProfileView({
         />
 
         <InfoItem
-          label="12th Year of Completion"
+          label="12th Board"
+          value={student.twelthBoard}
+        />
+
+        <InfoItem
+          label="12th School Name"
+          value={student.twelthSchoolName}
+        />
+
+        <InfoItem
+          label="12th Year of Passing"
           value={student.twelthCompletionYear}
         />
 
-        {/* DIPLOMA DETAILS */}
+      </ProfileSection>
+
+      {/* ==============================================
+          DIPLOMA DETAILS
+      ============================================== */}
+
+      <ProfileSection title="Diploma Details">
+
         <InfoItem
           label="Diploma Percentage"
           value={student.diplomaPercentage}
         />
 
         <InfoItem
-          label="Diploma Year of Completion"
+          label="Diploma College / University"
+          value={student.diplomaCollege}
+        />
+
+        <InfoItem
+          label="Diploma Year of Passing"
           value={student.diplomaCompletionYear}
         />
 
         <InfoItem
-          label="Current Arrears"
-          value={student.currentArrears}
+          label="Diploma Degree Percentage"
+          value={student.diplomaDegreePercentage}
         />
+
+      </ProfileSection>
+
+      {/* ==============================================
+          ARREARS
+      ============================================== */}
+
+      <ProfileSection title="Arrears Information">
 
         <InfoItem
           label="History of Arrears"
@@ -314,34 +461,16 @@ function StudentProfileView({
         />
 
         <InfoItem
-          label="Current CGPA"
-          value={student.cgpa}
+          label="Current Arrears"
+          value={student.currentArrears}
         />
 
       </ProfileSection>
 
-      {/* CONTACT INFORMATION */}
-      <ProfileSection title="Contact Information">
+      {/* ==============================================
+          PARENT / GUARDIAN INFORMATION
+      ============================================== */}
 
-        <InfoItem
-          label="Email"
-          value={student.email}
-        />
-
-        <InfoItem
-          label="Phone Number"
-          value={student.studentPhone}
-        />
-
-        <InfoItem
-          label="Address"
-          value={student.address}
-          fullWidth
-        />
-
-      </ProfileSection>
-
-      {/* PARENT INFORMATION */}
       <ProfileSection title="Parent / Guardian Information">
 
         <InfoItem
@@ -350,13 +479,18 @@ function StudentProfileView({
         />
 
         <InfoItem
-          label="Father's Phone"
-          value={student.fatherPhone}
+          label="Mother's Name"
+          value={student.motherName}
         />
 
         <InfoItem
-          label="Mother's Name"
-          value={student.motherName}
+          label="Father's Occupation"
+          value={student.fatherOccupation}
+        />
+
+        <InfoItem
+          label="Father's Phone"
+          value={student.fatherPhone}
         />
 
         <InfoItem
@@ -366,7 +500,10 @@ function StudentProfileView({
 
       </ProfileSection>
 
-      {/* PROFESSIONAL INFORMATION */}
+      {/* ==============================================
+          PROFESSIONAL INFORMATION
+      ============================================== */}
+
       <ProfileSection title="Professional Information">
 
         <InfoItem
@@ -388,7 +525,10 @@ function StudentProfileView({
 
       </ProfileSection>
 
-      {/* SOCIAL / DOCUMENTS */}
+      {/* ==============================================
+          RESUME & SOCIAL LINKS
+      ============================================== */}
+
       <ProfileSection title="Resume & Social Links">
 
         <LinkItem
@@ -423,7 +563,10 @@ function StudentProfileView({
 
       </ProfileSection>
 
-      {/* CONCERNED MENTOR */}
+      {/* ==============================================
+          CONCERNED MENTOR
+      ============================================== */}
+
       <ProfileSection title="Concerned Mentor">
 
         {mentor ? (
@@ -457,6 +600,7 @@ function StudentProfileView({
               label="Phone"
               value={mentor.phone}
             />
+
           </>
         ) : (
           <div className="col-span-full">
@@ -468,7 +612,10 @@ function StudentProfileView({
 
       </ProfileSection>
 
-      {/* CERTIFICATES */}
+      {/* ==============================================
+          APPROVED CERTIFICATES
+      ============================================== */}
+
       <ProfileSection title="Approved Certificates">
 
         {certificates.length === 0 ? (
@@ -482,13 +629,18 @@ function StudentProfileView({
 
             {certificates.map((certificate) => (
               <div
-                key={certificate._id || certificate.id}
+                key={
+                  certificate._id ||
+                  certificate.id
+                }
                 className="border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
               >
 
                 <div>
                   <h3 className="font-semibold text-gray-800">
-                    {displayValue(certificate.name)}
+                    {displayValue(
+                      certificate.name
+                    )}
                   </h3>
 
                   <p className="text-sm text-green-600 mt-1">
@@ -515,12 +667,16 @@ function StudentProfileView({
 
       </ProfileSection>
 
-      {/* READ ONLY FOOTER */}
+      {/* ==============================================
+          READ ONLY FOOTER
+      ============================================== */}
+
       {readOnly && (
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
           <p className="text-sm text-gray-500 text-center">
             This profile is available for viewing only.
-            Student information cannot be edited or deleted from this page.
+            Student information cannot be edited or
+            deleted from this page.
           </p>
         </div>
       )}
@@ -529,11 +685,14 @@ function StudentProfileView({
   );
 }
 
-/* -------------------------------- */
-/* PROFILE SECTION */
-/* -------------------------------- */
+// ==================================================
+// PROFILE SECTION
+// ==================================================
 
-function ProfileSection({ title, children }) {
+function ProfileSection({
+  title,
+  children,
+}) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
 
@@ -549,9 +708,9 @@ function ProfileSection({ title, children }) {
   );
 }
 
-/* -------------------------------- */
-/* INFO ITEM */
-/* -------------------------------- */
+// ==================================================
+// INFO ITEM
+// ==================================================
 
 function InfoItem({
   label,
@@ -581,9 +740,9 @@ function InfoItem({
   );
 }
 
-/* -------------------------------- */
-/* LINK ITEM */
-/* -------------------------------- */
+// ==================================================
+// LINK ITEM
+// ==================================================
 
 function LinkItem({
   label,
@@ -591,6 +750,7 @@ function LinkItem({
 }) {
   return (
     <div>
+
       <p className="text-sm text-gray-500 mb-1">
         {label}
       </p>
@@ -609,6 +769,7 @@ function LinkItem({
           Not provided
         </p>
       )}
+
     </div>
   );
 }

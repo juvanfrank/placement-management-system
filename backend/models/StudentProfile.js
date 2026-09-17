@@ -63,6 +63,15 @@ const studentProfileSchema = new mongoose.Schema(
     },
 
     // ==================================================
+    // NEW PERSONAL DETAILS
+    // ==================================================
+
+    aadharNumber: {
+      type: String,
+      default: "",
+    },
+
+    // ==================================================
     // RELIGION / COMMUNITY
     // ==================================================
 
@@ -101,8 +110,54 @@ const studentProfileSchema = new mongoose.Schema(
     },
 
     // ==================================================
+    // NEW CONTACT DETAILS
+    // ==================================================
+
+    pincode: {
+      type: String,
+      default: "",
+    },
+
+    district: {
+      type: String,
+      default: "",
+    },
+
+    state: {
+      type: String,
+      default: "",
+    },
+
+    languagesKnown: {
+      type: String,
+      default: "",
+    },
+
+    hostelerDayScholar: {
+      type: String,
+      enum: ["", "Hosteler", "Dayscholar"],
+      default: "",
+    },
+
+    parentsNumber: {
+      type: String,
+      default: "",
+    },
+
+    // ==================================================
     // ACADEMIC
     // ==================================================
+
+    // NEW: MEDIUM OF STUDY
+    mediumOfStudy: {
+      type: String,
+      default: "",
+    },
+
+    // ==================================================
+    // 10TH DETAILS
+    // ==================================================
+
     tenthSchoolName: {
       type: String,
       default: "",
@@ -112,10 +167,21 @@ const studentProfileSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
     tenthCompletionYear: {
       type: String,
       default: "",
     },
+
+    // NEW: 10TH BOARD
+    tenthBoard: {
+      type: String,
+      default: "",
+    },
+
+    // ==================================================
+    // 12TH DETAILS
+    // ==================================================
 
     twelthSchoolName: {
       type: String,
@@ -131,6 +197,11 @@ const studentProfileSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+   
+    twelthBoard: { type: String, default: "" },
+    // ==================================================
+    // DIPLOMA DETAILS
+    // ==================================================
 
     diplomaPercentage: {
       type: String,
@@ -142,6 +213,22 @@ const studentProfileSchema = new mongoose.Schema(
       default: "",
     },
 
+    // NEW: DIPLOMA SCHOOL / COLLEGE / UNIVERSITY
+    diplomaCollege: {
+      type: String,
+      default: "",
+    },
+
+    // NEW: DIPLOMA DEGREE PERCENTAGE
+    diplomaDegreePercentage: {
+      type: String,
+      default: "",
+    },
+
+    // ==================================================
+    // ARREARS
+    // ==================================================
+
     currentArrears: {
       type: String,
       default: "",
@@ -152,11 +239,15 @@ const studentProfileSchema = new mongoose.Schema(
       default: "",
     },
 
-    // NEW: NUMBER OF HISTORY OF ARREARS
+    // EXISTING: NUMBER OF HISTORY OF ARREARS
     historyOfArrearsCount: {
       type: String,
       default: "",
     },
+
+    // ==================================================
+    // CGPA
+    // ==================================================
 
     cgpa: {
       type: String,
@@ -207,6 +298,10 @@ const studentProfileSchema = new mongoose.Schema(
       default: [],
     },
 
+    // ==================================================
+    // PLACEMENT STATUS
+    // ==================================================
+
     placementStatus: {
       type: String,
       enum: ["Not Placed", "Placed", "Internship"],
@@ -223,6 +318,12 @@ const studentProfileSchema = new mongoose.Schema(
     },
 
     motherName: {
+      type: String,
+      default: "",
+    },
+
+    // NEW: FATHER OCCUPATION
+    fatherOccupation: {
       type: String,
       default: "",
     },

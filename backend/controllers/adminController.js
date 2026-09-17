@@ -519,91 +519,289 @@ exports.getStudentDetails = async (req, res) => {
     // ==========================================
 
     const student = {
-      id: studentUser._id,
+  id: studentUser._id,
 
-      name: studentUser.name || studentProfile.name || "",
+  // ==========================================
+  // REGISTRATION DETAILS
+  // ==========================================
 
-      email: studentUser.email || studentProfile.email || "",
+  name:
+    studentUser.name ||
+    studentProfile.name ||
+    "",
 
-      registerNumber:
-        studentUser.registerNumber || studentProfile.registerNumber || "",
+  email:
+    studentUser.email ||
+    studentProfile.email ||
+    "",
 
-      rollNumber: studentProfile.rollNumber || "",
+  registerNumber:
+    studentUser.registerNumber ||
+    studentProfile.registerNumber ||
+    "",
 
-      department: studentUser.department || studentProfile.department || "",
+  rollNumber:
+    studentProfile.rollNumber ||
+    "",
 
-      year: studentProfile.currentYear || "",
+  department:
+    studentUser.department ||
+    studentProfile.department ||
+    "",
 
-      section: studentProfile.section || "",
+  year:
+    studentProfile.currentYear ||
+    "",
 
-      dob: studentProfile.dob || "",
+  section:
+    studentProfile.section ||
+    "",
 
-      gender: studentProfile.gender || "",
+  // ==========================================
+  // PERSONAL DETAILS
+  // ==========================================
 
-      batch: studentProfile.batch || "",
+  dob:
+    studentProfile.dob ||
+    "",
 
-      religion: studentProfile.religion || "",
+  gender:
+    studentProfile.gender ||
+    "",
 
-      caste: studentProfile.caste || "",
+  batch:
+    studentProfile.batch ||
+    "",
 
-      community: studentProfile.community || "",
+  religion:
+    studentProfile.religion ||
+    "",
 
-      studentPhone: studentProfile.studentPhone || "",
+  caste:
+    studentProfile.caste ||
+    "",
 
-      address: studentProfile.address || "",
+  community:
+    studentProfile.community ||
+    "",
 
-      tenthSchoolName: studentProfile.tenthSchoolName || "",
+  aadharNumber:
+    studentProfile.aadharNumber ||
+    "",
 
-      tenthPercentage: studentProfile.tenthPercentage || "",
-  
-      tenthCompletionYear: studentProfile.tenthCompletionYear || "",
+  // ==========================================
+  // CONTACT DETAILS
+  // ==========================================
 
-      twelthSchoolName: studentProfile.twelthSchoolName || "",
+  studentPhone:
+    studentProfile.studentPhone ||
+    "",
 
-      twelthPercentage: studentProfile.twelthPercentage || "",
+  address:
+    studentProfile.address ||
+    "",
 
-      twelthCompletionYear: studentProfile.twelthCompletionYear || "",
+  pincode:
+    studentProfile.pincode ||
+    "",
 
-      diplomaPercentage: studentProfile.diplomaPercentage || "",
+  district:
+    studentProfile.district ||
+    "",
 
-      diplomaCompletionYear: studentProfile.diplomaCompletionYear || "",
+  state:
+    studentProfile.state ||
+    "",
 
-      currentArrears: studentProfile.currentArrears || "",
+  languagesKnown:
+    studentProfile.languagesKnown ||
+    "",
 
-      historyOfArrears: studentProfile.historyOfArrears || "",
+  hostelerDayScholar:
+    studentProfile.hostelerDayScholar ||
+    "",
 
-      cgpa: studentProfile.cgpa || "",
+  parentsNumber:
+    studentProfile.parentsNumber ||
+    "",
 
-      resumeLink: studentProfile.resumeLink || "",
+  // ==========================================
+  // ACADEMIC DETAILS
+  // ==========================================
 
-      linkedinLink: studentProfile.linkedinLink || "",
+  mediumOfStudy:
+    studentProfile.mediumOfStudy ||
+    "",
 
-      githubLink: studentProfile.githubLink || "",
+  // ------------------------------------------
+  // 10TH
+  // ------------------------------------------
 
-      portfolioLink: studentProfile.portfolioLink || "",
+  tenthSchoolName:
+    studentProfile.tenthSchoolName ||
+    "",
 
-      hackerrankLink: studentProfile.hackerrankLink || "" ,
+  tenthPercentage:
+    studentProfile.tenthPercentage ||
+    "",
 
-      leetcodeLink: studentProfile.leetcodeLink  || "",
+  tenthBoard:
+    studentProfile.tenthBoard ||
+    "",
 
+  tenthCompletionYear:
+    studentProfile.tenthCompletionYear ||
+    "",
 
+  // ------------------------------------------
+  // 12TH
+  // ------------------------------------------
 
-      skills: studentProfile.skills || [],
+  twelthSchoolName:
+    studentProfile.twelthSchoolName ||
+    "",
 
-      internship: studentProfile.internship || [],
+  twelthPercentage:
+    studentProfile.twelthPercentage ||
+    "",
 
-      placementStatus: studentProfile.placementStatus || "Not Placed",
+  twelthBoard:
+    studentProfile.twelthBoard ||
+    "",
 
-      fatherName: studentProfile.fatherName || "",
+  twelthCompletionYear:
+    studentProfile.twelthCompletionYear ||
+    "",
 
-      motherName: studentProfile.motherName || "",
+  // ------------------------------------------
+  // DIPLOMA
+  // ------------------------------------------
 
-      fatherPhone: studentProfile.fatherPhone || "",
+  diplomaPercentage:
+    studentProfile.diplomaPercentage ||
+    "",
 
-      motherPhone: studentProfile.motherPhone || "",
+  diplomaCollege:
+    studentProfile.diplomaCollege ||
+    "",
 
-      profilePhoto: getLocalFileUrl(studentProfile.profilePhoto),
-    };
+  diplomaDegreePercentage:
+    studentProfile.diplomaDegreePercentage ||
+    "",
+
+  diplomaCompletionYear:
+    studentProfile.diplomaCompletionYear ||
+    "",
+
+  // ==========================================
+  // ARREARS
+  // ==========================================
+
+  currentArrears:
+    studentProfile.currentArrears ||
+    "",
+
+  historyOfArrears:
+    studentProfile.historyOfArrears ||
+    "",
+
+  historyOfArrearsCount:
+    studentProfile.historyOfArrearsCount ||
+    "",
+
+  // ==========================================
+  // CGPA
+  // ==========================================
+
+  cgpa:
+    studentProfile.cgpa ||
+    "",
+
+  // ==========================================
+  // PROFESSIONAL DETAILS
+  // ==========================================
+
+  resumeLink:
+    studentProfile.resumeLink ||
+    "",
+
+  linkedinLink:
+    studentProfile.linkedinLink ||
+    "",
+
+  githubLink:
+    studentProfile.githubLink ||
+    "",
+
+  portfolioLink:
+    studentProfile.portfolioLink ||
+    "",
+
+  hackerrankLink:
+    studentProfile.hackerrankLink ||
+    "",
+
+  leetcodeLink:
+    studentProfile.leetcodeLink ||
+    "",
+
+  // ==========================================
+  // SKILLS
+  // ==========================================
+
+  skills:
+    studentProfile.skills ||
+    [],
+
+  // ==========================================
+  // INTERNSHIP
+  // ==========================================
+
+  internship:
+    studentProfile.internship ||
+    [],
+
+  // ==========================================
+  // PLACEMENT
+  // ==========================================
+
+  placementStatus:
+    studentProfile.placementStatus ||
+    "Not Placed",
+
+  // ==========================================
+  // PARENT / GUARDIAN
+  // ==========================================
+
+  fatherName:
+    studentProfile.fatherName ||
+    "",
+
+  motherName:
+    studentProfile.motherName ||
+    "",
+
+  fatherOccupation:
+    studentProfile.fatherOccupation ||
+    "",
+
+  fatherPhone:
+    studentProfile.fatherPhone ||
+    "",
+
+  motherPhone:
+    studentProfile.motherPhone ||
+    "",
+
+  // ==========================================
+  // PROFILE PHOTO
+  // ==========================================
+
+  profilePhoto:
+    getLocalFileUrl(
+      studentProfile.profilePhoto
+    ),
+};
 
     // ==========================================
     // RESPONSE
