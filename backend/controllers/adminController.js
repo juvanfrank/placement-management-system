@@ -519,289 +519,177 @@ exports.getStudentDetails = async (req, res) => {
     // ==========================================
 
     const student = {
-  id: studentUser._id,
-
-  // ==========================================
-  // REGISTRATION DETAILS
-  // ==========================================
-
-  name:
-    studentUser.name ||
-    studentProfile.name ||
-    "",
-
-  email:
-    studentUser.email ||
-    studentProfile.email ||
-    "",
-
-  registerNumber:
-    studentUser.registerNumber ||
-    studentProfile.registerNumber ||
-    "",
-
-  rollNumber:
-    studentProfile.rollNumber ||
-    "",
-
-  department:
-    studentUser.department ||
-    studentProfile.department ||
-    "",
-
-  year:
-    studentProfile.currentYear ||
-    "",
-
-  section:
-    studentProfile.section ||
-    "",
-
-  // ==========================================
-  // PERSONAL DETAILS
-  // ==========================================
-
-  dob:
-    studentProfile.dob ||
-    "",
-
-  gender:
-    studentProfile.gender ||
-    "",
-
-  batch:
-    studentProfile.batch ||
-    "",
-
-  religion:
-    studentProfile.religion ||
-    "",
-
-  caste:
-    studentProfile.caste ||
-    "",
-
-  community:
-    studentProfile.community ||
-    "",
-
-  aadharNumber:
-    studentProfile.aadharNumber ||
-    "",
-
-  // ==========================================
-  // CONTACT DETAILS
-  // ==========================================
-
-  studentPhone:
-    studentProfile.studentPhone ||
-    "",
-
-  address:
-    studentProfile.address ||
-    "",
-
-  pincode:
-    studentProfile.pincode ||
-    "",
-
-  district:
-    studentProfile.district ||
-    "",
-
-  state:
-    studentProfile.state ||
-    "",
-
-  languagesKnown:
-    studentProfile.languagesKnown ||
-    "",
-
-  hostelerDayScholar:
-    studentProfile.hostelerDayScholar ||
-    "",
-
-  parentsNumber:
-    studentProfile.parentsNumber ||
-    "",
-
-  // ==========================================
-  // ACADEMIC DETAILS
-  // ==========================================
-
-  mediumOfStudy:
-    studentProfile.mediumOfStudy ||
-    "",
-
-  // ------------------------------------------
-  // 10TH
-  // ------------------------------------------
-
-  tenthSchoolName:
-    studentProfile.tenthSchoolName ||
-    "",
-
-  tenthPercentage:
-    studentProfile.tenthPercentage ||
-    "",
-
-  tenthBoard:
-    studentProfile.tenthBoard ||
-    "",
-
-  tenthCompletionYear:
-    studentProfile.tenthCompletionYear ||
-    "",
-
-  // ------------------------------------------
-  // 12TH
-  // ------------------------------------------
-
-  twelthSchoolName:
-    studentProfile.twelthSchoolName ||
-    "",
-
-  twelthPercentage:
-    studentProfile.twelthPercentage ||
-    "",
-
-  twelthBoard:
-    studentProfile.twelthBoard ||
-    "",
-
-  twelthCompletionYear:
-    studentProfile.twelthCompletionYear ||
-    "",
-
-  // ------------------------------------------
-  // DIPLOMA
-  // ------------------------------------------
-
-  diplomaPercentage:
-    studentProfile.diplomaPercentage ||
-    "",
-
-  diplomaCollege:
-    studentProfile.diplomaCollege ||
-    "",
-
-  diplomaDegreePercentage:
-    studentProfile.diplomaDegreePercentage ||
-    "",
-
-  diplomaCompletionYear:
-    studentProfile.diplomaCompletionYear ||
-    "",
-
-  // ==========================================
-  // ARREARS
-  // ==========================================
-
-  currentArrears:
-    studentProfile.currentArrears ||
-    "",
-
-  historyOfArrears:
-    studentProfile.historyOfArrears ||
-    "",
-
-  historyOfArrearsCount:
-    studentProfile.historyOfArrearsCount ||
-    "",
-
-  // ==========================================
-  // CGPA
-  // ==========================================
-
-  cgpa:
-    studentProfile.cgpa ||
-    "",
-
-  // ==========================================
-  // PROFESSIONAL DETAILS
-  // ==========================================
-
-  resumeLink:
-    studentProfile.resumeLink ||
-    "",
-
-  linkedinLink:
-    studentProfile.linkedinLink ||
-    "",
-
-  githubLink:
-    studentProfile.githubLink ||
-    "",
-
-  portfolioLink:
-    studentProfile.portfolioLink ||
-    "",
-
-  hackerrankLink:
-    studentProfile.hackerrankLink ||
-    "",
-
-  leetcodeLink:
-    studentProfile.leetcodeLink ||
-    "",
-
-  // ==========================================
-  // SKILLS
-  // ==========================================
-
-  skills:
-    studentProfile.skills ||
-    [],
-
-  // ==========================================
-  // INTERNSHIP
-  // ==========================================
-
-  internship:
-    studentProfile.internship ||
-    [],
-
-  // ==========================================
-  // PLACEMENT
-  // ==========================================
-
-  placementStatus:
-    studentProfile.placementStatus ||
-    "Not Placed",
-
-  // ==========================================
-  // PARENT / GUARDIAN
-  // ==========================================
-
-  fatherName:
-    studentProfile.fatherName ||
-    "",
-
-  motherName:
-    studentProfile.motherName ||
-    "",
-
-  fatherOccupation:
-    studentProfile.fatherOccupation ||
-    "",
-
-  fatherPhone:
-    studentProfile.fatherPhone ||
-    "",
-
-  motherPhone:
-    studentProfile.motherPhone ||
-    "",
-
-  // ==========================================
-  // PROFILE PHOTO
-  // ==========================================
-
-  profilePhoto:
-    getLocalFileUrl(
-      studentProfile.profilePhoto
-    ),
-};
+      id: studentUser._id,
+
+      // ==========================================
+      // REGISTRATION DETAILS
+      // ==========================================
+
+      name: studentUser.name || studentProfile.name || "",
+
+      email: studentUser.email || studentProfile.email || "",
+
+      registerNumber:
+        studentUser.registerNumber || studentProfile.registerNumber || "",
+
+      rollNumber: studentProfile.rollNumber || "",
+
+      department: studentUser.department || studentProfile.department || "",
+
+      year: studentProfile.currentYear || "",
+
+      section: studentProfile.section || "",
+
+      // ==========================================
+      // PERSONAL DETAILS
+      // ==========================================
+
+      dob: studentProfile.dob || "",
+
+      gender: studentProfile.gender || "",
+
+      batch: studentProfile.batch || "",
+
+      religion: studentProfile.religion || "",
+
+      caste: studentProfile.caste || "",
+
+      community: studentProfile.community || "",
+
+      aadharNumber: studentProfile.aadharNumber || "",
+
+      // ==========================================
+      // CONTACT DETAILS
+      // ==========================================
+
+      studentPhone: studentProfile.studentPhone || "",
+
+      address: studentProfile.address || "",
+
+      pincode: studentProfile.pincode || "",
+
+      district: studentProfile.district || "",
+
+      state: studentProfile.state || "",
+
+      languagesKnown: studentProfile.languagesKnown || "",
+
+      hostelerDayScholar: studentProfile.hostelerDayScholar || "",
+
+      parentsNumber: studentProfile.parentsNumber || "",
+
+      // ==========================================
+      // ACADEMIC DETAILS
+      // ==========================================
+
+      mediumOfStudy: studentProfile.mediumOfStudy || "",
+
+      // ------------------------------------------
+      // 10TH
+      // ------------------------------------------
+
+      tenthSchoolName: studentProfile.tenthSchoolName || "",
+
+      tenthPercentage: studentProfile.tenthPercentage || "",
+
+      tenthBoard: studentProfile.tenthBoard || "",
+
+      tenthCompletionYear: studentProfile.tenthCompletionYear || "",
+
+      // ------------------------------------------
+      // 12TH
+      // ------------------------------------------
+
+      twelthSchoolName: studentProfile.twelthSchoolName || "",
+
+      twelthPercentage: studentProfile.twelthPercentage || "",
+
+      twelthBoard: studentProfile.twelthBoard || "",
+
+      twelthCompletionYear: studentProfile.twelthCompletionYear || "",
+
+      // ------------------------------------------
+      // DIPLOMA
+      // ------------------------------------------
+
+      diplomaPercentage: studentProfile.diplomaPercentage || "",
+
+      diplomaCollege: studentProfile.diplomaCollege || "",
+
+      diplomaDegreePercentage: studentProfile.diplomaDegreePercentage || "",
+
+      diplomaCompletionYear: studentProfile.diplomaCompletionYear || "",
+
+      // ==========================================
+      // ARREARS
+      // ==========================================
+
+      currentArrears: studentProfile.currentArrears || "",
+
+      historyOfArrears: studentProfile.historyOfArrears || "",
+
+      historyOfArrearsCount: studentProfile.historyOfArrearsCount || "",
+
+      // ==========================================
+      // CGPA
+      // ==========================================
+
+      cgpa: studentProfile.cgpa || "",
+
+      // ==========================================
+      // PROFESSIONAL DETAILS
+      // ==========================================
+
+      resumeLink: studentProfile.resumeLink || "",
+
+      linkedinLink: studentProfile.linkedinLink || "",
+
+      githubLink: studentProfile.githubLink || "",
+
+      portfolioLink: studentProfile.portfolioLink || "",
+
+      hackerrankLink: studentProfile.hackerrankLink || "",
+
+      leetcodeLink: studentProfile.leetcodeLink || "",
+
+      // ==========================================
+      // SKILLS
+      // ==========================================
+
+      skills: studentProfile.skills || [],
+
+      // ==========================================
+      // INTERNSHIP
+      // ==========================================
+
+      internship: studentProfile.internship || [],
+
+      // ==========================================
+      // PLACEMENT
+      // ==========================================
+
+      placementStatus: studentProfile.placementStatus || "Not Placed",
+
+      // ==========================================
+      // PARENT / GUARDIAN
+      // ==========================================
+
+      fatherName: studentProfile.fatherName || "",
+
+      motherName: studentProfile.motherName || "",
+
+      fatherOccupation: studentProfile.fatherOccupation || "",
+
+      fatherPhone: studentProfile.fatherPhone || "",
+
+      motherPhone: studentProfile.motherPhone || "",
+
+      // ==========================================
+      // PROFILE PHOTO
+      // ==========================================
+
+      profilePhoto: getLocalFileUrl(studentProfile.profilePhoto),
+    };
 
     // ==========================================
     // RESPONSE
@@ -871,9 +759,7 @@ exports.searchStudents = async (req, res) => {
     // REMOVE INVALID USERS
     // ==========================================
 
-    studentProfiles = studentProfiles.filter(
-      (profile) => profile.userId
-    );
+    studentProfiles = studentProfiles.filter((profile) => profile.userId);
 
     // ==========================================
     // DEPARTMENT FILTER
@@ -884,8 +770,7 @@ exports.searchStudents = async (req, res) => {
         (profile) =>
           String(profile.department || "")
             .trim()
-            .toLowerCase() ===
-          department.trim().toLowerCase()
+            .toLowerCase() === department.trim().toLowerCase(),
       );
     }
 
@@ -896,8 +781,7 @@ exports.searchStudents = async (req, res) => {
     if (year && String(year).trim()) {
       studentProfiles = studentProfiles.filter(
         (profile) =>
-          String(profile.currentYear || "").trim() ===
-          String(year).trim()
+          String(profile.currentYear || "").trim() === String(year).trim(),
       );
     }
 
@@ -908,66 +792,44 @@ exports.searchStudents = async (req, res) => {
     if (minCgpa !== undefined && minCgpa !== "") {
       const minimumCgpa = Number(minCgpa);
 
-      studentProfiles = studentProfiles.filter(
-        (profile) => {
-          const studentCgpa = Number(profile.cgpa);
+      studentProfiles = studentProfiles.filter((profile) => {
+        const studentCgpa = Number(profile.cgpa);
 
-          return (
-            !isNaN(studentCgpa) &&
-            studentCgpa >= minimumCgpa
-          );
-        }
-      );
+        return !isNaN(studentCgpa) && studentCgpa >= minimumCgpa;
+      });
     }
 
     // ==========================================
     // MINIMUM 10TH PERCENTAGE
     // ==========================================
 
-    if (
-      minTenthPercentage !== undefined &&
-      minTenthPercentage !== ""
-    ) {
-      const minimumTenthPercentage =
-        Number(minTenthPercentage);
+    if (minTenthPercentage !== undefined && minTenthPercentage !== "") {
+      const minimumTenthPercentage = Number(minTenthPercentage);
 
-      studentProfiles = studentProfiles.filter(
-        (profile) => {
-          const tenthPercentage = Number(
-            profile.tenthPercentage
-          );
+      studentProfiles = studentProfiles.filter((profile) => {
+        const tenthPercentage = Number(profile.tenthPercentage);
 
-          return (
-            !isNaN(tenthPercentage) &&
-            tenthPercentage >= minimumTenthPercentage
-          );
-        }
-      );
+        return (
+          !isNaN(tenthPercentage) && tenthPercentage >= minimumTenthPercentage
+        );
+      });
     }
 
     // ==========================================
     // MINIMUM 12TH PERCENTAGE
     // ==========================================
 
-    if (
-      minTwelthPercentage !== undefined &&
-      minTwelthPercentage !== ""
-    ) {
-      const minimumTwelthPercentage =
-        Number(minTwelthPercentage);
+    if (minTwelthPercentage !== undefined && minTwelthPercentage !== "") {
+      const minimumTwelthPercentage = Number(minTwelthPercentage);
 
-      studentProfiles = studentProfiles.filter(
-        (profile) => {
-          const twelthPercentage = Number(
-            profile.twelthPercentage
-          );
+      studentProfiles = studentProfiles.filter((profile) => {
+        const twelthPercentage = Number(profile.twelthPercentage);
 
-          return (
-            !isNaN(twelthPercentage) &&
-            twelthPercentage >= minimumTwelthPercentage
-          );
-        }
-      );
+        return (
+          !isNaN(twelthPercentage) &&
+          twelthPercentage >= minimumTwelthPercentage
+        );
+      });
     }
 
     // ==========================================
@@ -983,27 +845,18 @@ exports.searchStudents = async (req, res) => {
     if (skills && skills.trim()) {
       const searchSkills = skills
         .split(",")
-        .map((skill) =>
-          String(skill).trim().toLowerCase()
-        )
+        .map((skill) => String(skill).trim().toLowerCase())
         .filter(Boolean);
 
-      studentProfiles = studentProfiles.filter(
-        (profile) => {
-          const studentSkills = (
-            profile.skills || []
-          )
-            .map((skill) =>
-              String(skill).trim().toLowerCase()
-            )
-            .filter(Boolean);
+      studentProfiles = studentProfiles.filter((profile) => {
+        const studentSkills = (profile.skills || [])
+          .map((skill) => String(skill).trim().toLowerCase())
+          .filter(Boolean);
 
-          return searchSkills.every(
-            (searchSkill) =>
-              studentSkills.includes(searchSkill)
-          );
-        }
-      );
+        return searchSkills.every((searchSkill) =>
+          studentSkills.includes(searchSkill),
+        );
+      });
     }
 
     // ==========================================
@@ -1033,38 +886,26 @@ exports.searchStudents = async (req, res) => {
     // Yes + 3
     // ==========================================
 
-    if (
-      historyOfArrears &&
-      historyOfArrears.trim()
-    ) {
-      const normalizedHistory =
-        historyOfArrears
-          .trim()
-          .toLowerCase();
+    if (historyOfArrears && historyOfArrears.trim()) {
+      const normalizedHistory = historyOfArrears.trim().toLowerCase();
 
       // ------------------------------------------
       // HISTORY = NO
       // ------------------------------------------
 
       if (normalizedHistory === "no") {
-        studentProfiles =
-          studentProfiles.filter(
-            (profile) =>
-              String(
-                profile.historyOfArrears || ""
-              )
-                .trim()
-                .toLowerCase() === "no"
-          );
+        studentProfiles = studentProfiles.filter(
+          (profile) =>
+            String(profile.historyOfArrears || "")
+              .trim()
+              .toLowerCase() === "no",
+        );
       }
 
       // ------------------------------------------
       // HISTORY = YES
       // ------------------------------------------
-
-      else if (
-        normalizedHistory === "yes"
-      ) {
+      else if (normalizedHistory === "yes") {
         // If count is NOT entered,
         // show students with history = Yes
 
@@ -1072,55 +913,38 @@ exports.searchStudents = async (req, res) => {
           historyOfArrearsCount === undefined ||
           historyOfArrearsCount === ""
         ) {
-          studentProfiles =
-            studentProfiles.filter(
-              (profile) =>
-                String(
-                  profile.historyOfArrears || ""
-                )
-                  .trim()
-                  .toLowerCase() === "yes"
-            );
+          studentProfiles = studentProfiles.filter(
+            (profile) =>
+              String(profile.historyOfArrears || "")
+                .trim()
+                .toLowerCase() === "yes",
+          );
         }
 
         // If count IS entered,
         // include No history + Yes within count
         else {
-          const maxHistoryArrears =
-            Number(historyOfArrearsCount);
+          const maxHistoryArrears = Number(historyOfArrearsCount);
 
-          studentProfiles =
-            studentProfiles.filter(
-              (profile) => {
-                const history =
-                  String(
-                    profile.historyOfArrears || ""
-                  )
-                    .trim()
-                    .toLowerCase();
+          studentProfiles = studentProfiles.filter((profile) => {
+            const history = String(profile.historyOfArrears || "")
+              .trim()
+              .toLowerCase();
 
-                // Students with NO history
-                if (history === "no") {
-                  return true;
-                }
+            // Students with NO history
+            if (history === "no") {
+              return true;
+            }
 
-                // Students with YES history
-                if (history === "yes") {
-                  const studentCount =
-                    Number(
-                      profile.historyOfArrearsCount
-                    );
+            // Students with YES history
+            if (history === "yes") {
+              const studentCount = Number(profile.historyOfArrearsCount);
 
-                  return (
-                    !isNaN(studentCount) &&
-                    studentCount <=
-                      maxHistoryArrears
-                  );
-                }
+              return !isNaN(studentCount) && studentCount <= maxHistoryArrears;
+            }
 
-                return false;
-              }
-            );
+            return false;
+          });
         }
       }
     }
@@ -1131,147 +955,88 @@ exports.searchStudents = async (req, res) => {
     // Student arrears <= entered number
     // ==========================================
 
-    if (
-      currentArrears !== undefined &&
-      currentArrears !== ""
-    ) {
-      const maxCurrentArrears =
-        Number(currentArrears);
+    if (currentArrears !== undefined && currentArrears !== "") {
+      const maxCurrentArrears = Number(currentArrears);
 
-      studentProfiles =
-        studentProfiles.filter(
-          (profile) => {
-            const studentArrears =
-              Number(profile.currentArrears);
+      studentProfiles = studentProfiles.filter((profile) => {
+        const studentArrears = Number(profile.currentArrears);
 
-            return (
-              !isNaN(studentArrears) &&
-              studentArrears <=
-                maxCurrentArrears
-            );
-          }
-        );
+        return !isNaN(studentArrears) && studentArrears <= maxCurrentArrears;
+      });
     }
 
     // ==========================================
     // FORMAT RESULTS
     // ==========================================
 
-    const students =
-      studentProfiles.map((profile) => {
-        const user = profile.userId || {};
+    const students = studentProfiles.map((profile) => {
+      const user = profile.userId || {};
 
-        return {
-          id: user._id,
+      return {
+        id: user._id,
 
-          _id: user._id,
+        _id: user._id,
 
-          name:
-            profile.name ||
-            user.name ||
-            "",
+        name: profile.name || user.name || "",
 
-          email:
-            profile.email ||
-            user.email ||
-            "",
+        email: profile.email || user.email || "",
 
-          registerNumber:
-            profile.registerNumber ||
-            user.registerNumber ||
-            "",
+        registerNumber: profile.registerNumber || user.registerNumber || "",
 
-          department:
-            profile.department ||
-            user.department ||
-            "",
+        department: profile.department || user.department || "",
 
-          year:
-            profile.currentYear ||
-            "",
+        year: profile.currentYear || "",
 
-          section:
-            profile.section ||
-            "",
+        section: profile.section || "",
 
-          // ======================================
-          // ACADEMIC
-          // ======================================
+        // ======================================
+        // ACADEMIC
+        // ======================================
 
-          cgpa:
-            profile.cgpa ||
-            "",
+        cgpa: profile.cgpa || "",
 
-          tenthSchoolName:
-            profile.tenthSchoolName ||
-            "",
+        tenthSchoolName: profile.tenthSchoolName || "",
 
-          tenthPercentage:
-            profile.tenthPercentage ||
-            "",
+        tenthPercentage: profile.tenthPercentage || "",
 
-          tenthCompletionYear:
-            profile.tenthCompletionYear ||
-            "",
+        tenthCompletionYear: profile.tenthCompletionYear || "",
 
-          twelthSchoolName:
-            profile.twelthSchoolName ||
-            "",
+        twelthSchoolName: profile.twelthSchoolName || "",
 
-          twelthPercentage:
-            profile.twelthPercentage ||
-            "",
+        twelthPercentage: profile.twelthPercentage || "",
 
-          twelthCompletionYear:
-            profile.twelthCompletionYear ||
-            "",
+        twelthCompletionYear: profile.twelthCompletionYear || "",
 
-          diplomaPercentage:
-            profile.diplomaPercentage ||
-            "",
+        diplomaPercentage: profile.diplomaPercentage || "",
 
-          diplomaCompletionYear:
-            profile.diplomaCompletionYear ||
-            "",
+        diplomaCompletionYear: profile.diplomaCompletionYear || "",
 
-          // ======================================
-          // SKILLS
-          // ======================================
+        // ======================================
+        // SKILLS
+        // ======================================
 
-          skills:
-            profile.skills ||
-            [],
+        skills: profile.skills || [],
 
-          // ======================================
-          // ARREARS
-          // ======================================
+        // ======================================
+        // ARREARS
+        // ======================================
 
-          historyOfArrears:
-            profile.historyOfArrears ||
-            "",
+        historyOfArrears: profile.historyOfArrears || "",
 
-          historyOfArrearsCount:
-            profile.historyOfArrearsCount ||
-            "",
+        historyOfArrearsCount: profile.historyOfArrearsCount || "",
 
-          currentArrears:
-            profile.currentArrears ||
-            "",
-        };
-      });
+        currentArrears: profile.currentArrears || "",
+      };
+    });
 
     // ==========================================
     // SORT BY NAME
     // ==========================================
 
     students.sort((a, b) =>
-      String(a.name || "").localeCompare(
-        String(b.name || ""),
-        undefined,
-        {
-          sensitivity: "base",
-        }
-      )
+      String(a.name || "").localeCompare(String(b.name || ""), undefined, {
+        sensitivity: "base",
+      }),
     );
 
     // ==========================================
@@ -1283,10 +1048,7 @@ exports.searchStudents = async (req, res) => {
       students,
     });
   } catch (error) {
-    console.error(
-      "SEARCH STUDENTS ERROR:",
-      error
-    );
+    console.error("SEARCH STUDENTS ERROR:", error);
 
     return res.status(500).json({
       message: "Unable to search students",
@@ -1318,20 +1080,25 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // GET ALL STUDENT PROFILES
     // ==========================================
 
-    let studentProfiles = await StudentProfile.find({})
+    const studentUsers = await User.find({
+      role: "student",
+    }).select("_id");
+
+    const studentUserIds = studentUsers.map((user) => user._id);
+
+    let studentProfiles = await StudentProfile.find({
+      userId: { $in: studentUserIds },
+    })
       .populate({
         path: "userId",
         select: "name email registerNumber department",
       })
       .lean();
-
     // ==========================================
     // REMOVE INVALID USERS
     // ==========================================
 
-    studentProfiles = studentProfiles.filter(
-      (profile) => profile.userId
-    );
+    studentProfiles = studentProfiles.filter((profile) => profile.userId);
 
     // ==========================================
     // DEPARTMENT FILTER
@@ -1342,8 +1109,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
         (profile) =>
           String(profile.department || "")
             .trim()
-            .toLowerCase() ===
-          department.trim().toLowerCase()
+            .toLowerCase() === department.trim().toLowerCase(),
       );
     }
 
@@ -1354,8 +1120,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     if (year && String(year).trim()) {
       studentProfiles = studentProfiles.filter(
         (profile) =>
-          String(profile.currentYear || "").trim() ===
-          String(year).trim()
+          String(profile.currentYear || "").trim() === String(year).trim(),
       );
     }
 
@@ -1369,10 +1134,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
       studentProfiles = studentProfiles.filter((profile) => {
         const studentCgpa = Number(profile.cgpa);
 
-        return (
-          !isNaN(studentCgpa) &&
-          studentCgpa >= minimumCgpa
-        );
+        return !isNaN(studentCgpa) && studentCgpa >= minimumCgpa;
       });
     }
 
@@ -1380,21 +1142,14 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // MINIMUM 10TH PERCENTAGE
     // ==========================================
 
-    if (
-      minTenthPercentage !== undefined &&
-      minTenthPercentage !== ""
-    ) {
-      const minimumTenthPercentage =
-        Number(minTenthPercentage);
+    if (minTenthPercentage !== undefined && minTenthPercentage !== "") {
+      const minimumTenthPercentage = Number(minTenthPercentage);
 
       studentProfiles = studentProfiles.filter((profile) => {
-        const tenthPercentage = Number(
-          profile.tenthPercentage
-        );
+        const tenthPercentage = Number(profile.tenthPercentage);
 
         return (
-          !isNaN(tenthPercentage) &&
-          tenthPercentage >= minimumTenthPercentage
+          !isNaN(tenthPercentage) && tenthPercentage >= minimumTenthPercentage
         );
       });
     }
@@ -1403,17 +1158,11 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // MINIMUM 12TH PERCENTAGE
     // ==========================================
 
-    if (
-      minTwelthPercentage !== undefined &&
-      minTwelthPercentage !== ""
-    ) {
-      const minimumTwelthPercentage =
-        Number(minTwelthPercentage);
+    if (minTwelthPercentage !== undefined && minTwelthPercentage !== "") {
+      const minimumTwelthPercentage = Number(minTwelthPercentage);
 
       studentProfiles = studentProfiles.filter((profile) => {
-        const twelthPercentage = Number(
-          profile.twelthPercentage
-        );
+        const twelthPercentage = Number(profile.twelthPercentage);
 
         return (
           !isNaN(twelthPercentage) &&
@@ -1430,20 +1179,16 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     if (skills && skills.trim()) {
       const searchSkills = skills
         .split(",")
-        .map((skill) =>
-          String(skill).trim().toLowerCase()
-        )
+        .map((skill) => String(skill).trim().toLowerCase())
         .filter(Boolean);
 
       studentProfiles = studentProfiles.filter((profile) => {
         const studentSkills = (profile.skills || [])
-          .map((skill) =>
-            String(skill).trim().toLowerCase()
-          )
+          .map((skill) => String(skill).trim().toLowerCase())
           .filter(Boolean);
 
         return searchSkills.every((searchSkill) =>
-          studentSkills.includes(searchSkill)
+          studentSkills.includes(searchSkill),
         );
       });
     }
@@ -1452,12 +1197,8 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // HISTORY OF ARREARS
     // ==========================================
 
-    if (
-      historyOfArrears &&
-      historyOfArrears.trim()
-    ) {
-      const normalizedHistory =
-        historyOfArrears.trim().toLowerCase();
+    if (historyOfArrears && historyOfArrears.trim()) {
+      const normalizedHistory = historyOfArrears.trim().toLowerCase();
 
       // HISTORY = NO
       if (normalizedHistory === "no") {
@@ -1465,7 +1206,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
           (profile) =>
             String(profile.historyOfArrears || "")
               .trim()
-              .toLowerCase() === "no"
+              .toLowerCase() === "no",
         );
       }
 
@@ -1480,42 +1221,33 @@ exports.exportSearchStudentsExcel = async (req, res) => {
             (profile) =>
               String(profile.historyOfArrears || "")
                 .trim()
-                .toLowerCase() === "yes"
+                .toLowerCase() === "yes",
           );
         }
 
         // YES WITH COUNT
         else {
-          const maxHistoryArrears =
-            Number(historyOfArrearsCount);
+          const maxHistoryArrears = Number(historyOfArrearsCount);
 
-          studentProfiles = studentProfiles.filter(
-            (profile) => {
-              const history =
-                String(profile.historyOfArrears || "")
-                  .trim()
-                  .toLowerCase();
+          studentProfiles = studentProfiles.filter((profile) => {
+            const history = String(profile.historyOfArrears || "")
+              .trim()
+              .toLowerCase();
 
-              // No history
-              if (history === "no") {
-                return true;
-              }
-
-              // Yes history within count
-              if (history === "yes") {
-                const studentCount = Number(
-                  profile.historyOfArrearsCount
-                );
-
-                return (
-                  !isNaN(studentCount) &&
-                  studentCount <= maxHistoryArrears
-                );
-              }
-
-              return false;
+            // No history
+            if (history === "no") {
+              return true;
             }
-          );
+
+            // Yes history within count
+            if (history === "yes") {
+              const studentCount = Number(profile.historyOfArrearsCount);
+
+              return !isNaN(studentCount) && studentCount <= maxHistoryArrears;
+            }
+
+            return false;
+          });
         }
       }
     }
@@ -1524,25 +1256,14 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // CURRENT ARREARS
     // ==========================================
 
-    if (
-      currentArrears !== undefined &&
-      currentArrears !== ""
-    ) {
-      const maxCurrentArrears =
-        Number(currentArrears);
+    if (currentArrears !== undefined && currentArrears !== "") {
+      const maxCurrentArrears = Number(currentArrears);
 
-      studentProfiles = studentProfiles.filter(
-        (profile) => {
-          const studentArrears = Number(
-            profile.currentArrears
-          );
+      studentProfiles = studentProfiles.filter((profile) => {
+        const studentArrears = Number(profile.currentArrears);
 
-          return (
-            !isNaN(studentArrears) &&
-            studentArrears <= maxCurrentArrears
-          );
-        }
-      );
+        return !isNaN(studentArrears) && studentArrears <= maxCurrentArrears;
+      });
     }
 
     // ==========================================
@@ -1551,17 +1272,13 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // ==========================================
 
     studentProfiles.sort((a, b) =>
-      String(
-        a.name || a.userId?.name || ""
-      ).localeCompare(
-        String(
-          b.name || b.userId?.name || ""
-        ),
+      String(a.name || a.userId?.name || "").localeCompare(
+        String(b.name || b.userId?.name || ""),
         undefined,
         {
           sensitivity: "base",
-        }
-      )
+        },
+      ),
     );
 
     // ==========================================
@@ -1614,129 +1331,105 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // CREATE EXCEL ROWS
     // ==========================================
 
-    const rows = studentProfiles.map(
-      (profile, index) => {
-        const user = profile.userId || {};
+    const rows = studentProfiles.map((profile, index) => {
+      const user = profile.userId || {};
 
-        let gender =
-          profile.gender ||
-          user.gender ||
-          "";
+      let gender = profile.gender || user.gender || "";
 
-        // Convert Male/Female to M/F
-        if (
-          String(gender)
-            .trim()
-            .toLowerCase() === "male"
-        ) {
-          gender = "M";
-        } else if (
-          String(gender)
-            .trim()
-            .toLowerCase() === "female"
-        ) {
-          gender = "F";
-        }
-
-        return [
-          index + 1,
-
-          profile.department ||
-            user.department ||
-            "",
-
-          profile.registerNumber ||
-            user.registerNumber ||
-            "",
-
-          profile.rollNumber || "",
-
-          profile.name ||
-            user.name ||
-            "",
-
-          gender,
-
-          profile.dob || "",
-
-          profile.aadharNumber || "",
-
-          profile.religion || "",
-
-          profile.community || "",
-
-          profile.fatherName || "",
-
-          profile.motherName || "",
-
-          profile.fatherOccupation || "",
-
-          // Keep existing DB field `address`
-          profile.address || "",
-
-          profile.pincode || "",
-
-          profile.district || "",
-
-          profile.state || "",
-
-          profile.languagesKnown || "",
-
-          profile.hostelerDayScholar || "",
-
-          profile.parentsNumber || "",
-
-          profile.studentPhone || "",
-
-          profile.email ||
-            user.email ||
-            "",
-
-          profile.mediumOfStudy || "",
-
-          profile.tenthPercentage || "",
-
-          profile.tenthBoard || "",
-
-          profile.tenthSchoolName || "",
-
-          profile.tenthCompletionYear || "",
-
-          profile.twelthPercentage || "",
-
-          profile.twelthBoard || "",
-
-          profile.twelthSchoolName || "",
-
-          profile.twelthCompletionYear || "",
-
-          profile.diplomaPercentage || "",
-
-          profile.diplomaCollege || "",
-
-          profile.diplomaCompletionYear || "",
-
-          profile.diplomaDegreePercentage || "",
-
-          profile.cgpa || "",
-
-          profile.historyOfArrears || "",
-
-          profile.currentArrears || "",
-
-          profile.placementStatus || "",
-        ];
+      // Convert Male/Female to M/F
+      if (String(gender).trim().toLowerCase() === "male") {
+        gender = "M";
+      } else if (String(gender).trim().toLowerCase() === "female") {
+        gender = "F";
       }
-    );
+
+      return [
+        index + 1,
+
+        profile.department || user.department || "",
+
+        profile.registerNumber || user.registerNumber || "",
+
+        profile.rollNumber || "",
+
+        profile.name || user.name || "",
+
+        gender,
+
+        profile.dob || "",
+
+        profile.aadharNumber || "",
+
+        profile.religion || "",
+
+        profile.community || "",
+
+        profile.fatherName || "",
+
+        profile.motherName || "",
+
+        profile.fatherOccupation || "",
+
+        // Keep existing DB field `address`
+        profile.address || "",
+
+        profile.pincode || "",
+
+        profile.district || "",
+
+        profile.state || "",
+
+        profile.languagesKnown || "",
+
+        profile.hostelerDayScholar || "",
+
+        profile.parentsNumber || "",
+
+        profile.studentPhone || "",
+
+        profile.email || user.email || "",
+
+        profile.mediumOfStudy || "",
+
+        profile.tenthPercentage || "",
+
+        profile.tenthBoard || "",
+
+        profile.tenthSchoolName || "",
+
+        profile.tenthCompletionYear || "",
+
+        profile.twelthPercentage || "",
+
+        profile.twelthBoard || "",
+
+        profile.twelthSchoolName || "",
+
+        profile.twelthCompletionYear || "",
+
+        profile.diplomaPercentage || "",
+
+        profile.diplomaCollege || "",
+
+        profile.diplomaCompletionYear || "",
+
+        profile.diplomaDegreePercentage || "",
+
+        profile.cgpa || "",
+
+        profile.historyOfArrears || "",
+
+        profile.currentArrears || "",
+
+        profile.placementStatus || "",
+      ];
+    });
 
     // ==========================================
     // CREATE WORKSHEET
     // ==========================================
 
-    const worksheet = XLSX.utils.aoa_to_sheet([
-      headers,
-      ...rows,
-    ]);
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 
     // ==========================================
     // COLUMN WIDTHS
@@ -1790,11 +1483,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
 
     const workbook = XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Students"
-    );
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
 
     // ==========================================
     // GENERATE XLSX BUFFER
@@ -1809,27 +1498,21 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     // DOWNLOAD RESPONSE
     // ==========================================
 
-    const date = new Date()
-      .toISOString()
-      .slice(0, 10);
+    const date = new Date().toISOString().slice(0, 10);
 
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="student-search-results-${date}.xlsx"`
+      `attachment; filename="student-search-results-${date}.xlsx"`,
     );
 
     return res.status(200).send(excelBuffer);
-
   } catch (error) {
-    console.error(
-      "EXPORT SEARCH STUDENTS EXCEL ERROR:",
-      error
-    );
+    console.error("EXPORT SEARCH STUDENTS EXCEL ERROR:", error);
 
     return res.status(500).json({
       message: "Unable to export students to Excel",
