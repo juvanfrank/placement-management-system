@@ -32,6 +32,8 @@ function Search() {
 
   const [loading, setLoading] = useState(false);
 
+  const [exporting, setExporting] = useState(false);
+
   const [error, setError] = useState("");
 
   // ==========================================
@@ -152,6 +154,34 @@ function Search() {
   };
 
   // ==========================================
+  // BUILD SEARCH PARAMETERS
+  // ==========================================
+
+  const buildParams = () => {
+    const params = {};
+
+    Object.keys(filters).forEach((key) => {
+      const value = filters[key];
+
+      if (
+        value !== "" &&
+        value !== null &&
+        value !== undefined
+      ) {
+        if (key === "skills") {
+          if (Array.isArray(value) && value.length > 0) {
+            params[key] = value.join(",");
+          }
+        } else {
+          params[key] = value;
+        }
+      }
+    });
+
+    return params;
+  };
+
+  // ==========================================
   // SEARCH STUDENTS
   // ==========================================
 
@@ -168,32 +198,7 @@ function Search() {
         filters
       );
 
-      // ==========================================
-      // REMOVE EMPTY FILTERS
-      // ==========================================
-
-      const params = {};
-
-      Object.keys(filters).forEach((key) => {
-        const value = filters[key];
-
-        // Skills array
-        if (key === "skills") {
-          if (Array.isArray(value) && value.length > 0) {
-            params.skills = value.join(",");
-          }
-
-          return;
-        }
-
-        if (
-          value !== "" &&
-          value !== null &&
-          value !== undefined
-        ) {
-          params[key] = value;
-        }
-      });
+      const params = buildParams();
 
       const response = await api.get(
         "/admin/search-students",
@@ -228,6 +233,88 @@ function Search() {
   };
 
   // ==========================================
+  // DOWNLOAD EXCEL
+  // ==========================================
+
+  const handleDownloadExcel = async () => {
+    try {
+      setExporting(true);
+
+      setError("");
+
+      const params = buildParams();
+
+      console.log(
+        "EXCEL EXPORT FILTERS:",
+        params
+      );
+
+      const response = await api.get(
+        "/admin/search-students/export-excel",
+        {
+          params,
+          responseType: "blob",
+        }
+      );
+
+      // ==========================================
+      // CREATE DOWNLOAD BLOB
+      // ==========================================
+
+      const blob = new Blob(
+        [response.data],
+        {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }
+      );
+
+      // ==========================================
+      // CREATE TEMPORARY DOWNLOAD LINK
+      // ==========================================
+
+      const url =
+        window.URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      const today =
+        new Date()
+          .toISOString()
+          .slice(0, 10);
+
+      link.download =
+        `student-search-results-${today}.xlsx`;
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      // ==========================================
+      // CLEANUP
+      // ==========================================
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(
+        "DOWNLOAD EXCEL ERROR:",
+        error.response || error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Unable to download Excel file"
+      );
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // ==========================================
   // CLEAR FILTERS
   // ==========================================
 
@@ -249,6 +336,8 @@ function Search() {
     setError("");
 
     setSearched(false);
+
+    setSkillsOpen(false);
   };
 
   // ==========================================
@@ -257,65 +346,34 @@ function Search() {
 
   const handleStudentClick = (student) => {
     navigate(
-      `/admin/student/${student.id || student._id}`
+      `/admin/student/${student.id}`
     );
-  };
-
-  // ==========================================
-  // DISPLAY SKILL NAME
-  // ==========================================
-
-  const formatSkillName = (skill) => {
-    if (!skill) return "";
-
-    return skill
-      .split(" ")
-      .map(
-        (word) =>
-          word.charAt(0).toUpperCase() +
-          word.slice(1)
-      )
-      .join(" ");
   };
 
   return (
     <AdminLayout>
-
       {/* ========================================== */}
       {/* PAGE HEADER */}
       {/* ========================================== */}
 
       <div className="bg-white rounded-xl shadow p-6 mb-6">
-
         <h2 className="text-2xl font-bold text-orange-600">
-          Student Search
+          Search Students
         </h2>
 
-        <p className="text-gray-600 mt-2">
-          Find students based on academic performance and skills
+        <p className="text-gray-500 mt-1">
+          Search students using placement-related criteria
         </p>
 
-      </div>
+        {/* ========================================== */}
+        {/* FILTER GRID */}
+        {/* ========================================== */}
 
-      {/* ========================================== */}
-      {/* SEARCH FILTERS */}
-      {/* ========================================== */}
-
-      <div className="bg-white rounded-xl shadow p-6 mb-6">
-
-        <h3 className="text-lg font-semibold text-orange-600 mb-6">
-          Search Filters
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          {/* ========================================== */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
           {/* DEPARTMENT */}
-          {/* ========================================== */}
 
           <div>
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Department
             </label>
 
@@ -323,9 +381,8 @@ function Search() {
               name="department"
               value={filters.department}
               onChange={handleChange}
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
             >
-
               <option value="">
                 All Departments
               </option>
@@ -357,18 +414,13 @@ function Search() {
               <option value="IT">
                 IT
               </option>
-
             </select>
-
           </div>
 
-          {/* ========================================== */}
           {/* YEAR */}
-          {/* ========================================== */}
 
           <div>
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Year
             </label>
 
@@ -376,40 +428,34 @@ function Search() {
               name="year"
               value={filters.year}
               onChange={handleChange}
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
             >
-
               <option value="">
                 All Years
               </option>
 
               <option value="1">
-                Year 1
+                1st Year
               </option>
 
               <option value="2">
-                Year 2
+                2nd Year
               </option>
 
               <option value="3">
-                Year 3
+                3rd Year
               </option>
 
               <option value="4">
-                Year 4
+                4th Year
               </option>
-
             </select>
-
           </div>
 
-          {/* ========================================== */}
           {/* MINIMUM CGPA */}
-          {/* ========================================== */}
 
           <div>
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Minimum CGPA
             </label>
 
@@ -422,18 +468,14 @@ function Search() {
               min="0"
               max="10"
               step="0.1"
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
             />
-
           </div>
 
-          {/* ========================================== */}
-          {/* 10TH PERCENTAGE */}
-          {/* ========================================== */}
+          {/* MINIMUM 10TH */}
 
           <div>
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Minimum 10th Percentage
             </label>
 
@@ -442,26 +484,18 @@ function Search() {
               name="minTenthPercentage"
               value={filters.minTenthPercentage}
               onChange={handleChange}
-              placeholder="Example: 80"
+              placeholder="Example: 70"
               min="0"
               max="100"
               step="0.1"
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
             />
-
-            <p className="text-xs text-gray-500 mt-1">
-              Students with 10th percentage greater than or equal to this value
-            </p>
-
           </div>
 
-          {/* ========================================== */}
-          {/* 12TH PERCENTAGE */}
-          {/* ========================================== */}
+          {/* MINIMUM 12TH */}
 
           <div>
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Minimum 12th Percentage
             </label>
 
@@ -470,79 +504,118 @@ function Search() {
               name="minTwelthPercentage"
               value={filters.minTwelthPercentage}
               onChange={handleChange}
-              placeholder="Example: 75"
+              placeholder="Example: 70"
               min="0"
               max="100"
               step="0.1"
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
             />
-
-            <p className="text-xs text-gray-500 mt-1">
-              Students with 12th percentage greater than or equal to this value
-            </p>
-
           </div>
 
-          {/* ========================================== */}
+          {/* HISTORY OF ARREARS */}
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              History of Arrears
+            </label>
+
+            <select
+              name="historyOfArrears"
+              value={filters.historyOfArrears}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
+            >
+              <option value="">
+                All
+              </option>
+
+              <option value="No">
+                No
+              </option>
+
+              <option value="Yes">
+                Yes
+              </option>
+            </select>
+          </div>
+
+          {/* HISTORY ARREARS COUNT */}
+
+          {filters.historyOfArrears === "Yes" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Maximum History Arrears Count
+              </label>
+
+              <input
+                type="number"
+                name="historyOfArrearsCount"
+                value={
+                  filters.historyOfArrearsCount
+                }
+                onChange={handleChange}
+                placeholder="Example: 2"
+                min="0"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
+              />
+            </div>
+          )}
+
+          {/* CURRENT ARREARS */}
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Maximum Current Arrears
+            </label>
+
+            <input
+              type="number"
+              name="currentArrears"
+              value={filters.currentArrears}
+              onChange={handleChange}
+              placeholder="Example: 0"
+              min="0"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </div>
+
           {/* SKILLS */}
-          {/* ========================================== */}
 
           <div className="relative">
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Skills
             </label>
 
-            {/* SELECTED SKILLS */}
-            <div
+            <button
+              type="button"
               onClick={() =>
                 setSkillsOpen((prev) => !prev)
               }
-              className="min-h-[48px] w-full p-2 border rounded-lg cursor-pointer bg-white flex flex-wrap items-center gap-2 focus-within:ring-2 focus-within:ring-orange-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-left bg-white flex justify-between items-center"
             >
-
-              {filters.skills.length === 0 ? (
-                <span className="text-gray-400 px-1">
-                  Select skills
-                </span>
-              ) : (
-                filters.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                  >
-                    {formatSkillName(skill)}
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeSkill(skill);
-                      }}
-                      className="text-orange-600 hover:text-red-600 font-bold"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))
-              )}
-
-              <span className="ml-auto text-gray-500 px-2">
-                ▼
+              <span className="text-gray-700">
+                {filters.skills.length > 0
+                  ? `${filters.skills.length} skill${
+                      filters.skills.length > 1
+                        ? "s"
+                        : ""
+                    } selected`
+                  : "Select Skills"}
               </span>
 
-            </div>
+              <span>
+                {skillsOpen ? "▲" : "▼"}
+              </span>
+            </button>
 
-            {/* SKILLS DROPDOWN */}
             {skillsOpen && (
-              <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-
+              <div className="absolute z-30 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 {skillsLoading ? (
-                  <div className="p-4 text-sm text-gray-500 text-center">
+                  <div className="p-4 text-gray-500 text-sm">
                     Loading skills...
                   </div>
                 ) : availableSkills.length === 0 ? (
-                  <div className="p-4 text-sm text-gray-500 text-center">
+                  <div className="p-4 text-gray-500 text-sm">
                     No skills available
                   </div>
                 ) : (
@@ -555,7 +628,6 @@ function Search() {
                         key={skill}
                         className="flex items-center gap-3 px-4 py-3 hover:bg-orange-50 cursor-pointer"
                       >
-
                         <input
                           type="checkbox"
                           checked={selected}
@@ -565,124 +637,63 @@ function Search() {
                           className="w-4 h-4 accent-orange-500"
                         />
 
-                        <span className="text-gray-700">
-                          {formatSkillName(skill)}
+                        <span className="capitalize text-gray-700">
+                          {skill}
                         </span>
-
                       </label>
                     );
                   })
                 )}
-
               </div>
             )}
 
-            <p className="text-xs text-gray-500 mt-1">
-              Select one or more skills
-            </p>
+            {/* SELECTED SKILLS */}
 
+            {filters.skills.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {filters.skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="flex items-center gap-2 bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm"
+                  >
+                    <span className="capitalize">
+                      {skill}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeSkill(skill)
+                      }
+                      className="font-bold hover:text-red-600"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* ========================================== */}
-          {/* HISTORY OF ARREARS */}
-          {/* ========================================== */}
-
-          <div>
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              History of Arrears
-            </label>
-
-            <select
-              name="historyOfArrears"
-              value={filters.historyOfArrears}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
-            >
-
-              <option value="">
-                All
-              </option>
-
-              <option value="Yes">
-                Yes
-              </option>
-
-              <option value="No">
-                No
-              </option>
-
-            </select>
-
-          </div>
-
-          {/* ========================================== */}
-          {/* HISTORY OF ARREARS COUNT */}
-          {/* ========================================== */}
-
-          {filters.historyOfArrears === "Yes" && (
-
-            <div>
-
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Maximum Number of History of Arrears
-              </label>
-
-              <input
-                type="number"
-                name="historyOfArrearsCount"
-                value={filters.historyOfArrearsCount}
-                onChange={handleChange}
-                placeholder="Example: 1"
-                min="0"
-                className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
-              />
-
-              <p className="text-xs text-gray-500 mt-1">
-                Includes students with no history and students with arrears up to this count
-              </p>
-
-            </div>
-
-          )}
-
-          {/* ========================================== */}
-          {/* CURRENT ARREARS */}
-          {/* ========================================== */}
-
-          <div>
-
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Maximum Current Arrears
-            </label>
-
-            <input
-              type="number"
-              name="currentArrears"
-              value={filters.currentArrears}
-              onChange={handleChange}
-              placeholder="Example: 0"
-              min="0"
-              className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400"
-            />
-
-            <p className="text-xs text-gray-500 mt-1">
-              Students with current arrears less than or equal to this value
-            </p>
-
-          </div>
-
         </div>
+
+        {/* ========================================== */}
+        {/* ERROR */}
+        {/* ========================================== */}
+
+        {error && (
+          <div className="mt-5 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
 
         {/* ========================================== */}
         {/* BUTTONS */}
         {/* ========================================== */}
 
-        <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8">
-
+        <div className="flex justify-end gap-4 mt-8">
           <button
             onClick={handleClear}
-            disabled={loading}
+            disabled={loading || exporting}
             className="px-6 py-3 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition font-medium disabled:opacity-50"
           >
             Clear Filters
@@ -690,16 +701,14 @@ function Search() {
 
           <button
             onClick={handleSearch}
-            disabled={loading}
+            disabled={loading || exporting}
             className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition font-medium disabled:opacity-50"
           >
             {loading
               ? "Searching..."
               : "🔍 Search Students"}
           </button>
-
         </div>
-
       </div>
 
       {/* ========================================== */}
@@ -707,15 +716,13 @@ function Search() {
       {/* ========================================== */}
 
       {searched && (
-
         <div className="bg-white rounded-xl shadow overflow-hidden">
-
+          {/* ========================================== */}
           {/* RESULTS HEADER */}
+          {/* ========================================== */}
 
-          <div className="p-6 border-b flex justify-between items-center">
-
+          <div className="p-6 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-
               <h3 className="text-xl font-bold text-orange-600">
                 Search Results
               </h3>
@@ -723,229 +730,177 @@ function Search() {
               <p className="text-sm text-gray-500 mt-1">
                 Students matching your search criteria
               </p>
-
             </div>
 
-            <div className="bg-orange-100 text-orange-600 px-4 py-2 rounded-lg font-semibold">
+            <div className="flex items-center gap-3">
+              {/* COUNT */}
 
-              {loading
-                ? "..."
-                : `${students.length} Found`}
+              <div className="bg-orange-100 text-orange-600 px-4 py-2 rounded-lg font-semibold">
+                {students.length} Found
+              </div>
 
+              {/* DOWNLOAD EXCEL */}
+
+              {students.length > 0 && (
+                <button
+                  onClick={handleDownloadExcel}
+                  disabled={
+                    exporting || loading
+                  }
+                  className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {exporting ? (
+                    <>
+                      <span className="animate-spin">
+                        ⟳
+                      </span>
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <span>⬇</span>
+                      Download Excel
+                    </>
+                  )}
+                </button>
+              )}
             </div>
-
           </div>
 
-          {/* LOADING */}
-
-          {loading && (
-
-            <div className="p-8 text-center text-gray-500">
-              Searching students...
-            </div>
-
-          )}
-
-          {/* ERROR */}
-
-          {!loading && error && (
-
-            <div className="m-6 bg-red-100 text-red-700 p-4 rounded-lg">
-              {error}
-            </div>
-
-          )}
-
+          {/* ========================================== */}
           {/* NO RESULTS */}
+          {/* ========================================== */}
 
-          {!loading &&
-            !error &&
-            students.length === 0 && (
-
-              <div className="p-8 text-center text-gray-500">
-
-                No students found matching your search criteria.
-
+          {students.length === 0 && !loading ? (
+            <div className="p-10 text-center">
+              <div className="text-5xl mb-4">
+                🔍
               </div>
 
-            )}
+              <h4 className="text-lg font-semibold text-gray-700">
+                No students found
+              </h4>
 
-          {/* TABLE */}
+              <p className="text-gray-500 mt-2">
+                Try changing your search criteria.
+              </p>
+            </div>
+          ) : (
+            /* ========================================== */
+            /* TABLE */
+            /* ========================================== */
 
-          {!loading &&
-            !error &&
-            students.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-orange-500 text-white">
+                  <tr>
+                    <th className="p-4 text-center">
+                      S.No
+                    </th>
 
-              <div className="overflow-x-auto">
+                    <th className="p-4 text-left">
+                      Student Name
+                    </th>
 
-                <table className="w-full">
+                    <th className="p-4 text-center">
+                      Register Number
+                    </th>
 
-                  <thead className="bg-orange-500 text-white">
+                    <th className="p-4 text-center">
+                      Department
+                    </th>
 
-                    <tr>
+                    <th className="p-4 text-center">
+                      Year
+                    </th>
 
-                      <th className="p-4 text-center">
-                        S.No
-                      </th>
+                    <th className="p-4 text-center">
+                      CGPA
+                    </th>
 
-                      <th className="p-4 text-left">
-                        Student Name
-                      </th>
+                    <th className="p-4 text-left">
+                      Skills
+                    </th>
+                  </tr>
+                </thead>
 
-                      <th className="p-4 text-center">
-                        Register Number
-                      </th>
+                <tbody>
+                  {students.map(
+                    (student, index) => (
+                      <tr
+                        key={
+                          student.id ||
+                          student._id ||
+                          index
+                        }
+                        onClick={() =>
+                          handleStudentClick(
+                            student
+                          )
+                        }
+                        className="border-b hover:bg-orange-50 cursor-pointer transition"
+                      >
+                        <td className="p-4 text-center text-gray-700">
+                          {index + 1}
+                        </td>
 
-                      <th className="p-4 text-center">
-                        Department
-                      </th>
+                        <td className="p-4 font-medium text-gray-800">
+                          {student.name || "-"}
+                        </td>
 
-                      <th className="p-4 text-center">
-                        Year
-                      </th>
+                        <td className="p-4 text-center text-gray-700">
+                          {student.registerNumber ||
+                            "-"}
+                        </td>
 
-                      <th className="p-4 text-center">
-                        CGPA
-                      </th>
+                        <td className="p-4 text-center text-gray-700">
+                          {student.department ||
+                            "-"}
+                        </td>
 
-                      <th className="p-4 text-left">
-                        Skills
-                      </th>
+                        <td className="p-4 text-center text-gray-700">
+                          {student.year || "-"}
+                        </td>
 
-                    </tr>
+                        <td className="p-4 text-center font-semibold text-gray-700">
+                          {student.cgpa || "-"}
+                        </td>
 
-                  </thead>
-
-                  <tbody>
-
-                    {students.map(
-                      (student, index) => (
-
-                        <tr
-                          key={
-                            student.id ||
-                            student._id ||
-                            index
-                          }
-                          className="border-b hover:bg-orange-50 transition"
-                        >
-
-                          {/* S.NO */}
-
-                          <td className="p-4 text-center">
-                            {index + 1}
-                          </td>
-
-                          {/* STUDENT NAME */}
-
-                          <td
-                            onClick={() =>
-                              handleStudentClick(
-                                student
-                              )
-                            }
-                            className="p-4 text-blue-600 font-medium cursor-pointer hover:underline"
-                          >
-
-                            {student.name ||
-                              "N/A"}
-
-                          </td>
-
-                          {/* REGISTER NUMBER */}
-
-                          <td className="p-4 text-center">
-
-                            {student.registerNumber ||
-                              "N/A"}
-
-                          </td>
-
-                          {/* DEPARTMENT */}
-
-                          <td className="p-4 text-center">
-
-                            {student.department ||
-                              "N/A"}
-
-                          </td>
-
-                          {/* YEAR */}
-
-                          <td className="p-4 text-center">
-
-                            {student.year ||
-                              student.currentYear ||
-                              "N/A"}
-
-                          </td>
-
-                          {/* CGPA */}
-
-                          <td className="p-4 text-center font-medium">
-
-                            {student.cgpa ||
-                              "N/A"}
-
-                          </td>
-
-                          {/* SKILLS */}
-
-                          <td className="p-4">
-
-                            <div className="flex flex-wrap gap-2">
-
-                              {student.skills &&
-                              student.skills.length > 0
-                                ? (
-                                  student.skills.map(
-                                    (
-                                      skill,
-                                      skillIndex
-                                    ) => (
-
-                                      <span
-                                        key={`${skill}-${skillIndex}`}
-                                        className="bg-orange-100 text-orange-600 px-2 py-1 rounded-md text-xs"
-                                      >
-
-                                        {formatSkillName(
-                                          skill
-                                        )}
-
-                                      </span>
-
-                                    )
-                                  )
-                                ) : (
-
-                                  <span className="text-gray-400 text-sm">
-                                    No skills
+                        <td className="p-4">
+                          <div className="flex flex-wrap gap-2">
+                            {Array.isArray(
+                              student.skills
+                            ) &&
+                            student.skills.length > 0 ? (
+                              student.skills.map(
+                                (
+                                  skill,
+                                  skillIndex
+                                ) => (
+                                  <span
+                                    key={`${skill}-${skillIndex}`}
+                                    className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm"
+                                  >
+                                    {skill}
                                   </span>
-
-                                )}
-
-                            </div>
-
-                          </td>
-
-                        </tr>
-
-                      )
-                    )}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            )}
-
+                                )
+                              )
+                            ) : (
+                              <span className="text-gray-400">
+                                -
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-
       )}
-
     </AdminLayout>
   );
 }

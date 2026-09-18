@@ -104,5 +104,11 @@ router.get(
   adminController.getStudentDetails
 );
 
+router.get(
+  "/search-students/export-excel",
+  auth,
+  roleMiddleware("admin"),
+  adminController.exportSearchStudentsExcel
+);
 
 module.exports = router;
