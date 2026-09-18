@@ -747,8 +747,15 @@ exports.searchStudents = async (req, res) => {
     // ==========================================
     // GET ALL STUDENT PROFILES
     // ==========================================
+    const studentUsers = await User.find({
+      role: "student",
+    }).select("_id");
 
-    let studentProfiles = await StudentProfile.find({})
+    const studentUserIds = studentUsers.map((user) => user._id);
+
+    let studentProfiles = await StudentProfile.find({
+      userId: { $in: studentUserIds },
+    })
       .populate({
         path: "userId",
         select: "name email registerNumber department",
