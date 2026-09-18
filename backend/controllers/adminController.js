@@ -2,7 +2,7 @@ const User = require("../models/User");
 const StudentProfile = require("../models/StudentProfile");
 const MentorProfile = require("../models/MentorProfile");
 const Certificate = require("../models/Certificate");
-
+const XLSX = require("xlsx");
 // ==================================================
 // HELPER
 // ==================================================
@@ -1290,6 +1290,549 @@ exports.searchStudents = async (req, res) => {
 
     return res.status(500).json({
       message: "Unable to search students",
+      error: error.message,
+    });
+  }
+};
+
+// ==================================================
+// EXPORT SEARCHED STUDENTS TO EXCEL
+// ADMIN
+// ==================================================
+
+exports.exportSearchStudentsExcel = async (req, res) => {
+  try {
+    const {
+      department,
+      year,
+      minCgpa,
+      minTenthPercentage,
+      minTwelthPercentage,
+      skills,
+      historyOfArrears,
+      historyOfArrearsCount,
+      currentArrears,
+    } = req.query;
+
+    // ==========================================
+    // GET ALL STUDENT PROFILES
+    // ==========================================
+
+    let studentProfiles = await StudentProfile.find({})
+      .populate({
+        path: "userId",
+        select: "name email registerNumber department",
+      })
+      .lean();
+
+    // ==========================================
+    // REMOVE INVALID USERS
+    // ==========================================
+
+    studentProfiles = studentProfiles.filter(
+      (profile) => profile.userId
+    );
+
+    // ==========================================
+    // DEPARTMENT FILTER
+    // ==========================================
+
+    if (department && department.trim()) {
+      studentProfiles = studentProfiles.filter(
+        (profile) =>
+          String(profile.department || "")
+            .trim()
+            .toLowerCase() ===
+          department.trim().toLowerCase()
+      );
+    }
+
+    // ==========================================
+    // YEAR FILTER
+    // ==========================================
+
+    if (year && String(year).trim()) {
+      studentProfiles = studentProfiles.filter(
+        (profile) =>
+          String(profile.currentYear || "").trim() ===
+          String(year).trim()
+      );
+    }
+
+    // ==========================================
+    // MINIMUM CGPA FILTER
+    // ==========================================
+
+    if (minCgpa !== undefined && minCgpa !== "") {
+      const minimumCgpa = Number(minCgpa);
+
+      studentProfiles = studentProfiles.filter((profile) => {
+        const studentCgpa = Number(profile.cgpa);
+
+        return (
+          !isNaN(studentCgpa) &&
+          studentCgpa >= minimumCgpa
+        );
+      });
+    }
+
+    // ==========================================
+    // MINIMUM 10TH PERCENTAGE
+    // ==========================================
+
+    if (
+      minTenthPercentage !== undefined &&
+      minTenthPercentage !== ""
+    ) {
+      const minimumTenthPercentage =
+        Number(minTenthPercentage);
+
+      studentProfiles = studentProfiles.filter((profile) => {
+        const tenthPercentage = Number(
+          profile.tenthPercentage
+        );
+
+        return (
+          !isNaN(tenthPercentage) &&
+          tenthPercentage >= minimumTenthPercentage
+        );
+      });
+    }
+
+    // ==========================================
+    // MINIMUM 12TH PERCENTAGE
+    // ==========================================
+
+    if (
+      minTwelthPercentage !== undefined &&
+      minTwelthPercentage !== ""
+    ) {
+      const minimumTwelthPercentage =
+        Number(minTwelthPercentage);
+
+      studentProfiles = studentProfiles.filter((profile) => {
+        const twelthPercentage = Number(
+          profile.twelthPercentage
+        );
+
+        return (
+          !isNaN(twelthPercentage) &&
+          twelthPercentage >= minimumTwelthPercentage
+        );
+      });
+    }
+
+    // ==========================================
+    // SKILLS FILTER
+    // STUDENT MUST HAVE ALL SELECTED SKILLS
+    // ==========================================
+
+    if (skills && skills.trim()) {
+      const searchSkills = skills
+        .split(",")
+        .map((skill) =>
+          String(skill).trim().toLowerCase()
+        )
+        .filter(Boolean);
+
+      studentProfiles = studentProfiles.filter((profile) => {
+        const studentSkills = (profile.skills || [])
+          .map((skill) =>
+            String(skill).trim().toLowerCase()
+          )
+          .filter(Boolean);
+
+        return searchSkills.every((searchSkill) =>
+          studentSkills.includes(searchSkill)
+        );
+      });
+    }
+
+    // ==========================================
+    // HISTORY OF ARREARS
+    // ==========================================
+
+    if (
+      historyOfArrears &&
+      historyOfArrears.trim()
+    ) {
+      const normalizedHistory =
+        historyOfArrears.trim().toLowerCase();
+
+      // HISTORY = NO
+      if (normalizedHistory === "no") {
+        studentProfiles = studentProfiles.filter(
+          (profile) =>
+            String(profile.historyOfArrears || "")
+              .trim()
+              .toLowerCase() === "no"
+        );
+      }
+
+      // HISTORY = YES
+      else if (normalizedHistory === "yes") {
+        // YES WITHOUT COUNT
+        if (
+          historyOfArrearsCount === undefined ||
+          historyOfArrearsCount === ""
+        ) {
+          studentProfiles = studentProfiles.filter(
+            (profile) =>
+              String(profile.historyOfArrears || "")
+                .trim()
+                .toLowerCase() === "yes"
+          );
+        }
+
+        // YES WITH COUNT
+        else {
+          const maxHistoryArrears =
+            Number(historyOfArrearsCount);
+
+          studentProfiles = studentProfiles.filter(
+            (profile) => {
+              const history =
+                String(profile.historyOfArrears || "")
+                  .trim()
+                  .toLowerCase();
+
+              // No history
+              if (history === "no") {
+                return true;
+              }
+
+              // Yes history within count
+              if (history === "yes") {
+                const studentCount = Number(
+                  profile.historyOfArrearsCount
+                );
+
+                return (
+                  !isNaN(studentCount) &&
+                  studentCount <= maxHistoryArrears
+                );
+              }
+
+              return false;
+            }
+          );
+        }
+      }
+    }
+
+    // ==========================================
+    // CURRENT ARREARS
+    // ==========================================
+
+    if (
+      currentArrears !== undefined &&
+      currentArrears !== ""
+    ) {
+      const maxCurrentArrears =
+        Number(currentArrears);
+
+      studentProfiles = studentProfiles.filter(
+        (profile) => {
+          const studentArrears = Number(
+            profile.currentArrears
+          );
+
+          return (
+            !isNaN(studentArrears) &&
+            studentArrears <= maxCurrentArrears
+          );
+        }
+      );
+    }
+
+    // ==========================================
+    // SORT BY NAME
+    // SAME AS SEARCH
+    // ==========================================
+
+    studentProfiles.sort((a, b) =>
+      String(
+        a.name || a.userId?.name || ""
+      ).localeCompare(
+        String(
+          b.name || b.userId?.name || ""
+        ),
+        undefined,
+        {
+          sensitivity: "base",
+        }
+      )
+    );
+
+    // ==========================================
+    // EXACT 39 EXCEL COLUMNS
+    // ==========================================
+
+    const headers = [
+      "S.NO",
+      "DEPARTMENT",
+      "REGISTRATION NUMBER",
+      "ROLL NUMBER",
+      "NAME WITH INITIAL AT END",
+      "GENDER (M/F)",
+      "DOB",
+      "AADHAR NUMBER",
+      "RELIGION",
+      "COMMUNITY",
+      "FATHER NAME",
+      "MOTHER NAME",
+      "FATHER OCCUPATION",
+      "PERMANENT ADDRESS",
+      "PINCODE",
+      "DISTRICT",
+      "STATE",
+      "LANGUAGES KNOWN",
+      "HOSTELER / DAYSCHOLAR",
+      "PARENTS NUMBER",
+      "PERSONAL NUMBER",
+      "EMAIL-ID",
+      "MEDIUM OF STUDY",
+      "10TH PERCENTAGE",
+      "10TH BOARD",
+      "10TH SCHOOL NAME",
+      "10TH YEAR OF PASSING",
+      "12TH PERCENTAGE",
+      "12TH BOARD",
+      "12TH SCHOOL NAME",
+      "12TH YEAR OF PASSING",
+      "DIPLOMA PERCENTAGE",
+      "DIPLOMA SCHOOL / COLLEGE / UNIVERSITY",
+      "DIPLOMA YEAR OF PASSING",
+      "DIPLOMA DEGREE PERCENTAGE",
+      "CGPA",
+      "HISTORY OF ARREARS",
+      "CURRENT ARREARS",
+      "PLACEMENT STATUS",
+    ];
+
+    // ==========================================
+    // CREATE EXCEL ROWS
+    // ==========================================
+
+    const rows = studentProfiles.map(
+      (profile, index) => {
+        const user = profile.userId || {};
+
+        let gender =
+          profile.gender ||
+          user.gender ||
+          "";
+
+        // Convert Male/Female to M/F
+        if (
+          String(gender)
+            .trim()
+            .toLowerCase() === "male"
+        ) {
+          gender = "M";
+        } else if (
+          String(gender)
+            .trim()
+            .toLowerCase() === "female"
+        ) {
+          gender = "F";
+        }
+
+        return [
+          index + 1,
+
+          profile.department ||
+            user.department ||
+            "",
+
+          profile.registerNumber ||
+            user.registerNumber ||
+            "",
+
+          profile.rollNumber || "",
+
+          profile.name ||
+            user.name ||
+            "",
+
+          gender,
+
+          profile.dob || "",
+
+          profile.aadharNumber || "",
+
+          profile.religion || "",
+
+          profile.community || "",
+
+          profile.fatherName || "",
+
+          profile.motherName || "",
+
+          profile.fatherOccupation || "",
+
+          // Keep existing DB field `address`
+          profile.address || "",
+
+          profile.pincode || "",
+
+          profile.district || "",
+
+          profile.state || "",
+
+          profile.languagesKnown || "",
+
+          profile.hostelerDayScholar || "",
+
+          profile.parentsNumber || "",
+
+          profile.studentPhone || "",
+
+          profile.email ||
+            user.email ||
+            "",
+
+          profile.mediumOfStudy || "",
+
+          profile.tenthPercentage || "",
+
+          profile.tenthBoard || "",
+
+          profile.tenthSchoolName || "",
+
+          profile.tenthCompletionYear || "",
+
+          profile.twelthPercentage || "",
+
+          profile.twelthBoard || "",
+
+          profile.twelthSchoolName || "",
+
+          profile.twelthCompletionYear || "",
+
+          profile.diplomaPercentage || "",
+
+          profile.diplomaCollege || "",
+
+          profile.diplomaCompletionYear || "",
+
+          profile.diplomaDegreePercentage || "",
+
+          profile.cgpa || "",
+
+          profile.historyOfArrears || "",
+
+          profile.currentArrears || "",
+
+          profile.placementStatus || "",
+        ];
+      }
+    );
+
+    // ==========================================
+    // CREATE WORKSHEET
+    // ==========================================
+
+    const worksheet = XLSX.utils.aoa_to_sheet([
+      headers,
+      ...rows,
+    ]);
+
+    // ==========================================
+    // COLUMN WIDTHS
+    // ==========================================
+
+    worksheet["!cols"] = [
+      { wch: 7 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 28 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 18 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 25 },
+      { wch: 25 },
+      { wch: 22 },
+      { wch: 35 },
+      { wch: 12 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 25 },
+      { wch: 22 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 35 },
+      { wch: 20 },
+      { wch: 25 },
+      { wch: 12 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 20 },
+    ];
+
+    // ==========================================
+    // CREATE WORKBOOK
+    // ==========================================
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Students"
+    );
+
+    // ==========================================
+    // GENERATE XLSX BUFFER
+    // ==========================================
+
+    const excelBuffer = XLSX.write(workbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    // ==========================================
+    // DOWNLOAD RESPONSE
+    // ==========================================
+
+    const date = new Date()
+      .toISOString()
+      .slice(0, 10);
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="student-search-results-${date}.xlsx"`
+    );
+
+    return res.status(200).send(excelBuffer);
+
+  } catch (error) {
+    console.error(
+      "EXPORT SEARCH STUDENTS EXCEL ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Unable to export students to Excel",
       error: error.message,
     });
   }
