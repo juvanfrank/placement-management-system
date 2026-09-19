@@ -1332,6 +1332,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
       "HISTORY OF ARREARS",
       "CURRENT ARREARS",
       "PLACEMENT STATUS",
+      "Resume LINK",
     ];
 
     // ==========================================
@@ -1429,6 +1430,8 @@ exports.exportSearchStudentsExcel = async (req, res) => {
         profile.currentArrears || "",
 
         profile.placementStatus || "",
+
+        profile.resumeLink || "",
       ];
     });
 
@@ -1482,6 +1485,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
       { wch: 20 },
       { wch: 18 },
       { wch: 20 },
+      { wch:50  },
     ];
 
     // ==========================================
@@ -1523,6 +1527,564 @@ exports.exportSearchStudentsExcel = async (req, res) => {
 
     return res.status(500).json({
       message: "Unable to export students to Excel",
+      error: error.message,
+    });
+  }
+};
+
+// ==================================================
+// DELETION PANEL
+// GET STUDENTS FOR DELETION
+// ==================================================
+
+exports.getDeletionStudents = async (req, res) => {
+  try {
+    const { department, year, section } = req.query;
+
+    // ==========================================
+    // GET ONLY REAL STUDENT USERS
+    // ==========================================
+
+    const studentUsers = await User.find({
+      role: "student",
+    }).select("_id");
+
+    const studentUserIds = studentUsers.map((user) => user._id);
+
+    // ==========================================
+    // BUILD FILTER
+    // ==========================================
+
+    const filter = {
+      userId: {
+        $in: studentUserIds,
+      },
+    };
+
+    if (department && department.trim()) {
+      filter.department = department.trim();
+    }
+
+    if (year && String(year).trim()) {
+      filter.currentYear = String(year).trim();
+    }
+
+    if (section && section.trim() && section.trim().toUpperCase() !== "ALL") {
+      filter.section = section.trim();
+    }
+
+    // ==========================================
+    // GET STUDENTS
+    // ==========================================
+
+    const studentProfiles = await StudentProfile.find(filter)
+      .populate({
+        path: "userId",
+        select: "name email registerNumber department",
+      })
+      .lean();
+
+    // ==========================================
+    // REMOVE INVALID USERS
+    // ==========================================
+
+    const validProfiles = studentProfiles.filter((profile) => profile.userId);
+
+    // ==========================================
+    // FORMAT RESULTS
+    // ==========================================
+
+    const students = validProfiles.map((profile) => {
+      const user = profile.userId || {};
+
+      return {
+        id: user._id,
+        _id: user._id,
+
+        name: user.name || profile.name || "",
+
+        email: user.email || profile.email || "",
+
+        registerNumber: user.registerNumber || profile.registerNumber || "",
+
+        department: user.department || profile.department || "",
+
+        year: profile.currentYear || "",
+
+        section: profile.section || "",
+
+        rollNumber: profile.rollNumber || "",
+
+        cgpa: profile.cgpa || "",
+      };
+    });
+
+    // ==========================================
+    // SORT BY ROLL NUMBER
+    // ==========================================
+
+    students.sort((a, b) =>
+      String(a.rollNumber || "").localeCompare(
+        String(b.rollNumber || ""),
+        undefined,
+        {
+          numeric: true,
+          sensitivity: "base",
+        },
+      ),
+    );
+
+    // ==========================================
+    // RESPONSE
+    // ==========================================
+
+    return res.status(200).json({
+      count: students.length,
+      students,
+    });
+  } catch (error) {
+    console.error("GET DELETION STUDENTS ERROR:", error);
+
+    return res.status(500).json({
+      message: "Unable to get students for deletion",
+      error: error.message,
+    });
+  }
+};
+// ==================================================
+// DELETE SELECTED STUDENTS
+// ADMIN
+// ==================================================
+
+exports.deleteStudents = async (req, res) => {
+  try {
+    const { studentIds } = req.body;
+
+    // ==========================================
+    // VALIDATE INPUT
+    // ==========================================
+
+    if (!Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({
+        message: "No students selected for deletion",
+      });
+    }
+
+    // Remove duplicate IDs
+    const uniqueStudentIds = [
+      ...new Set(studentIds.map((id) => String(id).trim())),
+    ];
+
+    // ==========================================
+    // VERIFY THAT ALL IDS BELONG TO STUDENTS
+    // ==========================================
+
+    const studentUsers = await User.find({
+      _id: { $in: uniqueStudentIds },
+      role: "student",
+    }).select("_id");
+
+    const validStudentIds = studentUsers.map((user) =>
+      user._id.toString()
+    );
+
+    // ==========================================
+    // CHECK IF ANY INVALID ID WAS PROVIDED
+    // ==========================================
+
+    if (validStudentIds.length !== uniqueStudentIds.length) {
+      return res.status(400).json({
+        message:
+          "One or more selected users are invalid or are not student accounts",
+      });
+    }
+
+    // ==========================================
+    // DELETE CERTIFICATES
+    // ==========================================
+
+    const certificateDeleteResult = await Certificate.deleteMany({
+      userId: { $in: validStudentIds },
+    });
+
+    // ==========================================
+    // DELETE STUDENT PROFILES
+    // ==========================================
+
+    const profileDeleteResult = await StudentProfile.deleteMany({
+      userId: { $in: validStudentIds },
+    });
+
+    // ==========================================
+    // DELETE USER ACCOUNTS
+    // ==========================================
+
+    const userDeleteResult = await User.deleteMany({
+      _id: { $in: validStudentIds },
+      role: "student",
+    });
+
+    // ==========================================
+    // RESPONSE
+    // ==========================================
+
+    return res.status(200).json({
+      message: "Students deleted successfully",
+
+      deletedStudents: userDeleteResult.deletedCount,
+
+      deletedProfiles: profileDeleteResult.deletedCount,
+
+      deletedCertificates: certificateDeleteResult.deletedCount,
+    });
+  } catch (error) {
+    console.error("DELETE STUDENTS ERROR:", error);
+
+    return res.status(500).json({
+      message: "Unable to delete students",
+      error: error.message,
+    });
+  }
+};
+
+// ==================================================
+// DELETION PANEL - EXPORT SELECTED STUDENTS TO EXCEL
+// ==================================================
+
+exports.exportDeletionStudentsExcel = async (req, res) => {
+  try {
+    const { studentIds } = req.body;
+
+    // ==========================================
+    // VALIDATE INPUT
+    // ==========================================
+
+    if (!Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({
+        message: "No students selected for export",
+      });
+    }
+
+    // Remove duplicate IDs
+    const uniqueStudentIds = [
+      ...new Set(studentIds.map((id) => String(id).trim())),
+    ];
+
+    // ==========================================
+    // GET ONLY REAL STUDENT USERS
+    // ==========================================
+
+    const studentUsers = await User.find({
+      _id: { $in: uniqueStudentIds },
+      role: "student",
+    })
+      .select("_id name email registerNumber department")
+      .lean();
+
+    // ==========================================
+    // CHECK VALID STUDENTS
+    // ==========================================
+
+    if (studentUsers.length !== uniqueStudentIds.length) {
+      return res.status(400).json({
+        message:
+          "One or more selected users are invalid or are not student accounts",
+      });
+    }
+
+    const validStudentIds = studentUsers.map((user) => user._id);
+
+    // ==========================================
+    // GET STUDENT PROFILES
+    // ==========================================
+
+    const studentProfiles = await StudentProfile.find({
+      userId: { $in: validStudentIds },
+    })
+      .populate({
+        path: "userId",
+        select: "name email registerNumber department",
+      })
+      .lean();
+
+    // ==========================================
+    // REMOVE STUDENTS WITHOUT PROFILE
+    // ==========================================
+
+    const validProfiles = studentProfiles.filter(
+      (profile) => profile.userId
+    );
+
+    if (validProfiles.length !== uniqueStudentIds.length) {
+      return res.status(400).json({
+        message: "One or more selected students do not have a profile",
+      });
+    }
+
+    // ==========================================
+    // SORT BY ROLL NUMBER
+    // ==========================================
+
+    validProfiles.sort((a, b) =>
+      String(a.rollNumber || "").localeCompare(
+        String(b.rollNumber || ""),
+        undefined,
+        {
+          numeric: true,
+          sensitivity: "base",
+        }
+      )
+    );
+
+    // ==========================================
+    // EXACT 40 EXCEL COLUMNS
+    // ==========================================
+
+    const headers = [
+      "S.NO",
+      "DEPARTMENT",
+      "REGISTRATION NUMBER",
+      "ROLL NUMBER",
+      "NAME WITH INITIAL AT END",
+      "GENDER (M/F)",
+      "DOB",
+      "AADHAR NUMBER",
+      "RELIGION",
+      "COMMUNITY",
+      "FATHER NAME",
+      "MOTHER NAME",
+      "FATHER OCCUPATION",
+      "PERMANENT ADDRESS",
+      "PINCODE",
+      "DISTRICT",
+      "STATE",
+      "LANGUAGES KNOWN",
+      "HOSTELER / DAYSCHOLAR",
+      "PARENTS NUMBER",
+      "PERSONAL NUMBER",
+      "EMAIL-ID",
+      "MEDIUM OF STUDY",
+      "10TH PERCENTAGE",
+      "10TH BOARD",
+      "10TH SCHOOL NAME",
+      "10TH YEAR OF PASSING",
+      "12TH PERCENTAGE",
+      "12TH BOARD",
+      "12TH SCHOOL NAME",
+      "12TH YEAR OF PASSING",
+      "DIPLOMA PERCENTAGE",
+      "DIPLOMA SCHOOL / COLLEGE / UNIVERSITY",
+      "DIPLOMA YEAR OF PASSING",
+      "DIPLOMA DEGREE PERCENTAGE",
+      "CGPA",
+      "HISTORY OF ARREARS",
+      "CURRENT ARREARS",
+      "PLACEMENT STATUS",
+      "RESUME LINK",
+    ];
+
+    // ==========================================
+    // CREATE EXCEL ROWS
+    // ==========================================
+
+    const rows = validProfiles.map((profile, index) => {
+      const user = profile.userId || {};
+
+      let gender = profile.gender || "";
+
+      // Convert Male/Female to M/F
+      if (String(gender).trim().toLowerCase() === "male") {
+        gender = "M";
+      } else if (String(gender).trim().toLowerCase() === "female") {
+        gender = "F";
+      }
+
+      return [
+        index + 1,
+
+        profile.department || user.department || "",
+
+        profile.registerNumber || user.registerNumber || "",
+
+        profile.rollNumber || "",
+
+        profile.name || user.name || "",
+
+        gender,
+
+        profile.dob || "",
+
+        profile.aadharNumber || "",
+
+        profile.religion || "",
+
+        profile.community || "",
+
+        profile.fatherName || "",
+
+        profile.motherName || "",
+
+        profile.fatherOccupation || "",
+
+        // Keep existing DB field `address`
+        profile.address || "",
+
+        profile.pincode || "",
+
+        profile.district || "",
+
+        profile.state || "",
+
+        profile.languagesKnown || "",
+
+        profile.hostelerDayScholar || "",
+
+        profile.parentsNumber || "",
+
+        profile.studentPhone || "",
+
+        profile.email || user.email || "",
+
+        profile.mediumOfStudy || "",
+
+        profile.tenthPercentage || "",
+
+        profile.tenthBoard || "",
+
+        profile.tenthSchoolName || "",
+
+        profile.tenthCompletionYear || "",
+
+        profile.twelthPercentage || "",
+
+        profile.twelthBoard || "",
+
+        profile.twelthSchoolName || "",
+
+        profile.twelthCompletionYear || "",
+
+        profile.diplomaPercentage || "",
+
+        profile.diplomaCollege || "",
+
+        profile.diplomaCompletionYear || "",
+
+        profile.diplomaDegreePercentage || "",
+
+        profile.cgpa || "",
+
+        profile.historyOfArrears || "",
+
+        profile.currentArrears || "",
+
+        profile.placementStatus || "",
+
+        profile.resumeLink || "",
+      ];
+    });
+
+    // ==========================================
+    // CREATE WORKSHEET
+    // ==========================================
+
+    const worksheet = XLSX.utils.aoa_to_sheet([
+      headers,
+      ...rows,
+    ]);
+
+    // ==========================================
+    // COLUMN WIDTHS
+    // ==========================================
+
+    worksheet["!cols"] = [
+      { wch: 7 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 28 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 18 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 25 },
+      { wch: 25 },
+      { wch: 22 },
+      { wch: 35 },
+      { wch: 12 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 25 },
+      { wch: 22 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 35 },
+      { wch: 20 },
+      { wch: 25 },
+      { wch: 12 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 20 },
+      { wch: 50 },
+    ];
+
+    // ==========================================
+    // CREATE WORKBOOK
+    // ==========================================
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Students"
+    );
+
+    // ==========================================
+    // GENERATE XLSX BUFFER
+    // ==========================================
+
+    const excelBuffer = XLSX.write(workbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    // ==========================================
+    // DOWNLOAD RESPONSE
+    // ==========================================
+
+    const date = new Date().toISOString().slice(0, 10);
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="student-deletion-backup-${date}.xlsx"`
+    );
+
+    return res.status(200).send(excelBuffer);
+  } catch (error) {
+    console.error(
+      "EXPORT DELETION STUDENTS EXCEL ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Unable to export deletion students to Excel",
       error: error.message,
     });
   }

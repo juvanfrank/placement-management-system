@@ -31,6 +31,11 @@ function AdminSidebar() {
       name: "Student Search",
       path: "/admin/search",
     },
+
+    {
+    name: "Deletion Panel",
+    path: "/admin/deletion",
+  },
   ];
 
   return (

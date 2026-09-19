@@ -103,7 +103,7 @@ function Profile() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        },
+        }
       );
 
       setData((prev) => ({
@@ -116,41 +116,6 @@ function Profile() {
       console.error("PHOTO UPLOAD ERROR:", error.response || error);
 
       alert(error.response?.data?.message || "Photo upload failed");
-    }
-  };
-
-  // ==================================================
-  // RESUME UPLOAD
-  // ==================================================
-
-  const handleResumeUpload = async (e) => {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const uploadData = new FormData();
-      uploadData.append("resume", file);
-
-      const res = await axios.post(`${API}/api/upload/resume`, uploadData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      setData((prev) => ({
-        ...prev,
-        resumeLink: res.data.url,
-      }));
-
-      alert("Resume uploaded successfully");
-    } catch (error) {
-      console.error("RESUME UPLOAD ERROR:", error.response || error);
-
-      alert(error.response?.data?.message || "Resume upload failed");
     }
   };
 
@@ -259,7 +224,7 @@ function Profile() {
         ...new Set(
           (data.skills || [])
             .map((skill) => String(skill).trim().toLowerCase())
-            .filter(Boolean),
+            .filter(Boolean)
         ),
       ];
 
@@ -273,13 +238,13 @@ function Profile() {
             intern.companyName ||
             intern.domainName ||
             intern.fromDate ||
-            intern.toDate,
+            intern.toDate
         )
         .map(
           (intern) =>
             `${intern.companyName || ""} | ${
               intern.domainName || ""
-            } | ${intern.fromDate || ""} | ${intern.toDate || ""}`,
+            } | ${intern.fromDate || ""} | ${intern.toDate || ""}`
         );
 
       // ==================================================
@@ -296,6 +261,9 @@ function Profile() {
         religion: data.religion || undefined,
         caste: data.caste || undefined,
         community: data.community || undefined,
+
+        // RESUME DRIVE LINK
+        resumeLink: data.resumeLink || "",
 
         // NEW PLACEMENT PROFILE FIELDS
         aadharNumber: data.aadharNumber || "",
@@ -366,6 +334,7 @@ function Profile() {
   return (
     <StudentLayout>
       <div className="space-y-6">
+
         {/* ==================================================
             HEADER
         ================================================== */}
@@ -405,7 +374,9 @@ function Profile() {
         ================================================== */}
 
         <div className="bg-gray-50 p-6 rounded-2xl shadow border">
-          <h3 className="text-orange-600 font-semibold mb-4">Profile Photo</h3>
+          <h3 className="text-orange-600 font-semibold mb-4">
+            Profile Photo
+          </h3>
 
           <div className="flex items-center gap-6">
             <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-orange-500 bg-gray-200 flex items-center justify-center">
@@ -423,6 +394,7 @@ function Profile() {
             {editMode && (
               <label className="cursor-pointer bg-orange-500 text-white px-5 py-2 rounded-lg hover:bg-orange-600">
                 Upload Photo
+
                 <input
                   type="file"
                   accept="image/*"
@@ -440,6 +412,7 @@ function Profile() {
 
         <Card title="Personal Details">
           <Grid>
+
             <Input
               label="Name"
               value={data.name}
@@ -475,7 +448,9 @@ function Profile() {
               {editMode ? (
                 <select
                   value={data.gender || ""}
-                  onChange={(e) => handleChange("gender", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("gender", e.target.value)
+                  }
                   className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
                 >
                   <option value="">Select Gender</option>
@@ -528,8 +503,6 @@ function Profile() {
               onChange={(v) => handleChange("batch", v)}
             />
 
-            {/* NEW: AADHAR NUMBER */}
-
             <Input
               label="Aadhar Number"
               value={data.aadharNumber}
@@ -557,6 +530,7 @@ function Profile() {
               edit={editMode}
               onChange={(v) => handleChange("community", v)}
             />
+
           </Grid>
         </Card>
 
@@ -566,7 +540,6 @@ function Profile() {
 
         <Card title="Contact Details">
           <Grid>
-            {/* EXISTING PHONE */}
 
             <Input
               label="Phone"
@@ -575,16 +548,12 @@ function Profile() {
               onChange={(v) => handleChange("studentPhone", v)}
             />
 
-            {/* EXISTING ADDRESS */}
-
             <Input
               label="Address"
               value={data.address}
               edit={editMode}
               onChange={(v) => handleChange("address", v)}
             />
-
-            {/* NEW: PINCODE */}
 
             <Input
               label="Pincode"
@@ -593,16 +562,12 @@ function Profile() {
               onChange={(v) => handleChange("pincode", v)}
             />
 
-            {/* NEW: DISTRICT */}
-
             <Input
               label="District"
               value={data.district}
               edit={editMode}
               onChange={(v) => handleChange("district", v)}
             />
-
-            {/* NEW: STATE */}
 
             <Input
               label="State"
@@ -611,8 +576,6 @@ function Profile() {
               onChange={(v) => handleChange("state", v)}
             />
 
-            {/* NEW: LANGUAGES KNOWN */}
-
             <Input
               label="Languages Known"
               value={data.languagesKnown}
@@ -620,17 +583,15 @@ function Profile() {
               onChange={(v) => handleChange("languagesKnown", v)}
             />
 
-            {/* NEW: HOSTELER / DAY SCHOLAR */}
-
             <SelectInput
               label="Hosteler / Dayscholar"
               value={data.hostelerDayScholar}
               edit={editMode}
               options={["Hosteler", "Dayscholar"]}
-              onChange={(v) => handleChange("hostelerDayScholar", v)}
+              onChange={(v) =>
+                handleChange("hostelerDayScholar", v)
+              }
             />
-
-            {/* NEW: PARENTS NUMBER */}
 
             <Input
               label="Parents Number"
@@ -639,14 +600,13 @@ function Profile() {
               onChange={(v) => handleChange("parentsNumber", v)}
             />
 
-            {/* EXISTING EMAIL */}
-
             <Input
               label="Email"
               value={data.email}
               edit={false}
               onChange={() => {}}
             />
+
           </Grid>
         </Card>
 
@@ -656,7 +616,6 @@ function Profile() {
 
         <Card title="Academic Details">
           <Grid>
-            {/* NEW: MEDIUM OF STUDY */}
 
             <SelectInput
               label="Medium of Study"
@@ -666,17 +625,13 @@ function Profile() {
               onChange={(v) => handleChange("mediumOfStudy", v)}
             />
 
-            {/* =========================
-                10TH DETAILS
-            ========================= */}
+            {/* 10TH DETAILS */}
 
             <div className="md:col-span-2">
               <h4 className="text-lg font-semibold text-orange-600 border-b pb-2">
                 10th Details
               </h4>
             </div>
-
-            {/* 10TH BOARD - DROPDOWN */}
 
             <SelectInput
               label="10th Board"
@@ -693,45 +648,41 @@ function Profile() {
               onChange={(v) => handleChange("tenthBoard", v)}
             />
 
-            {/* 10TH SCHOOL */}
-
             <Input
               label="10th School Name"
               value={data.tenthSchoolName}
               edit={editMode}
-              onChange={(v) => handleChange("tenthSchoolName", v)}
+              onChange={(v) =>
+                handleChange("tenthSchoolName", v)
+              }
             />
-
-            {/* 10TH PERCENTAGE */}
 
             <Input
               label="10th Percentage"
               value={data.tenthPercentage}
               edit={editMode}
-              onChange={(v) => handleChange("tenthPercentage", v)}
+              onChange={(v) =>
+                handleChange("tenthPercentage", v)
+              }
             />
-
-            {/* 10TH YEAR */}
 
             <Input
               label="10th Year of Passing"
               type="number"
               value={data.tenthCompletionYear}
               edit={editMode}
-              onChange={(v) => handleChange("tenthCompletionYear", v)}
+              onChange={(v) =>
+                handleChange("tenthCompletionYear", v)
+              }
             />
 
-            {/* =========================
-                12TH DETAILS
-            ========================= */}
+            {/* 12TH DETAILS */}
 
             <div className="md:col-span-2">
               <h4 className="text-lg font-semibold text-orange-600 border-b pb-2 mt-3">
                 12th Details
               </h4>
             </div>
-
-            {/* 12TH BOARD - DROPDOWN */}
 
             <SelectInput
               label="12th Board"
@@ -745,40 +696,40 @@ function Profile() {
                 "NIOS",
                 "Other",
               ]}
-              onChange={(v) => handleChange("twelthBoard", v)}
+              onChange={(v) =>
+                handleChange("twelthBoard", v)
+              }
             />
-
-            {/* 12TH SCHOOL */}
 
             <Input
               label="12th School Name"
               value={data.twelthSchoolName}
               edit={editMode}
-              onChange={(v) => handleChange("twelthSchoolName", v)}
+              onChange={(v) =>
+                handleChange("twelthSchoolName", v)
+              }
             />
-
-            {/* 12TH PERCENTAGE */}
 
             <Input
               label="12th Percentage"
               value={data.twelthPercentage}
               edit={editMode}
-              onChange={(v) => handleChange("twelthPercentage", v)}
+              onChange={(v) =>
+                handleChange("twelthPercentage", v)
+              }
             />
-
-            {/* 12TH YEAR */}
 
             <Input
               label="12th Year of Passing"
               type="number"
               value={data.twelthCompletionYear}
               edit={editMode}
-              onChange={(v) => handleChange("twelthCompletionYear", v)}
+              onChange={(v) =>
+                handleChange("twelthCompletionYear", v)
+              }
             />
 
-            {/* =========================
-                DIPLOMA DETAILS
-            ========================= */}
+            {/* DIPLOMA DETAILS */}
 
             <div className="md:col-span-2">
               <h4 className="text-lg font-semibold text-orange-600 border-b pb-2 mt-3">
@@ -786,44 +737,42 @@ function Profile() {
               </h4>
             </div>
 
-            {/* DIPLOMA PERCENTAGE */}
-
             <Input
               label="Diploma Percentage"
               value={data.diplomaPercentage}
               edit={editMode}
-              onChange={(v) => handleChange("diplomaPercentage", v)}
+              onChange={(v) =>
+                handleChange("diplomaPercentage", v)
+              }
             />
-
-            {/* DIPLOMA COLLEGE - NEW */}
 
             <Input
               label="Diploma School / College / University"
               value={data.diplomaCollege}
               edit={editMode}
-              onChange={(v) => handleChange("diplomaCollege", v)}
+              onChange={(v) =>
+                handleChange("diplomaCollege", v)
+              }
             />
-
-            {/* DIPLOMA YEAR */}
 
             <Input
               label="Diploma Year of Passing"
               type="number"
               value={data.diplomaCompletionYear}
               edit={editMode}
-              onChange={(v) => handleChange("diplomaCompletionYear", v)}
+              onChange={(v) =>
+                handleChange("diplomaCompletionYear", v)
+              }
             />
-
-            {/* DIPLOMA DEGREE PERCENTAGE - NEW */}
 
             <Input
               label="Diploma Degree Percentage"
               value={data.diplomaDegreePercentage}
               edit={editMode}
-              onChange={(v) => handleChange("diplomaDegreePercentage", v)}
+              onChange={(v) =>
+                handleChange("diplomaDegreePercentage", v)
+              }
             />
-
-            {/* CGPA */}
 
             <Input
               label="CGPA"
@@ -832,17 +781,15 @@ function Profile() {
               onChange={(v) => handleChange("cgpa", v)}
             />
 
-            {/* CURRENT ARREARS */}
-
             <Input
               label="Current Arrears"
               type="number"
               value={data.currentArrears}
               edit={editMode}
-              onChange={(v) => handleChange("currentArrears", v)}
+              onChange={(v) =>
+                handleChange("currentArrears", v)
+              }
             />
-
-            {/* HISTORY OF ARREARS */}
 
             <SelectInput
               label="History of Arrears"
@@ -853,14 +800,11 @@ function Profile() {
                 setData((prev) => ({
                   ...prev,
                   historyOfArrears: v,
-
                   historyOfArrearsCount:
                     v === "No" ? "" : prev.historyOfArrearsCount,
                 }));
               }}
             />
-
-            {/* NUMBER OF HISTORY OF ARREARS */}
 
             {data.historyOfArrears === "Yes" && (
               <Input
@@ -868,9 +812,12 @@ function Profile() {
                 type="number"
                 value={data.historyOfArrearsCount}
                 edit={editMode}
-                onChange={(v) => handleChange("historyOfArrearsCount", v)}
+                onChange={(v) =>
+                  handleChange("historyOfArrearsCount", v)
+                }
               />
             )}
+
           </Grid>
         </Card>
 
@@ -880,33 +827,19 @@ function Profile() {
 
         <Card title="Professional">
           <Grid>
-            {/* RESUME */}
 
-            <div>
-              <p className="text-gray-500 text-sm">Resume</p>
+            {/* RESUME DRIVE LINK */}
 
-              {data.resumeLink ? (
-                <a
-                  href={data.resumeLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-orange-600 font-semibold hover:underline"
-                >
-                  View Resume
-                </a>
-              ) : (
-                <p className="font-semibold">-</p>
-              )}
-
-              {editMode && (
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleResumeUpload}
-                  className="mt-2 w-full border p-2 rounded"
-                />
-              )}
-            </div>
+            <LinkInput
+              label="Resume Drive Link"
+              value={data.resumeLink}
+              edit={editMode}
+              placeholder="https://drive.google.com/..."
+              displayText="View Resume"
+              onChange={(v) =>
+                handleChange("resumeLink", v)
+              }
+            />
 
             {/* LINKEDIN */}
 
@@ -916,7 +849,9 @@ function Profile() {
               edit={editMode}
               placeholder="https://linkedin.com/in/yourname"
               displayText="View LinkedIn"
-              onChange={(v) => handleChange("linkedinLink", v)}
+              onChange={(v) =>
+                handleChange("linkedinLink", v)
+              }
             />
 
             {/* GITHUB */}
@@ -927,7 +862,9 @@ function Profile() {
               edit={editMode}
               placeholder="https://github.com/yourname"
               displayText="View GitHub"
-              onChange={(v) => handleChange("githubLink", v)}
+              onChange={(v) =>
+                handleChange("githubLink", v)
+              }
             />
 
             {/* PORTFOLIO */}
@@ -938,7 +875,9 @@ function Profile() {
               edit={editMode}
               placeholder="https://yourportfolio.com"
               displayText="View Portfolio"
-              onChange={(v) => handleChange("portfolioLink", v)}
+              onChange={(v) =>
+                handleChange("portfolioLink", v)
+              }
             />
 
             {/* HACKERRANK */}
@@ -949,7 +888,9 @@ function Profile() {
               edit={editMode}
               placeholder="https://hackerrank.com/yourname"
               displayText="View HackerRank"
-              onChange={(v) => handleChange("hackerrankLink", v)}
+              onChange={(v) =>
+                handleChange("hackerrankLink", v)
+              }
             />
 
             {/* LEETCODE */}
@@ -960,8 +901,11 @@ function Profile() {
               edit={editMode}
               placeholder="https://leetcode.com/yourname"
               displayText="View LeetCode"
-              onChange={(v) => handleChange("leetcodeLink", v)}
+              onChange={(v) =>
+                handleChange("leetcodeLink", v)
+              }
             />
+
           </Grid>
         </Card>
 
@@ -971,9 +915,14 @@ function Profile() {
 
         <Card title="Internship">
           <div className="space-y-5">
+
             {(data.internship || []).map((intern, index) => (
-              <div key={index} className="border rounded-xl p-5 bg-white">
+              <div
+                key={index}
+                className="border rounded-xl p-5 bg-white"
+              >
                 <div className="flex justify-between items-center mb-4">
+
                   <h4 className="font-semibold text-gray-700">
                     Internship {index + 1}
                   </h4>
@@ -986,21 +935,35 @@ function Profile() {
                       Remove
                     </button>
                   )}
+
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-5">
+
                   <Input
                     label="Company Name"
                     value={intern.companyName}
                     edit={editMode}
-                    onChange={(v) => updateInternship(index, "companyName", v)}
+                    onChange={(v) =>
+                      updateInternship(
+                        index,
+                        "companyName",
+                        v
+                      )
+                    }
                   />
 
                   <Input
                     label="Domain Name"
                     value={intern.domainName}
                     edit={editMode}
-                    onChange={(v) => updateInternship(index, "domainName", v)}
+                    onChange={(v) =>
+                      updateInternship(
+                        index,
+                        "domainName",
+                        v
+                      )
+                    }
                   />
 
                   <Input
@@ -1008,7 +971,13 @@ function Profile() {
                     type="date"
                     value={intern.fromDate}
                     edit={editMode}
-                    onChange={(v) => updateInternship(index, "fromDate", v)}
+                    onChange={(v) =>
+                      updateInternship(
+                        index,
+                        "fromDate",
+                        v
+                      )
+                    }
                   />
 
                   <Input
@@ -1016,8 +985,15 @@ function Profile() {
                     type="date"
                     value={intern.toDate}
                     edit={editMode}
-                    onChange={(v) => updateInternship(index, "toDate", v)}
+                    onChange={(v) =>
+                      updateInternship(
+                        index,
+                        "toDate",
+                        v
+                      )
+                    }
                   />
+
                 </div>
               </div>
             ))}
@@ -1032,9 +1008,13 @@ function Profile() {
             )}
 
             {!editMode &&
-              (!data.internship || data.internship.length === 0) && (
-                <p className="text-gray-500">No internship details added.</p>
+              (!data.internship ||
+                data.internship.length === 0) && (
+                <p className="text-gray-500">
+                  No internship details added.
+                </p>
               )}
+
           </div>
         </Card>
 
@@ -1044,13 +1024,17 @@ function Profile() {
 
         <Card title="Skills">
           <div className="space-y-3">
+
             {(data.skills || []).map((skill, index) => (
               <div key={index} className="flex gap-3">
+
                 <input
                   type="text"
                   value={skill}
                   disabled={!editMode}
-                  onChange={(e) => updateSkill(index, e.target.value)}
+                  onChange={(e) =>
+                    updateSkill(index, e.target.value)
+                  }
                   placeholder="Enter skill"
                   className="flex-1 border p-2 rounded-lg disabled:bg-gray-100"
                 />
@@ -1063,6 +1047,7 @@ function Profile() {
                     Remove
                   </button>
                 )}
+
               </div>
             ))}
 
@@ -1075,9 +1060,13 @@ function Profile() {
               </button>
             )}
 
-            {!editMode && (!data.skills || data.skills.length === 0) && (
-              <p className="text-gray-500">No skills added.</p>
-            )}
+            {!editMode &&
+              (!data.skills || data.skills.length === 0) && (
+                <p className="text-gray-500">
+                  No skills added.
+                </p>
+              )}
+
           </div>
         </Card>
 
@@ -1091,7 +1080,9 @@ function Profile() {
             value={data.placementStatus}
             edit={editMode}
             options={["Not Placed", "Placed", "Internship"]}
-            onChange={(v) => handleChange("placementStatus", v)}
+            onChange={(v) =>
+              handleChange("placementStatus", v)
+            }
           />
         </Card>
 
@@ -1101,42 +1092,52 @@ function Profile() {
 
         <Card title="Parent / Guardian">
           <Grid>
+
             <Input
               label="Father Name"
               value={data.fatherName}
               edit={editMode}
-              onChange={(v) => handleChange("fatherName", v)}
+              onChange={(v) =>
+                handleChange("fatherName", v)
+              }
             />
 
             <Input
               label="Mother Name"
               value={data.motherName}
               edit={editMode}
-              onChange={(v) => handleChange("motherName", v)}
+              onChange={(v) =>
+                handleChange("motherName", v)
+              }
             />
-
-            {/* NEW: FATHER OCCUPATION */}
 
             <Input
               label="Father Occupation"
               value={data.fatherOccupation}
               edit={editMode}
-              onChange={(v) => handleChange("fatherOccupation", v)}
+              onChange={(v) =>
+                handleChange("fatherOccupation", v)
+              }
             />
 
             <Input
               label="Father Phone"
               value={data.fatherPhone}
               edit={editMode}
-              onChange={(v) => handleChange("fatherPhone", v)}
+              onChange={(v) =>
+                handleChange("fatherPhone", v)
+              }
             />
 
             <Input
               label="Mother Phone"
               value={data.motherPhone}
               edit={editMode}
-              onChange={(v) => handleChange("motherPhone", v)}
+              onChange={(v) =>
+                handleChange("motherPhone", v)
+              }
             />
+
           </Grid>
         </Card>
 
@@ -1146,14 +1147,17 @@ function Profile() {
 
         {editMode && (
           <div className="flex justify-end">
+
             <button
               onClick={handleUpdate}
               className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600 font-semibold"
             >
               Save Changes
             </button>
+
           </div>
         )}
+
       </div>
     </StudentLayout>
   );
@@ -1167,9 +1171,13 @@ export default Profile;
 
 const Card = ({ title, children }) => (
   <div className="bg-gray-50 p-6 rounded-2xl shadow border">
-    <h3 className="text-orange-600 font-semibold mb-4">{title}</h3>
+
+    <h3 className="text-orange-600 font-semibold mb-4">
+      {title}
+    </h3>
 
     {children}
+
   </div>
 );
 
@@ -1178,16 +1186,27 @@ const Card = ({ title, children }) => (
 // ==================================================
 
 const Grid = ({ children }) => (
-  <div className="grid md:grid-cols-2 gap-6">{children}</div>
+  <div className="grid md:grid-cols-2 gap-6">
+    {children}
+  </div>
 );
 
 // ==================================================
 // INPUT COMPONENT
 // ==================================================
 
-const Input = ({ label, value, edit, onChange, type = "text" }) => (
+const Input = ({
+  label,
+  value,
+  edit,
+  onChange,
+  type = "text",
+}) => (
   <div>
-    <p className="text-gray-500 text-sm mb-1">{label}</p>
+
+    <p className="text-gray-500 text-sm mb-1">
+      {label}
+    </p>
 
     {edit ? (
       <input
@@ -1197,8 +1216,11 @@ const Input = ({ label, value, edit, onChange, type = "text" }) => (
         className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
       />
     ) : (
-      <p className="font-semibold text-gray-800">{value || "-"}</p>
+      <p className="font-semibold text-gray-800">
+        {value || "-"}
+      </p>
     )}
+
   </div>
 );
 
@@ -1215,7 +1237,10 @@ const LinkInput = ({
   displayText,
 }) => (
   <div>
-    <p className="text-gray-500 text-sm mb-1">{label}</p>
+
+    <p className="text-gray-500 text-sm mb-1">
+      {label}
+    </p>
 
     {edit ? (
       <input
@@ -1235,8 +1260,11 @@ const LinkInput = ({
         {displayText}
       </a>
     ) : (
-      <p className="font-semibold text-gray-800">-</p>
+      <p className="font-semibold text-gray-800">
+        -
+      </p>
     )}
+
   </div>
 );
 
@@ -1244,9 +1272,18 @@ const LinkInput = ({
 // SELECT INPUT COMPONENT
 // ==================================================
 
-const SelectInput = ({ label, value, edit, options, onChange }) => (
+const SelectInput = ({
+  label,
+  value,
+  edit,
+  options,
+  onChange,
+}) => (
   <div>
-    <p className="text-gray-500 text-sm mb-1">{label}</p>
+
+    <p className="text-gray-500 text-sm mb-1">
+      {label}
+    </p>
 
     {edit ? (
       <select
@@ -1254,7 +1291,9 @@ const SelectInput = ({ label, value, edit, options, onChange }) => (
         onChange={(e) => onChange(e.target.value)}
         className="w-full border p-2 rounded-lg bg-white focus:ring-2 focus:ring-orange-400 outline-none"
       >
-        <option value="">Select {label}</option>
+        <option value="">
+          Select {label}
+        </option>
 
         {options.map((option) => (
           <option key={option} value={option}>
@@ -1263,7 +1302,10 @@ const SelectInput = ({ label, value, edit, options, onChange }) => (
         ))}
       </select>
     ) : (
-      <p className="font-semibold text-gray-800">{value || "-"}</p>
+      <p className="font-semibold text-gray-800">
+        {value || "-"}
+      </p>
     )}
+
   </div>
 );
