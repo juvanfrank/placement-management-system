@@ -4,14 +4,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-// Admin Dashboard
-import AdminDashboard from "./pages/AdminDashboard";
 
 // Student
 import StudentProfile from "./pages/student/Profile";
 import StudentCertificates from "./pages/student/Certificates";
-import StudentResume from "./pages/student/Resume";
-import StudentCgpa from "./pages/student/Cgpa";
+
 
 // Mentor
 import MentorProfile from "./pages/mentor/Profile";
@@ -80,9 +77,9 @@ function App() {
 
         <Route path="/student/certificates" element={<StudentCertificates />} />
 
-        <Route path="/student/resume" element={<StudentResume />} />
+        
 
-        <Route path="/student/cgpa" element={<StudentCgpa />} />
+        
 
         {/* ==================== MENTOR ==================== */}
 

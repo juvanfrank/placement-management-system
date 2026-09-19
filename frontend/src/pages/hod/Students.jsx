@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import HodLayout from "../../components/HodLayout";
 import api from "../../services/api";
 
 function Students() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [department, setDepartment] = useState("");
   const [students, setStudents] = useState([]);
@@ -16,8 +17,31 @@ function Students() {
   const [error, setError] = useState("");
 
   // ============================
+  // RESTORE YEAR & SECTION
+  // FROM URL
+  // ============================
+
+  useEffect(() => {
+    const yearFromUrl = searchParams.get("year");
+    const sectionFromUrl = searchParams.get("section");
+
+    if (yearFromUrl) {
+      setSelectedYear(Number(yearFromUrl));
+    } else {
+      setSelectedYear(null);
+    }
+
+    if (sectionFromUrl) {
+      setSelectedSection(sectionFromUrl);
+    } else {
+      setSelectedSection(null);
+    }
+  }, [searchParams]);
+
+  // ============================
   // FETCH HOD STUDENTS
   // ============================
+
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -29,7 +53,10 @@ function Students() {
         setDepartment(response.data.department || "");
         setStudents(response.data.students || []);
       } catch (err) {
-        console.error("Error fetching HOD students:", err);
+        console.error(
+          "Error fetching HOD students:",
+          err
+        );
 
         setError(
           err.response?.data?.message ||
@@ -46,17 +73,21 @@ function Students() {
   // ============================
   // GET YEARS FROM STUDENTS
   // ============================
+
   const getStudentsForYear = (year) => {
     return students.filter(
-      (student) => Number(student.year) === Number(year)
+      (student) =>
+        Number(student.year) === Number(year)
     );
   };
 
   // ============================
   // GET SECTIONS FOR YEAR
   // ============================
+
   const getSectionsForYear = (year) => {
-    const yearStudents = getStudentsForYear(year);
+    const yearStudents =
+      getStudentsForYear(year);
 
     const sections = [
       ...new Set(
@@ -72,7 +103,11 @@ function Students() {
   // ============================
   // GET STUDENTS FOR SECTION
   // ============================
-  const getStudentsForSection = (year, section) => {
+
+  const getStudentsForSection = (
+    year,
+    section
+  ) => {
     return students
       .filter(
         (student) =>
@@ -94,23 +129,68 @@ function Students() {
   // ============================
   // YEAR CLICK
   // ============================
+
   const handleYearClick = (year) => {
     setSelectedYear(year);
     setSelectedSection(null);
+
+    // Store selected year in URL
+    setSearchParams({
+      year: String(year),
+    });
   };
 
   // ============================
   // SECTION CLICK
   // ============================
+
   const handleSectionClick = (section) => {
     setSelectedSection(section);
+
+    // Store year + section in URL
+    setSearchParams({
+      year: String(selectedYear),
+      section: section,
+    });
   };
 
   // ============================
   // STUDENT CLICK
   // ============================
+
   const handleStudentClick = (student) => {
-    navigate(`/hod/student/${student.id}`);
+    navigate(
+      `/hod/student/${student.id}?year=${selectedYear}&section=${encodeURIComponent(
+        selectedSection
+      )}`
+    );
+  };
+
+  // ============================
+  // CHANGE YEAR
+  // ============================
+
+  const handleChangeYear = () => {
+    setSelectedYear(null);
+    setSelectedSection(null);
+
+    setSearchParams({});
+  };
+
+  // ============================
+  // CHANGE SECTION
+  // ============================
+
+  const handleChangeSection = () => {
+    setSelectedSection(null);
+
+    if (selectedYear) {
+      setSearchParams({
+        year: String(selectedYear),
+      });
+    } else {
+      setSearchParams({});
+    }
   };
 
   const years = [1, 2, 3, 4];
@@ -122,6 +202,7 @@ function Students() {
         {/* ============================
             HEADER
         ============================ */}
+
         <div>
           <h1 className="text-3xl font-bold text-gray-800">
             Students
@@ -138,6 +219,7 @@ function Students() {
         {/* ============================
             LOADING
         ============================ */}
+
         {loading && (
           <div className="bg-white rounded-xl shadow p-8 text-center">
             <p className="text-gray-600">
@@ -149,6 +231,7 @@ function Students() {
         {/* ============================
             ERROR
         ============================ */}
+
         {!loading && error && (
           <div className="bg-white rounded-xl shadow p-8 text-center">
             <p className="text-red-600 font-medium">
@@ -162,6 +245,7 @@ function Students() {
             {/* ============================
                 YEAR CARDS
             ============================ */}
+
             <div>
               <h2 className="text-xl font-semibold text-gray-800 mb-5">
                 Select Year
@@ -179,7 +263,9 @@ function Students() {
                   return (
                     <button
                       key={year}
-                      onClick={() => handleYearClick(year)}
+                      onClick={() =>
+                        handleYearClick(year)
+                      }
                       className={`h-32 rounded-2xl border-2 transition-all duration-200 shadow-sm
                         ${
                           isSelected
@@ -217,10 +303,12 @@ function Students() {
             {/* ============================
                 SECTION CARDS
             ============================ */}
+
             {selectedYear && (
               <div className="bg-white rounded-2xl shadow-sm p-6">
 
                 <div className="flex items-center justify-between mb-6">
+
                   <div>
                     <h2 className="text-xl font-semibold text-gray-800">
                       {selectedYear} Year
@@ -232,72 +320,70 @@ function Students() {
                   </div>
 
                   <button
-                    onClick={() => {
-                      setSelectedYear(null);
-                      setSelectedSection(null);
-                    }}
+                    onClick={handleChangeYear}
                     className="text-sm text-gray-500 hover:text-orange-600"
                   >
                     Change Year
                   </button>
+
                 </div>
 
-                {getSectionsForYear(selectedYear).length ===
-                0 ? (
+                {getSectionsForYear(selectedYear)
+                  .length === 0 ? (
                   <div className="py-8 text-center text-gray-500">
                     No sections available for this year.
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
-                    {getSectionsForYear(selectedYear).map(
-                      (section) => {
-                        const sectionStudents =
-                          getStudentsForSection(
-                            selectedYear,
-                            section
-                          );
-
-                        const isSelected =
-                          selectedSection === section;
-
-                        return (
-                          <button
-                            key={section}
-                            onClick={() =>
-                              handleSectionClick(section)
-                            }
-                            className={`p-6 rounded-xl border-2 transition-all duration-200
-                              ${
-                                isSelected
-                                  ? "border-orange-600 bg-orange-50"
-                                  : "border-gray-200 bg-gray-50 hover:border-orange-400 hover:bg-orange-50"
-                              }`}
-                          >
-                            <div className="text-center">
-
-                              <div
-                                className={`text-xl font-bold ${
-                                  isSelected
-                                    ? "text-orange-600"
-                                    : "text-gray-800"
-                                }`}
-                              >
-                                Section {section}
-                              </div>
-
-                              <div className="text-sm text-gray-500 mt-2">
-                                {sectionStudents.length}{" "}
-                                {sectionStudents.length === 1
-                                  ? "Student"
-                                  : "Students"}
-                              </div>
-
-                            </div>
-                          </button>
+                    {getSectionsForYear(
+                      selectedYear
+                    ).map((section) => {
+                      const sectionStudents =
+                        getStudentsForSection(
+                          selectedYear,
+                          section
                         );
-                      }
-                    )}
+
+                      const isSelected =
+                        selectedSection === section;
+
+                      return (
+                        <button
+                          key={section}
+                          onClick={() =>
+                            handleSectionClick(section)
+                          }
+                          className={`p-6 rounded-xl border-2 transition-all duration-200
+                            ${
+                              isSelected
+                                ? "border-orange-600 bg-orange-50"
+                                : "border-gray-200 bg-gray-50 hover:border-orange-400 hover:bg-orange-50"
+                            }`}
+                        >
+                          <div className="text-center">
+
+                            <div
+                              className={`text-xl font-bold ${
+                                isSelected
+                                  ? "text-orange-600"
+                                  : "text-gray-800"
+                              }`}
+                            >
+                              Section {section}
+                            </div>
+
+                            <div className="text-sm text-gray-500 mt-2">
+                              {sectionStudents.length}{" "}
+                              {sectionStudents.length === 1
+                                ? "Student"
+                                : "Students"}
+                            </div>
+
+                          </div>
+                        </button>
+                      );
+                    })}
 
                   </div>
                 )}
@@ -307,6 +393,7 @@ function Students() {
             {/* ============================
                 STUDENT LIST
             ============================ */}
+
             {selectedYear && selectedSection && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
 
@@ -324,9 +411,7 @@ function Students() {
                     </div>
 
                     <button
-                      onClick={() =>
-                        setSelectedSection(null)
-                      }
+                      onClick={handleChangeSection}
                       className="text-sm text-gray-500 hover:text-orange-600"
                     >
                       Change Section
@@ -363,6 +448,7 @@ function Students() {
                             <div className="flex items-center gap-4">
 
                               {/* PROFILE PHOTO */}
+
                               <div className="w-12 h-12 rounded-full overflow-hidden bg-orange-100 flex items-center justify-center">
 
                                 {student.profilePhoto ? (
@@ -375,7 +461,8 @@ function Students() {
                                   <span className="text-orange-600 font-bold text-lg">
                                     {student.name
                                       ?.charAt(0)
-                                      ?.toUpperCase() || "S"}
+                                      ?.toUpperCase() ||
+                                      "S"}
                                   </span>
                                 )}
 
@@ -393,7 +480,8 @@ function Students() {
 
                                 <p className="text-sm text-gray-500">
                                   Register No:{" "}
-                                  {student.registerNumber || "-"}
+                                  {student.registerNumber ||
+                                    "-"}
                                 </p>
                               </div>
 
@@ -432,8 +520,10 @@ function Students() {
                 </div>
               </div>
             )}
+
           </>
         )}
+
       </div>
     </HodLayout>
   );

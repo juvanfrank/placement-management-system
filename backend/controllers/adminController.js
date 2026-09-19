@@ -739,6 +739,7 @@ exports.searchStudents = async (req, res) => {
       minTenthPercentage,
       minTwelthPercentage,
       skills,
+      skillMatch,
       historyOfArrears,
       historyOfArrearsCount,
       currentArrears,
@@ -840,31 +841,52 @@ exports.searchStudents = async (req, res) => {
     }
 
     // ==========================================
-    // SKILLS FILTER
-    //
-    // java / JAVA / Java
-    // ALL WILL MATCH
-    //
-    // Multiple selected skills:
-    // Student must have ALL selected skills
-    // ==========================================
+// SKILLS FILTER
+// ==========================================
+//
+// skillMatch = "together"
+// → Student must have ALL selected skills.
+//
+// skillMatch = "individually"
+// → Student must have ANY ONE selected skill.
+//
+// Example:
+// Java, Python, SQL
+//
+// Together:
+// Java AND Python AND SQL
+//
+// Individually:
+// Java OR Python OR SQL
+// ==========================================
 
-    if (skills && skills.trim()) {
-      const searchSkills = skills
-        .split(",")
-        .map((skill) => String(skill).trim().toLowerCase())
-        .filter(Boolean);
+if (skills && skills.trim()) {
+  const searchSkills = skills
+    .split(",")
+    .map((skill) => String(skill).trim().toLowerCase())
+    .filter(Boolean);
 
-      studentProfiles = studentProfiles.filter((profile) => {
-        const studentSkills = (profile.skills || [])
-          .map((skill) => String(skill).trim().toLowerCase())
-          .filter(Boolean);
+  const normalizedSkillMatch =
+    String(skillMatch || "together").trim().toLowerCase();
 
-        return searchSkills.every((searchSkill) =>
-          studentSkills.includes(searchSkill),
-        );
-      });
+  studentProfiles = studentProfiles.filter((profile) => {
+    const studentSkills = (profile.skills || [])
+      .map((skill) => String(skill).trim().toLowerCase())
+      .filter(Boolean);
+
+    // INDIVIDUALLY = ANY ONE skill
+    if (normalizedSkillMatch === "individually") {
+      return searchSkills.some((searchSkill) =>
+        studentSkills.includes(searchSkill),
+      );
     }
+
+    // TOGETHER = ALL skills
+    return searchSkills.every((searchSkill) =>
+      studentSkills.includes(searchSkill),
+    );
+  });
+}
 
     // ==========================================
     // HISTORY OF ARREARS
@@ -1078,6 +1100,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
       minTenthPercentage,
       minTwelthPercentage,
       skills,
+       skillMatch,
       historyOfArrears,
       historyOfArrearsCount,
       currentArrears,
@@ -1179,27 +1202,44 @@ exports.exportSearchStudentsExcel = async (req, res) => {
     }
 
     // ==========================================
-    // SKILLS FILTER
-    // STUDENT MUST HAVE ALL SELECTED SKILLS
-    // ==========================================
+// SKILLS FILTER
+// SAME LOGIC AS SEARCH
+// ==========================================
+//
+// Together:
+// ALL selected skills required.
+//
+// Individually:
+// ANY ONE selected skill is enough.
+// ==========================================
 
-    if (skills && skills.trim()) {
-      const searchSkills = skills
-        .split(",")
-        .map((skill) => String(skill).trim().toLowerCase())
-        .filter(Boolean);
+if (skills && skills.trim()) {
+  const searchSkills = skills
+    .split(",")
+    .map((skill) => String(skill).trim().toLowerCase())
+    .filter(Boolean);
 
-      studentProfiles = studentProfiles.filter((profile) => {
-        const studentSkills = (profile.skills || [])
-          .map((skill) => String(skill).trim().toLowerCase())
-          .filter(Boolean);
+  const normalizedSkillMatch =
+    String(skillMatch || "together").trim().toLowerCase();
 
-        return searchSkills.every((searchSkill) =>
-          studentSkills.includes(searchSkill),
-        );
-      });
+  studentProfiles = studentProfiles.filter((profile) => {
+    const studentSkills = (profile.skills || [])
+      .map((skill) => String(skill).trim().toLowerCase())
+      .filter(Boolean);
+
+    // INDIVIDUALLY = ANY ONE
+    if (normalizedSkillMatch === "individually") {
+      return searchSkills.some((searchSkill) =>
+        studentSkills.includes(searchSkill),
+      );
     }
 
+    // TOGETHER = ALL
+    return searchSkills.every((searchSkill) =>
+      studentSkills.includes(searchSkill),
+    );
+  });
+}
     // ==========================================
     // HISTORY OF ARREARS
     // ==========================================
@@ -1485,7 +1525,7 @@ exports.exportSearchStudentsExcel = async (req, res) => {
       { wch: 20 },
       { wch: 18 },
       { wch: 20 },
-      { wch:50  },
+      { wch: 50 },
     ];
 
     // ==========================================
@@ -1684,9 +1724,7 @@ exports.deleteStudents = async (req, res) => {
       role: "student",
     }).select("_id");
 
-    const validStudentIds = studentUsers.map((user) =>
-      user._id.toString()
-    );
+    const validStudentIds = studentUsers.map((user) => user._id.toString());
 
     // ==========================================
     // CHECK IF ANY INVALID ID WAS PROVIDED
@@ -1811,9 +1849,7 @@ exports.exportDeletionStudentsExcel = async (req, res) => {
     // REMOVE STUDENTS WITHOUT PROFILE
     // ==========================================
 
-    const validProfiles = studentProfiles.filter(
-      (profile) => profile.userId
-    );
+    const validProfiles = studentProfiles.filter((profile) => profile.userId);
 
     if (validProfiles.length !== uniqueStudentIds.length) {
       return res.status(400).json({
@@ -1832,8 +1868,8 @@ exports.exportDeletionStudentsExcel = async (req, res) => {
         {
           numeric: true,
           sensitivity: "base",
-        }
-      )
+        },
+      ),
     );
 
     // ==========================================
@@ -1987,10 +2023,7 @@ exports.exportDeletionStudentsExcel = async (req, res) => {
     // CREATE WORKSHEET
     // ==========================================
 
-    const worksheet = XLSX.utils.aoa_to_sheet([
-      headers,
-      ...rows,
-    ]);
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 
     // ==========================================
     // COLUMN WIDTHS
@@ -2045,11 +2078,7 @@ exports.exportDeletionStudentsExcel = async (req, res) => {
 
     const workbook = XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Students"
-    );
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
 
     // ==========================================
     // GENERATE XLSX BUFFER
@@ -2068,20 +2097,17 @@ exports.exportDeletionStudentsExcel = async (req, res) => {
 
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="student-deletion-backup-${date}.xlsx"`
+      `attachment; filename="student-deletion-backup-${date}.xlsx"`,
     );
 
     return res.status(200).send(excelBuffer);
   } catch (error) {
-    console.error(
-      "EXPORT DELETION STUDENTS EXCEL ERROR:",
-      error
-    );
+    console.error("EXPORT DELETION STUDENTS EXCEL ERROR:", error);
 
     return res.status(500).json({
       message: "Unable to export deletion students to Excel",
