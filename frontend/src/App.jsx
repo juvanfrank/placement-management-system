@@ -35,6 +35,7 @@ import DepartmentSections from "./pages/admin/DepartmentSections";
 import AdminStudents from "./pages/admin/Students";
 import AdminStudentDetails from "./pages/admin/StudentDetails";
 import AdminSearch from "./pages/admin/Search";
+import Deletion from "./pages/admin/Deletion";
 
 function App() {
   return (
@@ -70,6 +71,8 @@ function App() {
         <Route path="/admin/student/:id" element={<AdminStudentDetails />} />
 
         <Route path="/admin/search" element={<AdminSearch />} />
+
+        <Route path="/admin/deletion" element={<Deletion />} />
 
         {/* ==================== STUDENT ==================== */}
 

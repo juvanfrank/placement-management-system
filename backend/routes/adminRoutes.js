@@ -111,4 +111,37 @@ router.get(
   adminController.exportSearchStudentsExcel
 );
 
+// ==================================================
+// DELETION PANEL - SEARCH STUDENTS
+// ==================================================
+
+router.get(
+  "/deletion/students",
+  auth,
+  roleMiddleware("admin"),
+  adminController.getDeletionStudents
+);
+
+// ==================================================
+// DELETION PANEL - GENERATE EXCEL
+// ==================================================
+
+router.post(
+  "/deletion/students/export-excel",
+  auth,
+  roleMiddleware("admin"),
+  adminController.exportDeletionStudentsExcel
+);
+
+// // ==================================================
+// // DELETION PANEL - DELETE STUDENTS
+// // ==================================================
+
+router.delete(
+  "/deletion/students",
+  auth,
+  roleMiddleware("admin"),
+  adminController.deleteStudents
+);
+
 module.exports = router;
