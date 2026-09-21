@@ -17,6 +17,7 @@ function Search() {
     minTenthPercentage: "",
     minTwelthPercentage: "",
     skills: [],
+    skillMatch: "together",
     historyOfArrears: "",
     historyOfArrearsCount: "",
     currentArrears: "",
@@ -169,7 +170,10 @@ function Search() {
         value !== undefined
       ) {
         if (key === "skills") {
-          if (Array.isArray(value) && value.length > 0) {
+          if (
+            Array.isArray(value) &&
+            value.length > 0
+          ) {
             params[key] = value.join(",");
           }
         } else {
@@ -199,6 +203,11 @@ function Search() {
       );
 
       const params = buildParams();
+
+      console.log(
+        "SEARCH PARAMETERS:",
+        params
+      );
 
       const response = await api.get(
         "/admin/search-students",
@@ -326,6 +335,7 @@ function Search() {
       minTenthPercentage: "",
       minTwelthPercentage: "",
       skills: [],
+      skillMatch: "together",
       historyOfArrears: "",
       historyOfArrearsCount: "",
       currentArrears: "",
@@ -370,6 +380,7 @@ function Search() {
         {/* ========================================== */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+
           {/* DEPARTMENT */}
 
           <div>
@@ -674,6 +685,40 @@ function Search() {
               </div>
             )}
           </div>
+
+          {/* ========================================== */}
+          {/* SKILL MATCHING MODE */}
+          {/* ========================================== */}
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Skill Matching
+            </label>
+
+            <select
+              name="skillMatch"
+              value={filters.skillMatch}
+              onChange={handleChange}
+              disabled={filters.skills.length === 0}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-orange-400 disabled:bg-gray-100 disabled:text-gray-400"
+            >
+              <option value="together">
+                Together - All selected skills
+              </option>
+
+              <option value="individually">
+                Individually - Any selected skill
+              </option>
+            </select>
+
+            {filters.skills.length > 0 && (
+              <p className="text-xs text-gray-500 mt-2">
+                {filters.skillMatch === "together"
+                  ? "Student must have every selected skill."
+                  : "Student must have at least one selected skill."}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* ========================================== */}
@@ -717,9 +762,8 @@ function Search() {
 
       {searched && (
         <div className="bg-white rounded-xl shadow overflow-hidden">
-          {/* ========================================== */}
+
           {/* RESULTS HEADER */}
-          {/* ========================================== */}
 
           <div className="p-6 border-b flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
@@ -733,6 +777,7 @@ function Search() {
             </div>
 
             <div className="flex items-center gap-3">
+
               {/* COUNT */}
 
               <div className="bg-orange-100 text-orange-600 px-4 py-2 rounded-lg font-semibold">
@@ -754,6 +799,7 @@ function Search() {
                       <span className="animate-spin">
                         ⟳
                       </span>
+
                       Downloading...
                     </>
                   ) : (
@@ -767,9 +813,7 @@ function Search() {
             </div>
           </div>
 
-          {/* ========================================== */}
           {/* NO RESULTS */}
-          {/* ========================================== */}
 
           {students.length === 0 && !loading ? (
             <div className="p-10 text-center">
@@ -786,9 +830,7 @@ function Search() {
               </p>
             </div>
           ) : (
-            /* ========================================== */
             /* TABLE */
-            /* ========================================== */
 
             <div className="overflow-x-auto">
               <table className="w-full">

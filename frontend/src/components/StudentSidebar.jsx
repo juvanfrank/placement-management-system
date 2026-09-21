@@ -25,7 +25,6 @@ function StudentSidebar() {
 
           <Link to="/student/certificates">Certificates</Link>
 
-          <Link to="/student/cgpa">CGPA</Link>
 
         </div>
 
