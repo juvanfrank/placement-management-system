@@ -5,22 +5,20 @@ import logo from "../assets/logo.png";
 import collegeBg from "../assets/college.jpg";
 
 function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
-
     e.preventDefault();
 
     try {
-
       const response = await axios.post(
         "http://localhost:5000/api/auth/login",
         {
           email,
-          password
-        }
+          password,
+        },
       );
 
       console.log("LOGIN RESPONSE:", response.data);
@@ -36,37 +34,27 @@ function Login() {
       // redirect based on role
       if (role === "student") {
         window.location.replace("/student/profile");
-      }
-      else if (role === "mentor") {
+      } else if (role === "mentor") {
         window.location.replace("/mentor/profile");
-      }
-      else if (role === "hod") {
+      } else if (role === "hod") {
         window.location.replace("/hod/profile");
-      }
-      else if (role === "admin") {
+      } else if (role === "admin") {
         window.location.replace("/admin/profile");
       }
-
     } catch (error) {
-
       console.error(error);
       alert("Login failed");
-
     }
-
   };
 
   return (
-
     <div
       className="min-h-screen flex items-center justify-center relative bg-cover bg-center"
       style={{ backgroundImage: `url(${collegeBg})` }}
     >
-
       <div className="absolute inset-0 bg-black/60"></div>
 
       <div className="relative z-10 w-full max-w-md bg-white/95 rounded-2xl shadow-2xl p-8 border-t-8 border-orange-500">
-
         <div className="flex justify-center mb-4">
           <img src={logo} alt="Logo" className="h-16" />
         </div>
@@ -76,7 +64,6 @@ function Login() {
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-5">
-
           <input
             type="email"
             placeholder="Enter Email"
@@ -86,14 +73,25 @@ function Login() {
             className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500"
           />
 
-          <input
-            type="password"
-            placeholder="Enter Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-orange-500"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full p-3 pr-12 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-600"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
+          </div>
 
           <button
             type="submit"
@@ -101,7 +99,6 @@ function Login() {
           >
             Login
           </button>
-
         </form>
 
         <p className="text-center text-sm mt-6">
@@ -113,13 +110,9 @@ function Login() {
             Register here
           </Link>
         </p>
-
       </div>
-
     </div>
-
   );
-
 }
 
 export default Login;

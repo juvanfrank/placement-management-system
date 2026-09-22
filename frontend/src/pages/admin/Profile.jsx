@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../../components/AdminLayout";
+import ChangePassword from "../../components/ChangePassword";
 
 const API = "http://localhost:5000";
 
@@ -37,19 +38,13 @@ function Profile() {
         return;
       }
 
-      const response = await axios.get(
-        `${API}/api/admin/profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API}/api/admin/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      console.log(
-        "ADMIN PROFILE:",
-        response.data
-      );
+      console.log("ADMIN PROFILE:", response.data);
 
       setProfile(response.data);
 
@@ -57,18 +52,10 @@ function Profile() {
         name: response.data.name || "",
         email: response.data.email || "",
       });
-
     } catch (error) {
-      console.error(
-        "FETCH ADMIN PROFILE ERROR:",
-        error.response || error
-      );
+      console.error("FETCH ADMIN PROFILE ERROR:", error.response || error);
 
-      setError(
-        error.response?.data?.message ||
-        "Unable to load profile"
-      );
-
+      setError(error.response?.data?.message || "Unable to load profile");
     } finally {
       setLoading(false);
     }
@@ -128,10 +115,7 @@ function Profile() {
         return;
       }
 
-      if (
-        !editData.name.trim() ||
-        !editData.email.trim()
-      ) {
+      if (!editData.name.trim() || !editData.email.trim()) {
         alert("Name and email are required.");
         return;
       }
@@ -146,33 +130,20 @@ function Profile() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
-      console.log(
-        "ADMIN PROFILE UPDATE:",
-        response.data
-      );
+      console.log("ADMIN PROFILE UPDATE:", response.data);
 
       setProfile(response.data.admin);
 
       setEditing(false);
 
-      alert(
-        "Profile updated successfully 🎉"
-      );
-
+      alert("Profile updated successfully 🎉");
     } catch (error) {
-      console.error(
-        "UPDATE ADMIN PROFILE ERROR:",
-        error.response || error
-      );
+      console.error("UPDATE ADMIN PROFILE ERROR:", error.response || error);
 
-      alert(
-        error.response?.data?.message ||
-        "Profile update failed"
-      );
-
+      alert(error.response?.data?.message || "Profile update failed");
     } finally {
       setSaving(false);
     }
@@ -204,8 +175,7 @@ function Profile() {
     try {
       setUploading(true);
 
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       if (!token) {
         alert("Please login again.");
@@ -214,10 +184,7 @@ function Profile() {
 
       const uploadData = new FormData();
 
-      uploadData.append(
-        "photo",
-        file
-      );
+      uploadData.append("photo", file);
 
       const response = await axios.post(
         `${API}/api/upload/admin-profile-photo`,
@@ -225,40 +192,28 @@ function Profile() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type":
-              "multipart/form-data",
+            "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
-      console.log(
-        "ADMIN PHOTO UPLOAD RESPONSE:",
-        response.data
-      );
+      console.log("ADMIN PHOTO UPLOAD RESPONSE:", response.data);
 
       // UPDATE PROFILE PHOTO IMMEDIATELY
       setProfile((previous) => ({
         ...previous,
-        profilePhoto:
-          response.data.url,
+        profilePhoto: response.data.url,
       }));
 
-      alert(
-        "Profile photo uploaded successfully 🎉"
-      );
-
+      alert("Profile photo uploaded successfully 🎉");
     } catch (error) {
-      console.error(
-        "ADMIN PHOTO UPLOAD ERROR:",
-        error.response || error
-      );
+      console.error("ADMIN PHOTO UPLOAD ERROR:", error.response || error);
 
       alert(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Photo upload failed"
+          error.response?.data?.error ||
+          "Photo upload failed",
       );
-
     } finally {
       setUploading(false);
 
@@ -275,9 +230,7 @@ function Profile() {
     return (
       <AdminLayout>
         <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-600">
-            Loading profile...
-          </p>
+          <p className="text-gray-600">Loading profile...</p>
         </div>
       </AdminLayout>
     );
@@ -290,9 +243,7 @@ function Profile() {
   if (error) {
     return (
       <AdminLayout>
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg">
-          {error}
-        </div>
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg">{error}</div>
       </AdminLayout>
     );
   }
@@ -303,15 +254,12 @@ function Profile() {
 
   return (
     <AdminLayout>
-
       {/* ============================================== */}
       {/* PAGE HEADER */}
       {/* ============================================== */}
 
       <div className="bg-white rounded-xl shadow p-6 mb-6">
-
         <div className="flex justify-between items-center">
-
           <div>
             <h2 className="text-2xl font-bold text-orange-600">
               Admin Profile
@@ -330,9 +278,7 @@ function Profile() {
               Edit Profile
             </button>
           )}
-
         </div>
-
       </div>
 
       {/* ============================================== */}
@@ -340,13 +286,11 @@ function Profile() {
       {/* ============================================== */}
 
       <div className="bg-white rounded-xl shadow p-6 mb-6">
-
         <h3 className="text-lg font-semibold text-orange-600 mb-4">
           Profile Photo
         </h3>
 
         <div className="flex items-center gap-6">
-
           {/* PHOTO */}
 
           {profile?.profilePhoto ? (
@@ -364,7 +308,6 @@ function Profile() {
           {/* UPLOAD */}
 
           <div>
-
             <label
               htmlFor="admin-photo"
               className={`inline-block px-5 py-2 rounded-lg text-white cursor-pointer ${
@@ -373,9 +316,7 @@ function Profile() {
                   : "bg-orange-500 hover:bg-orange-600"
               }`}
             >
-              {uploading
-                ? "Uploading..."
-                : "Change Photo"}
+              {uploading ? "Uploading..." : "Change Photo"}
             </label>
 
             <input
@@ -388,14 +329,10 @@ function Profile() {
             />
 
             <p className="text-sm text-gray-500 mt-2">
-              JPG, PNG or other image files.
-              Maximum 5 MB.
+              JPG, PNG or other image files. Maximum 5 MB.
             </p>
-
           </div>
-
         </div>
-
       </div>
 
       {/* ============================================== */}
@@ -403,23 +340,17 @@ function Profile() {
       {/* ============================================== */}
 
       <div className="bg-white rounded-xl shadow p-6 mb-6">
-
         <h3 className="text-lg font-semibold text-orange-600 mb-6">
           Personal Details
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
           {/* NAME */}
 
           <div>
-
-            <label className="text-sm text-gray-500">
-              Name
-            </label>
+            <label className="text-sm text-gray-500">Name</label>
 
             {editing ? (
-
               <input
                 type="text"
                 name="name"
@@ -427,27 +358,19 @@ function Profile() {
                 onChange={handleChange}
                 className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
               />
-
             ) : (
-
               <div className="mt-1 p-3 bg-gray-50 rounded-lg">
                 {profile?.name || "-"}
               </div>
-
             )}
-
           </div>
 
           {/* EMAIL */}
 
           <div>
-
-            <label className="text-sm text-gray-500">
-              Email
-            </label>
+            <label className="text-sm text-gray-500">Email</label>
 
             {editing ? (
-
               <input
                 type="email"
                 name="email"
@@ -455,31 +378,22 @@ function Profile() {
                 onChange={handleChange}
                 className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
               />
-
             ) : (
-
               <div className="mt-1 p-3 bg-gray-50 rounded-lg">
                 {profile?.email || "-"}
               </div>
-
             )}
-
           </div>
 
           {/* ROLE */}
 
           <div>
-
-            <label className="text-sm text-gray-500">
-              Role
-            </label>
+            <label className="text-sm text-gray-500">Role</label>
 
             <div className="mt-1 p-3 bg-gray-50 rounded-lg capitalize">
               {profile?.role || "Admin"}
             </div>
-
           </div>
-
         </div>
 
         {/* ============================================ */}
@@ -487,9 +401,7 @@ function Profile() {
         {/* ============================================ */}
 
         {editing && (
-
           <div className="flex gap-4 mt-8">
-
             <button
               onClick={handleSave}
               disabled={saving}
@@ -499,9 +411,7 @@ function Profile() {
                   : "bg-green-600 hover:bg-green-700"
               }`}
             >
-              {saving
-                ? "Saving..."
-                : "Save Changes"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
 
             <button
@@ -511,13 +421,12 @@ function Profile() {
             >
               Cancel
             </button>
-
           </div>
-
         )}
-
       </div>
 
+      {/* CHANGE PASSWORD */}
+      <ChangePassword />
     </AdminLayout>
   );
 }

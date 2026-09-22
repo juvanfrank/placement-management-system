@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-
+dotenv.config();
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
@@ -13,7 +13,7 @@ const certificateRoutes = require("./routes/certificateRoutes");
 const cgpaRoutes = require("./routes/cgpaRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 
-dotenv.config();
+
 
 connectDB();
 

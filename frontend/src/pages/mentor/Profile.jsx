@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import MentorLayout from "../../components/MentorLayout";
+import ChangePassword from "../../components/ChangePassword";
 
 const API = "http://localhost:5000";
 
@@ -331,6 +332,9 @@ function MentorProfile() {
           </div>
         )}
       </div>
+
+      {/* change password */}
+      <ChangePassword />
     </MentorLayout>
   );
 }

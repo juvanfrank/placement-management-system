@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import HodLayout from "../../components/HodLayout";
+import ChangePassword from "../../components/ChangePassword";
 
 const API = "http://localhost:5000";
 
@@ -311,6 +312,9 @@ function Profile() {
         </div>
 
       </div>
+
+      {/* change password */}
+      <ChangePassword />
 
     </HodLayout>
   );

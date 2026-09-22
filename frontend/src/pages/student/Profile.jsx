@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StudentLayout from "../../components/StudentLayout";
+import ChangePassword from "../../components/ChangePassword";
 
 const API = "http://localhost:5000";
 
@@ -1159,6 +1160,10 @@ function Profile() {
         )}
 
       </div>
+      { /* chnage password */}
+
+      <ChangePassword />
+
     </StudentLayout>
   );
 }
